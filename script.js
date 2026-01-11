@@ -1,7 +1,7 @@
 // --- 1. CONEXIÓN CON SUPABASE ---
 // ¡Borra el texto entre comillas y pega tus llaves reales!
-const supabaseUrl = 'PEGAR_AQUI_TU_URL_DE_SUPABASE';
-const supabaseKey = 'PEGAR_AQUI_TU_ANON_KEY_DE_SUPABASE';
+const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
+const supabaseKey = 'sb_publishable_3H89NpZFdz1q9IDWZ0KtDQ_IX8F7xvn';
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // --- 2. CONFIGURACIÓN Y DATOS ---
