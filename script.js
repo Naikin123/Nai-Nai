@@ -1,7 +1,7 @@
 // --- 1. CONEXIÓN CON SUPABASE ---
 // ¡Borra el texto entre comillas y pega tus llaves reales!
 const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
-const supabaseKey = 'sb_publishable_3H89NpZFdz1q9IDWZ0KtDQ_IX8F7xvn';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // --- 2. CONFIGURACIÓN Y DATOS ---
