@@ -1,0 +1,58 @@
+/* DISEÑO BASE */
+body {
+    background-color: #0a0a0a !important;
+    color: white !important;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.top-bar {
+    position: sticky;
+    top: 0;
+    background: #0a0a0a;
+    padding: 10px;
+    border-bottom: 1px solid #333;
+    z-index: 100;
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-around;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: #00f2ff;
+    font-weight: bold;
+}
+
+/* VIDEOS */
+video {
+    width: 100%;
+    max-height: 450px;
+    background: black;
+    display: block;
+    margin: 10px 0;
+}
+
+/* BOTON ABAJO */
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+    background: linear-gradient(transparent, black);
+}
+
+.btn-upload {
+    background: #00f2ff;
+    color: black;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-weight: bold;
+    border: none;
+}
+
