@@ -1,34 +1,34 @@
-/* --- BASE DEL DISEÑO --- */
+BASE DEL DISEÑO
 
 body {
 
-    background-color: #0a0a0a;
-
-    color: white;
-
-    font-family: 'Segoe UI', sans-serif;
-
-    margin: 0;
-
-    padding: 0;
-
 }
+
+background-color: #0a0a0a;
+
+color: white;
+
+font-family: 'Segoe UI', sans-serif;
+
+margin: 0;
+
+padding: 0;
 
 /* BARRA SUPERIOR FIJA */
 
 .top-bar {
 
-    position: sticky;
+position: sticky;
 
-    top: 0;
+top: 0;
 
-    background: rgba(10, 10, 10, 0.95);
+background: rgba(10, 10, 10, 0.95);
 
-    z-index: 100;
+z-index: 100;
 
-    padding-top: 10px;
+padding-top: 10px;
 
-    border-bottom: 1px solid #333;
+border-bottom: 1px solid #333;
 
 }
 
@@ -36,9 +36,9 @@ body {
 
 .tab-btn {
 
-    background: none; border: none; color: #777;
+background: none; border: none; color: #777;
 
-    font-size: 1rem; font-weight: bold; padding: 5px 10px;
+font-size: 1rem; font-weight: bold; padding: 5px 10px;
 
 }
 
@@ -48,15 +48,122 @@ body {
 
 .tags-scroll {
 
-    display: flex; gap: 10px; overflow-x: auto;
+display: flex; gap: 10px; overflow-x: auto;
 
-    padding: 10px; white-space: nowrap;
-
-}
+padding: 10px; white-space: nowrap;
 
 .tag-pill {
 
-    background: #222; color: #aaa; padding: 5px 12px;
+}
 
-    border-radius: 15px; font-size: 0.85rem; border: 1px solid #333;
-    
+background: #222; color: #aaa; padding: 5px 12px;
+
+border-radius: 15px; font-size: 0.85rem; border: 1px solid #333;
+
+.tag-pill.activo { background: #00f2ff; color: black; font-weight: bold; }
+
+/* CONTENEDOR*/
+
+.app-container { padding: 10px; max-width: 500px; margin: 0 auto; }
+
+/* PERFIL MINI/
+
+.perfil-resumen {
+
+}
+
+display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+
+padding: 10px; background: #111; border-radius: 12px;
+
+#miAvatarMini { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #00f2ff; }
+
+gua-badge { background: #39ff14; color: black; padding: 2px 8px; border-radius: 3px; font-size:
+
+0.8rem; font-weight: bold; margin-left: auto; }
+
+/* TARJETA DE VIDEO */
+
+.post-card {
+
+background: #151515; border-radius: 15px;
+
+overflow: hidden; margin-bottom: 25px; border: 1px solid #222;
+
+}
+
+.post-header {
+
+padding: 10px; display: flex; justify-content: space-between; align-items: center;
+
+    }
+
+.btn-naria {
+
+}
+
+background: #222; color: #00f2ff; border: 1px solid #00f2ff;
+
+padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;
+
+.btn-naria.suscripto { background: #00f2ff; color: black; }
+
+video { width: 100%; display: block; background: black; max-height: 450px; }
+
+/* INTERACCIONES */
+
+.acciones { padding: 10px; display: flex; gap: 15px; }
+
+.btn-icon { background: none; border: none; color: white; font-size: 1.2rem; display: flex;
+
+align-items: center; gap: 5px; }
+
+/* SECCIÓN RECOMENDAR Y COMENTARIOS /
+
+.zona-extra { padding: 10px; border-top: 1px solid #222; background: #111; font-size: 0.9rem; }
+
+.rec-box { margin-bottom: 10px; padding: 8px; background: #lalala; border-radius: 3px; }
+
+.input-comentario {
+
+width: 70%; background: transparent; border: none; border-bottom: 1px solid #555;
+
+color: white; padding: 5px;
+
+}
+
+/* BOTÓN FLOTANTE ABAJO */
+
+.bottom-bar {
+
+position: fixed; bottom: 0; left: 0; width: 100%;
+
+background: linear-gradient(transparent, black);
+
+padding: 15px; text-align: center; pointer-events: none;
+
+}
+
+.btn-upload {
+
+    background: #00f2ff; color: black; font-weight: bold; font-size: trem;
+
+padding: 12px 30px; border-radius: 30px; border: none;
+
+box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+
+pointer-events: auto; cursor: pointer;
+
+MODAL
+
+modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; align-items: center; justify-content: center; }
+
+.modal-content { background: #lalala; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #00f2ff; }
+
+}
+
+grid-fotos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;
+
+grid-fotos img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 3px; border: 2px solid #333; }
+
+.btn-cerrar { margin-top: 15px; background: #39ff14; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; width: 100%; }
