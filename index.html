@@ -1,54 +1,61 @@
-  <!DOCTYPE html>
+    
 
-<html lang="es">
+    <div class="tags-scroll" id="listaTags">
 
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Nai Nai App</title>
-
-<link rel="stylesheet" href="style.css">
-
-</head>
-
-<body>
-
-<div class="top-bar">
-
-<div class="tabs">
-
-<button class="tab-btn activo" onclick="cambiarTab('global')">
-
-Red Global</button>
-
-<button class="tab-btn" onclick="cambiarTab('mios')">
-
-Mis Videos</button>
-
-</div>
-
-<div class="tags-scroll" id="listaTags">
-
-</div>
+        </div>
 
 </div>
 
 <div class="app-container">
 
-<div class="perfil-resumen">
+    
 
-<img id="miAvatarMini" src="https://i.ibb.co/jkcM4khz/file-
+    <div class="perfil-resumen">
 
-000000000bd461fb894402f0ff51670d.png" onclick="abrirPerfil()">
+        <img id="miAvatarMini" src="https://i.ibb.co/jkcM4khz/file-000000000bd461fb894402f0ff51670d.png" onclick="abrirPerfil()">
 
-<span style="color:#00f2ff; font-weight:bold;">Nai-kin</span>
+        <span style="color:#00f2ff; font-weight:bold;">Nai-kin</span>
 
-<span class="gua-badge">GUA: <span id="puntos Gua">600</span></span>
+        <span class="gua-badge">GUA: <span id="puntosGua">600</span></span>
+
+    </div>
+
+    <div id="feed-videos" class="feed-area"></div>
+
+    
+
+    <div style="height: 80px;"></div>
 
 </div>
-<div id="feed-videos" class="feed-area"></div>
 
+<div class="bottom-bar">
 
+    <input type="file" id="fileUpload" accept="video/*" style="display:none" onchange="procesarVideo(event)">
+
+    <button class="btn-upload" onclick="document.getElementById('fileUpload').click()">
+
+        📹 SUBIR VIDEO
+
+    </button>
+
+</div>
+
+<div id="modalPerfil" class="modal">
+
+    <div class="modal-content">
+
+        <h3>Tu Identidad</h3>
+
+        <div id="galeria" class="grid-fotos"></div>
+
+        <button onclick="document.getElementById('modalPerfil').style.display='none'" class="btn-cerrar">Guardar</button>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
