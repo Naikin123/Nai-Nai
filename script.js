@@ -176,3 +176,5 @@ async function subirVideoASupabase(event) {
     }
 }
 
+<input type="file" id="fileInput" accept="video/*"
+
