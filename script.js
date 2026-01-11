@@ -138,3 +138,41 @@ function cargarGaleria() {
 function cambiarTab(modo) {
     alert("Cambiando pestaña a: " + modo);
 }
+
+async function subirVideoASupabase(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 1. Subir el video a la carpeta "videos-bucket"
+    const fileName = `${Date.now()}_${file.name}`;
+    const { data: storageData, error: storageError } = await supabase.storage
+        .from('videos-bucket')
+        .upload(fileName, file);
+
+    if (storageError) {
+        alert('Error al subir archivo: ' + storageError.message);
+        return;
+    }
+
+    // 2. Obtener la URL pública del video que acabamos de subir
+    const { data: { publicUrl } } = supabase.storage
+        .from('videos-bucket')
+        .getPublicUrl(fileName);
+
+    // 3. Guardar esa URL en tu tabla de "videos"
+    const { error: tableError } = await supabase
+        .from('videos')
+        .insert([{ 
+            video_url: publicUrl, 
+            user_name: 'TuNombre', // Aquí puedes poner un prompt para el nombre
+            avatar_url: 'https://i.pravatar.cc/150' 
+        }]);
+
+    if (tableError) {
+        alert('Error al guardar en tabla: ' + tableError.message);
+    } else {
+        alert('¡Video publicado con éxito!');
+        location.reload(); // Recarga la página para ver el video
+    }
+}
+
