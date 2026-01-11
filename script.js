@@ -22,7 +22,8 @@ window.onload = () => {
 
 // --- 4. SUBIR VIDEO REAL A SUPABASE ---
 async function subirVideoASupabase(event) {
-    const file = event.target.files[0];
+const url = document.getElementById('videoUrl').value;
+    
     if (!file) return;
 
     alert("Subiendo video... espera unos segundos.");
