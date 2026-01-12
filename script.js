@@ -1,5 +1,4 @@
 // --- 1. CONEXIÓN CON SUPABASE ---
-// ¡Borra el texto entre comillas y pega tus llaves reales!
 const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -10,101 +9,120 @@ const categorias = [
     "Videojuegos", "Tutorial", "Vlog", "Musical", "Recetas"
 ];
 
-let usuarioActual = "Nai-kin";
+let usuarioActual = "Nai-kin"; // Nombre por defecto
 let avatarActual = "https://i.ibb.co/jkcM4khz/file-000000000bd461fb894402f0ff51670d.png";
 
 // --- 3. INICIO ---
 window.onload = () => {
     cargarTags();
     cargarGaleria();
-    cargarVideosDeSupabase(); // Cargar videos reales
+    cargarVideosDeSupabase(); 
 };
 
-// --- 4. SUBIR VIDEO REAL A SUPABASE ---
+// --- 4. SUBIR VIDEO (Función Maestra) ---
 async function subirVideoASupabase(event) {
-const url = document.getElementById('videoUrl').value;
-    
+    const file = event.target.files[0];
     if (!file) return;
 
-    alert("Subiendo video... espera unos segundos.");
+    alert("Subiendo video... Por favor espera.");
 
-    // Nombre único para el archivo
-    const nombreArchivo = 'video_' + Date.now() + '.mp4';
+    // A. Subir el video a la carpeta "videos-bucket"
+    const fileName = `${Date.now()}_${file.name}`;
+    
+    const { data: storageData, error: storageError } = await supabase.storage
+        .from('videos-bucket') // Asegúrate de que tu bucket se llame así
+        .upload(fileName, file);
 
-    // 1. Subir al "Storage" (Bucket llamado 'videos')
-    const { data, error } = await supabase
-        .storage
+    if (storageError) {
+        alert('Error al subir archivo: ' + storageError.message);
+        return;
+    }
+
+    // B. Obtener el Link Público del video
+    const { data: { publicUrl } } = supabase.storage
+        .from('videos-bucket')
+        .getPublicUrl(fileName);
+
+    // C. Guardar la info en la Tabla "videos"
+    const { error: tableError } = await supabase
         .from('videos')
-        .upload(nombreArchivo, file);
+        .insert([{ 
+            video_url: publicUrl, 
+            user_name: usuarioActual, 
+            avatar_url: avatarActual
+            // description: 'Video nuevo' (si agregaste esa columna)
+        }]);
 
-    if (error) {
-        alert("Error al subir: " + error.message);
-        console.error(error);
+    if (tableError) {
+        alert('Error al guardar en la base de datos: ' + tableError.message);
     } else {
-        alert("¡Video subido con éxito a la Nube!");
-        // Recargar la lista para ver el nuevo video
-        cargarVideosDeSupabase();
+        alert('¡Video publicado con éxito!');
+        location.reload(); 
     }
 }
 
-// --- 5. CARGAR VIDEOS DE SUPABASE ---
+// --- 5. CARGAR VIDEOS DE LA TABLA ---
 async function cargarVideosDeSupabase() {
     const contenedor = document.getElementById("feed-videos");
-    contenedor.innerHTML = '<p style="text-align:center; color:#00f2ff;">Cargando videos de la red...</p>';
+    contenedor.innerHTML = '<p style="text-align:center; color:#00f2ff;">Cargando videos...</p>';
 
-    // Pedimos la lista de archivos al Bucket 'videos'
+    // Leemos la TABLA "videos" ordenados por fecha (el más nuevo primero)
     const { data, error } = await supabase
-        .storage
         .from('videos')
-        .list();
+        .select('*')
+        .order('created_at', { ascending: false });
 
     if (error) {
         contenedor.innerHTML = '<p>Error cargando videos.</p>';
+        console.error(error);
     } else {
-        contenedor.innerHTML = ""; // Limpiar
-        if (data.length === 0) {
-            contenedor.innerHTML = "<p style='text-align:center;'>No hay videos aún. ¡Sube el primero!</p>";
+        contenedor.innerHTML = ""; // Limpiar mensaje de carga
+        
+        if (!data || data.length === 0) {
+            contenedor.innerHTML = "<p style='text-align:center;'>No hay videos aún.</p>";
             return;
         }
 
-        // Mostrar cada video encontrado
-        data.forEach(archivo => {
-            // Obtener la URL pública del video
-            const { data: publicUrlData } = supabase.storage.from('videos').getPublicUrl(archivo.name);
-            const urlVideo = publicUrlData.publicUrl;
-
-            crearTarjetaVideo(urlVideo, archivo.name);
+        // Crear una tarjeta por cada fila de la tabla
+        data.forEach(fila => {
+            crearTarjetaVideo(fila.video_url, fila.user_name, fila.avatar_url);
         });
     }
 }
 
 // --- 6. DIBUJAR LA TARJETA DEL VIDEO ---
-function crearTarjetaVideo(url, titulo) {
+function crearTarjetaVideo(url, usuario, avatar) {
     const contenedor = document.getElementById("feed-videos");
     let card = document.createElement("div");
     card.className = "post-card";
     
+    // Si no hay avatar o usuario en la base de datos, usamos unos por defecto
+    const userDisplay = usuario || "Anónimo";
+    const avatarDisplay = avatar || "https://i.pravatar.cc/150";
+
     card.innerHTML = `
         <div class="post-header">
             <div style="display: flex; align-items:center; gap:10px;">
-                <img src="${avatarActual}" style="width: 35px; height:35px; border-radius: 50%;">
+                <img src="${avatarDisplay}" style="width: 35px; height:35px; border-radius: 50%; object-fit: cover;">
                 <div>
-                    <div style="font-weight:bold;">Usuario Nai-Nai</div>
-                    <small style="color:#00f2ff;">Nuevo Video</small>
+                    <div style="font-weight:bold;">${userDisplay}</div>
+                    <small style="color:#00f2ff;">Video Sugerido</small>
                 </div>
             </div>
         </div>
-        <video src="${url}" controls loop playsinline></video>
+        <video src="${url}" controls playsinline style="width: 100%; border-radius: 10px; margin-top: 10px;"></video>
         <div class="acciones">
             <button class="btn-icon">❤️ Like</button>
+            <button class="btn-icon">💬 Comentar</button>
         </div>
     `;
-    contenedor.prepend(card); // Pone el más nuevo arriba
+    contenedor.appendChild(card); 
 }
 
 // --- 7. FUNCIONES EXTRAS (Diseño) ---
 function cargarTags() {
     const cont = document.getElementById("listaTags");
+    if(!cont) return; 
     cont.innerHTML = `<span class="tag-pill activo">Todo</span>`;
     categorias.forEach(cat => {
         cont.innerHTML += `<span class="tag-pill">${cat}</span>`;
@@ -118,63 +136,23 @@ const fotos = [
 ];
 
 function abrirPerfil() {
-    document.getElementById("modalPerfil").style.display = "flex";
+    const modal = document.getElementById("modalPerfil");
+    if(modal) modal.style.display = "flex";
 }
 
 function cargarGaleria() {
     const grid = document.getElementById("galeria");
+    if(!grid) return;
+    
     fotos.forEach(src => {
         let img = document.createElement("img");
         img.src = src;
         img.onclick = () => {
             avatarActual = src;
-            document.getElementById("miAvatarMini").src = src;
+            const imgMini = document.getElementById("miAvatarMini");
+            if(imgMini) imgMini.src = src;
             document.getElementById("modalPerfil").style.display = 'none';
         };
         grid.appendChild(img);
     });
 }
-
-function cambiarTab(modo) {
-    alert("Cambiando pestaña a: " + modo);
-}
-
-async function subirVideoASupabase(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // 1. Subir el video a la carpeta "videos-bucket"
-    const fileName = `${Date.now()}_${file.name}`;
-    const { data: storageData, error: storageError } = await supabase.storage
-        .from('videos-bucket')
-        .upload(fileName, file);
-
-    if (storageError) {
-        alert('Error al subir archivo: ' + storageError.message);
-        return;
-    }
-
-    // 2. Obtener la URL pública del video que acabamos de subir
-    const { data: { publicUrl } } = supabase.storage
-        .from('videos-bucket')
-        .getPublicUrl(fileName);
-
-    // 3. Guardar esa URL en tu tabla de "videos"
-    const { error: tableError } = await supabase
-        .from('videos')
-        .insert([{ 
-            video_url: publicUrl, 
-            user_name: 'TuNombre', // Aquí puedes poner un prompt para el nombre
-            avatar_url: 'https://i.pravatar.cc/150' 
-        }]);
-
-    if (tableError) {
-        alert('Error al guardar en tabla: ' + tableError.message);
-    } else {
-        alert('¡Video publicado con éxito!');
-        location.reload(); // Recarga la página para ver el video
-    }
-}
-
-<input type="file" id="fileInput" accept="video/*"
-
