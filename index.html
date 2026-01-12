@@ -1,83 +1,57 @@
-// --- 1. CONEXIÓN CON SUPABASE ---
-const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nai-Nai App</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
 
-// --- 2. CONFIGURACIÓN ---
-let usuarioActual = "Nai-kin";
-let avatarActual = "https://i.ibb.co/jkcM4khz/file-000000000bd461fb894402f0ff51670d.png";
-
-// --- 3. INICIO ---
-window.onload = () => {
-    cargarVideosDeSupabase();
-};
-
-// --- 4. FUNCIÓN PARA SUBIR EL VIDEO ---
-async function subirVideoASupabase(event) {
-    const file = event.target.files[0]; // Aquí obtenemos el archivo del celular
-    if (!file) return;
-
-    alert("Subiendo video... espera unos segundos.");
-
-    // A. Subir el archivo al Storage
-    const nombreArchivo = 'video_' + Date.now() + '.mp4';
-    const { data: storageData, error: storageError } = await supabase.storage
-        .from('videos-bucket') // <--- REVISA QUE TU BUCKET SE LLAME EXACTAMENTE ASÍ
-        .upload(nombreArchivo, file);
-
-    if (storageError) {
-        alert("Error al subir al storage: " + storageError.message);
-        return;
-    }
-
-    // B. Obtener el link público del video subido
-    const { data: { publicUrl } } = supabase.storage
-        .from('videos-bucket')
-        .getPublicUrl(nombreArchivo);
-
-    // C. Guardar el link en la tabla de la base de datos
-    const { error: tableError } = await supabase
-        .from('videos')
-        .insert([{ 
-            video_url: publicUrl, 
-            user_name: usuarioActual, 
-            avatar_url: avatarActual 
-        }]);
-
-    if (tableError) {
-        alert("Error al guardar en tabla: " + tableError.message);
-    } else {
-        alert("¡Video publicado!");
-        location.reload(); // Recarga para ver el video nuevo
-    }
-}
-
-// --- 5. CARGAR VIDEOS ---
-async function cargarVideosDeSupabase() {
-    const contenedor = document.getElementById("feed-videos");
-    const { data, error } = await supabase
-        .from('videos')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error("Error cargando:", error);
-        return;
-    }
-
-    contenedor.innerHTML = "";
-    data.forEach(video => {
-        const card = document.createElement("div");
-        card.className = "post-card";
-        card.innerHTML = `
-            <div class="post-header">
-                <img src="${video.avatar_url}" style="width:35px; border-radius:50%;">
-                <span style="font-weight:bold; margin-left:10px;">${video.user_name}</span>
+    <div class="top-bar">
+        <div class="tabs">
+            <button class="tab-btn">Siguiendo</button>
+            <button class="tab-btn activo">Para ti</button>
+        </div>
+        <div class="tags-scroll" id="listaTags">
             </div>
-            <video src="${video.video_url}" controls playsinline style="width:100%; border-radius:10px;"></video>
-        `;
-        contenedor.appendChild(card);
-    });
-}
-            
-<input type="file" id="fileInput" accept="video/*" onchange="subirVideoASupabase(event)">
+    </div>
+
+    <div class="app-container">
+        
+        <div class="perfil-resumen" onclick="abrirPerfil()">
+            <img id="miAvatarMini" src="https://i.ibb.co/jkcM4khz/file-000000000bd461fb894402f0ff51670d.png">
+            <div>
+                <div style="font-weight:bold; font-size:0.9rem;">Nai-Kin</div>
+                <div style="font-size:0.8rem; color:#777;">Toca para cambiar foto</div>
+            </div>
+            <div class="gua-badge">GUA</div>
+        </div>
+
+        <div id="feed-videos">
+            <p style="text-align: center; margin-top: 50px; color: #555;">Cargando videos...</p>
+        </div>
+        
+        <div style="height: 100px;"></div>
+    </div>
+
+    <div class="bottom-bar">
+        <input type="file" id="fileInput" accept="video/*" style="display: none;" onchange="subirVideoASupabase(event)">
+        
+        <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
+            + SUBIR VIDEO
+        </button>
+    </div>
+
+    <div id="modalPerfil" class="modal">
+        <div class="modal-content">
+            <h3>Elige tu Avatar</h3>
+            <div class="grid-fotos" id="galeria"></div>
+            <button class="btn-cerrar" onclick="document.getElementById('modalPerfil').style.display='none'">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
