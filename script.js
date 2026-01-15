@@ -30,7 +30,7 @@ async function subirVideoASupabase(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Validación simple de tamaño (opcional, máx 50MB para Supabase Free)
+    // Validación de tamaño (50MB límite)
     if (file.size > 50 * 1024 * 1024) {
         alert("El video es muy pesado (más de 50MB). Intenta con uno más corto.");
         return;
@@ -39,24 +39,24 @@ async function subirVideoASupabase(event) {
     alert("Subiendo video... Por favor no cierres la página.");
 
     try {
-        // A. Nombre único para evitar que se sobrescriban
-        const fileName = `${Date.now()}_${file.name.replace(/\s/g, '')}`; // Quita espacios
+        const fileName = `${Date.now()}_${file.name.replace(/\s/g, '')}`; // Nombre limpio
         
-        // B. Subir al Storage (Bucket: 'videos')
-        // CORREGIDO: Aquí pusimos 'videos' en lugar de 'videos-bucket'
+        // A. Subir al Storage (Bucket: 'videos')
         const { data: storageData, error: storageError } = await supabase.storage
-            .from('videos') 
+            .from('videos') // <--- CORRECTO: Coincide con tu Supabase
             .upload(fileName, file);
 
-        if (storageError) throw storageError;
+        if (storageError) {
+            console.error("Error Storage:", storageError);
+            throw new Error("Error subiendo el archivo. Revisa permisos en Supabase.");
+        }
 
-        // C. Obtener URL Pública
-        // CORREGIDO: Aquí también pusimos 'videos'
+        // B. Obtener URL Pública
         const { data: { publicUrl } } = supabase.storage
-            .from('videos')
+            .from('videos') // <--- CORRECTO
             .getPublicUrl(fileName);
 
-        // D. Guardar en la Tabla (videos)
+        // C. Guardar en la Tabla (videos)
         const { error: tableError } = await supabase
             .from('videos')
             .insert([{ 
@@ -65,14 +65,17 @@ async function subirVideoASupabase(event) {
                 avatar_url: avatarActual
             }]);
 
-        if (tableError) throw tableError;
+        if (tableError) {
+            console.error("Error Tabla:", tableError);
+            throw new Error("Error guardando datos en la tabla.");
+        }
 
         alert('¡Video publicado con éxito!');
         location.reload(); 
 
     } catch (error) {
-        console.error(error);
-        alert('Error: ' + error.message);
+        console.error("Detalle:", error);
+        alert('Ocurrió un error: ' + error.message);
     }
 }
 
@@ -87,15 +90,15 @@ async function cargarVideosDeSupabase() {
         .order('created_at', { ascending: false }); // Más nuevos primero
 
     if (error) {
-        contenedor.innerHTML = '<p style="text-align:center;">Error al cargar videos.</p>';
-        console.error(error);
+        // Si falla, mostramos esto en consola pero no borramos todo agresivamente
+        console.error("Error al cargar videos:", error);
         return;
     }
 
     contenedor.innerHTML = ""; // Limpiar mensaje de carga
     
     if (!data || data.length === 0) {
-        contenedor.innerHTML = "<p style='text-align:center; color:#777;'>No hay videos aún. ¡Sé el primero!</p>";
+        contenedor.innerHTML = "<p style='text-align:center; color:#777; margin-top:20px;'>No hay videos aún. ¡Sé el primero!</p>";
         return;
     }
 
@@ -167,56 +170,3 @@ function cargarGaleria() {
         grid.appendChild(img);
     });
 }
-
-async function subirVideoASupabase(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    if (file.size > 50 * 1024 * 1024) {
-        alert("El video es muy pesado. Intenta con uno más corto.");
-        return;
-    }
-
-    alert("Subiendo video... Por favor no cierres la página.");
-
-    try {
-        const fileName = `${Date.now()}_${file.name.replace(/\s/g, '')}`;
-        
-        // Subida al storage
-        const { data: storageData, error: storageError } = await supabase.storage
-            .from('videos') // Asegúrate que en Supabase se llame exactamente así
-            .upload(fileName, file);
-
-        if (storageError) {
-            console.error("Error de Storage:", storageError);
-            throw new Error("No tienes permisos para subir archivos. Revisa las políticas RLS en Supabase.");
-        }
-
-        // Obtener link
-        const { data: { publicUrl } } = supabase.storage
-            .from('videos')
-            .getPublicUrl(fileName);
-
-        // Guardar en tabla
-        const { error: tableError } = await supabase
-            .from('videos')
-            .insert([{ 
-                video_url: publicUrl, 
-                user_name: usuarioActual, 
-                avatar_url: avatarActual
-            }]);
-
-        if (tableError) {
-            console.error("Error de Tabla:", tableError);
-            throw new Error("Error al registrar el video en la base de datos.");
-        }
-
-        alert('¡Video publicado con éxito!');
-        location.reload(); 
-
-    } catch (error) {
-        console.error("Detalle del error:", error);
-        alert(error.message);
-    }
-}
-
