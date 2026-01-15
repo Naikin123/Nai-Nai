@@ -30,9 +30,9 @@ async function subirVideoASupabase(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Validación simple de tamaño (opcional, máx 50MB)
+    // Validación simple de tamaño (opcional, máx 50MB para Supabase Free)
     if (file.size > 50 * 1024 * 1024) {
-        alert("El video es muy pesado. Intenta con uno más corto.");
+        alert("El video es muy pesado (más de 50MB). Intenta con uno más corto.");
         return;
     }
 
@@ -42,16 +42,18 @@ async function subirVideoASupabase(event) {
         // A. Nombre único para evitar que se sobrescriban
         const fileName = `${Date.now()}_${file.name.replace(/\s/g, '')}`; // Quita espacios
         
-        // B. Subir al Storage (Bucket: videos-bucket)
+        // B. Subir al Storage (Bucket: 'videos')
+        // CORREGIDO: Aquí pusimos 'videos' en lugar de 'videos-bucket'
         const { data: storageData, error: storageError } = await supabase.storage
-            .from('videos-bucket') 
+            .from('videos') 
             .upload(fileName, file);
 
         if (storageError) throw storageError;
 
         // C. Obtener URL Pública
+        // CORREGIDO: Aquí también pusimos 'videos'
         const { data: { publicUrl } } = supabase.storage
-            .from('videos-bucket')
+            .from('videos')
             .getPublicUrl(fileName);
 
         // D. Guardar en la Tabla (videos)
