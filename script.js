@@ -167,3 +167,56 @@ function cargarGaleria() {
         grid.appendChild(img);
     });
 }
+
+async function subirVideoASupabase(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 50 * 1024 * 1024) {
+        alert("El video es muy pesado. Intenta con uno más corto.");
+        return;
+    }
+
+    alert("Subiendo video... Por favor no cierres la página.");
+
+    try {
+        const fileName = `${Date.now()}_${file.name.replace(/\s/g, '')}`;
+        
+        // Subida al storage
+        const { data: storageData, error: storageError } = await supabase.storage
+            .from('videos') // Asegúrate que en Supabase se llame exactamente así
+            .upload(fileName, file);
+
+        if (storageError) {
+            console.error("Error de Storage:", storageError);
+            throw new Error("No tienes permisos para subir archivos. Revisa las políticas RLS en Supabase.");
+        }
+
+        // Obtener link
+        const { data: { publicUrl } } = supabase.storage
+            .from('videos')
+            .getPublicUrl(fileName);
+
+        // Guardar en tabla
+        const { error: tableError } = await supabase
+            .from('videos')
+            .insert([{ 
+                video_url: publicUrl, 
+                user_name: usuarioActual, 
+                avatar_url: avatarActual
+            }]);
+
+        if (tableError) {
+            console.error("Error de Tabla:", tableError);
+            throw new Error("Error al registrar el video en la base de datos.");
+        }
+
+        alert('¡Video publicado con éxito!');
+        location.reload(); 
+
+    } catch (error) {
+        console.error("Detalle del error:", error);
+        alert(error.message);
+    }
+}
+
