@@ -3,29 +3,38 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 async function cargarVideos() {
-    const { data, error } = await supabase
-        .from('videos')
-        .select('*')
-        .order('id', { ascending: false });
-
     const contenedor = document.getElementById("feed-videos");
     if (!contenedor) return;
-    contenedor.innerHTML = ""; 
 
-    if (data) {
+    try {
+        const { data, error } = await supabase
+            .from('videos')
+            .select('*')
+            .order('id', { ascending: false });
+
+        if (error) throw error;
+
+        contenedor.innerHTML = ""; 
+
+        if (data.length === 0) {
+            contenedor.innerHTML = '<p style="color:white; text-align:center;">No hay videos aún. ¡Sé el primero!</p>';
+            return;
+        }
+
         data.forEach(v => {
             const card = document.createElement("div");
             card.className = "post-card";
-            // USAMOS TUS COLUMNAS: url, usuario, avatar
             card.innerHTML = `
                 <div class="user-info">
                     <img src="${v.avatar || 'https://i.ibb.co/jkcM4khz/file.png'}" class="avatar">
                     <span>${v.usuario || 'Nai-Kin'}</span>
                 </div>
-                <video src="${v.url}" controls loop playsinline style="width:100%"></video>
+                <video src="${v.url}" controls loop playsinline style="width:100%; border-radius:10px;"></video>
             `;
             contenedor.appendChild(card);
         });
+    } catch (err) {
+        contenedor.innerHTML = '<p style="color:red; text-align:center;">Error al conectar.</p>';
     }
 }
 
@@ -33,23 +42,24 @@ async function subirVideoASupabase(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    alert("Subiendo video... espera a que salga el aviso de éxito.");
+    alert("⏳ Subiendo video... espera el mensaje de éxito.");
 
     try {
         const fileName = `${Date.now()}_video.mp4`;
         
-        // 1. Subir al Bucket 'VIDEOS' (como en tu foto 1000044610.png)
+        // 1. Subir al Storage (Bucket VIDEOS en mayúsculas)
         const { data: storageData, error: storageError } = await supabase.storage
             .from('VIDEOS')
             .upload(fileName, file);
 
         if (storageError) throw storageError;
 
+        // 2. Obtener URL
         const { data: { publicUrl } } = supabase.storage
             .from('VIDEOS')
             .getPublicUrl(fileName);
 
-        // 2. Insertar en tabla 'videos' (columnas: url, usuario, avatar)
+        // 3. Insertar en Tabla 'videos' (usando url, usuario, avatar)
         const { error: tableError } = await supabase
             .from('videos')
             .insert([{ 
@@ -60,12 +70,11 @@ async function subirVideoASupabase(event) {
 
         if (tableError) throw tableError;
 
-        alert('¡Video subido con éxito!');
+        alert('✅ ¡Video subido con éxito!');
         cargarVideos(); 
 
     } catch (error) {
-        alert('Error: ' + error.message);
-        console.error(error);
+        alert('❌ Error: ' + error.message);
     }
 }
 
