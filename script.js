@@ -2,17 +2,13 @@ const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// 1. CARGAR VIDEOS
+// 1. CARGAR VIDEOS (Busca en cualquier columna)
 async function cargarVideos() {
     const contenedor = document.getElementById("feed-videos");
     if (!contenedor) return;
 
     try {
-        const { data, error } = await _supabase
-            .from('videos')
-            .select('*')
-            .order('id', { ascending: false });
-
+        const { data, error } = await _supabase.from('videos').select('*').order('id', { ascending: false });
         if (error) throw error;
         contenedor.innerHTML = ""; 
 
@@ -22,9 +18,8 @@ async function cargarVideos() {
         }
 
         data.forEach(v => {
-            // Intentamos leer cualquier columna que tenga el link
-            const linkVideo = v.video_url || v.url || v.link;
-            if (linkVideo) {
+            const link = v.video_url || v.url || v.link; // Prueba varios nombres
+            if (link) {
                 const card = document.createElement("div");
                 card.className = "post-card";
                 card.style = "margin-bottom: 25px; background: #111; border-radius: 15px; padding: 12px; border: 1px solid #333;";
@@ -33,17 +28,15 @@ async function cargarVideos() {
                         <img src="https://i.ibb.co/jkcM4khz/file.png" style="width:45px; height:45px; border-radius:50%; margin-right:12px; border: 2px solid #00f2ea;">
                         <span style="color:white; font-weight:bold;">Usuario</span>
                     </div>
-                    <video src="${linkVideo}" controls loop playsinline style="width:100%; border-radius:10px; background:black;"></video>
+                    <video src="${link}" controls loop playsinline style="width:100%; border-radius:10px; background:black;"></video>
                 `;
                 contenedor.appendChild(card);
             }
         });
-    } catch (err) {
-        console.error(err);
-    }
+    } catch (err) { console.error(err); }
 }
 
-// 2. SUBIR VIDEO
+// 2. SUBIR VIDEO (Intenta múltiples nombres de columna)
 async function subirVideoASupabase(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -55,8 +48,6 @@ async function subirVideoASupabase(event) {
 
     try {
         const fileName = `${Date.now()}_video.mp4`;
-        
-        // Subida al bucket 'videos'
         const { data: storageData, error: storageError } = await _supabase.storage
             .from('videos')
             .upload(fileName, file, {
@@ -68,24 +59,25 @@ async function subirVideoASupabase(event) {
 
         if (storageError) throw storageError;
 
-        const { data: { publicUrl } } = _supabase.storage
-            .from('videos')
-            .getPublicUrl(fileName);
+        const { data: { publicUrl } } = _supabase.storage.from('videos').getPublicUrl(fileName);
 
-        // --- EL CAMBIO IMPORTANTE ---
-        // Vamos a intentar insertar solo la URL. Si falla, probamos con la otra columna.
-        let insertData = { video_url: publicUrl };
+        // --- PRUEBA DE COLUMNAS ---
+        // Intentamos insertar con 'video_url', si falla, intentamos con 'url'
+        let errorFinal;
         
-        const { error: tableError } = await _supabase.from('videos').insert([insertData]);
+        const prueba1 = await _supabase.from('videos').insert([{ video_url: publicUrl }]);
+        if (!prueba1.error) { exitoso(); return; }
 
-        if (tableError) {
-            console.log("Reintentando con columna 'url'...");
-            const { error: retryError } = await _supabase.from('videos').insert([{ url: publicUrl }]);
-            if (retryError) throw retryError;
+        const prueba2 = await _supabase.from('videos').insert([{ url: publicUrl }]);
+        if (!prueba2.error) { exitoso(); return; }
+
+        // Si llega aquí, es que fallaron ambos
+        throw new Error("No encontré las columnas 'video_url' ni 'url' en tu tabla.");
+
+        function exitoso() {
+            status.innerHTML = "<h2 style='color:#2ecc71'>✅ ¡LOGRADO!</h2>";
+            setTimeout(() => location.reload(), 1500);
         }
-
-        status.innerHTML = "<h2 style='color:#2ecc71'>✅ ¡LISTO!</h2>";
-        setTimeout(() => location.reload(), 1500);
 
     } catch (error) {
         status.remove();
@@ -93,7 +85,6 @@ async function subirVideoASupabase(event) {
     }
 }
 
-// Conectar todo
 document.addEventListener('DOMContentLoaded', () => {
     cargarVideos();
     const btn = document.querySelector('input[type="file"]');
