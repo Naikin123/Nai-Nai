@@ -21,7 +21,7 @@ async function cargarVideos() {
                 card.style = "margin-bottom: 25px; background: #111; border-radius: 15px; padding: 10px; border: 1px solid #333;";
                 card.innerHTML = `
                     <div style="display:flex; align-items:center; margin-bottom:10px;">
-                        <img src="${v.avatar || 'https://i.ibb.co/jkcM4khz/file.png'}" style="width:40px; height:40px; border-radius:50%; margin-right:10px; border: 1px solid #00f2ea;">
+                        <img src="${v.avatar || 'https://i.ibb.co/jkcM4khz/file.png'}" style="width:40px; height:40px; border-radius:50%; margin-right:10px; border: 2px solid #00f2ea;">
                         <span style="color:white; font-weight:bold;">${v.usuario || 'Nai-Kin'}</span>
                     </div>
                     <video src="${link}" controls loop playsinline style="width:100%; border-radius:10px; background:black;"></video>
@@ -36,7 +36,6 @@ async function subirVideoASupabase(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Crear cartel de estado persistente
     const status = document.createElement("div");
     status.id = "overlay-carga";
     status.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; display:flex; align-items:center; justify-content:center; color:#00f2ea; text-align:center; font-family:sans-serif; padding:20px;";
@@ -44,61 +43,43 @@ async function subirVideoASupabase(event) {
         <div id="box-carga" style="border: 2px solid #00f2ea; padding: 30px; border-radius: 20px; background:#000; width:100%; max-width:350px;">
             <h2 id="txt-estado">ENVIANDO...</h2>
             <h1 id="num-porcentaje" style="font-size:60px; margin:10px 0;">0%</h1>
-            <p id="txt-detalle" style="color:white; font-size:12px;">Subiendo archivo al servidor...</p>
+            <p id="txt-detalle" style="color:white; font-size:12px;">Subiendo archivo...</p>
         </div>
     `;
     document.body.appendChild(status);
 
     try {
         const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-        
-        // 1. INTENTAR SUBIDA AL STORAGE
         const { data, error: storageError } = await _supabase.storage
             .from('videos')
             .upload(fileName, file, {
-                cacheControl: '3600',
-                upsert: false,
                 onUploadProgress: (p) => {
                     const progreso = Math.round((p.loaded / p.total) * 100);
                     document.getElementById("num-porcentaje").innerText = progreso + "%";
                 }
             });
 
-        if (storageError) {
-            throw new Error("ERROR STORAGE: " + storageError.message);
-        }
+        if (storageError) throw new Error("ERROR STORAGE: " + storageError.message);
 
-        document.getElementById("txt-detalle").innerText = "Archivo subido. Registrando en base de datos...";
-
-        // 2. OBTENER URL PÚBLICA
         const { data: { publicUrl } } = _supabase.storage.from('videos').getPublicUrl(fileName);
 
-        // 3. INSERTAR EN LA TABLA
         const { error: tableError } = await _supabase.from('videos').insert([{ 
             video_url: publicUrl, 
             usuario: "Nai-Kin",
             avatar: "https://i.ibb.co/jkcM4khz/file.png"
         }]);
 
-        if (tableError) {
-            throw new Error("ERROR TABLA: " + tableError.message);
-        }
+        if (tableError) throw new Error("ERROR TABLA: " + tableError.message);
 
-        // ÉXITO
         document.getElementById("box-carga").style.borderColor = "#2ecc71";
         document.getElementById("txt-estado").innerText = "¡COMPLETO!";
-        document.getElementById("txt-estado").style.color = "#2ecc71";
         setTimeout(() => location.reload(), 1500);
 
     } catch (error) {
-        // ERROR: No quitamos el cartel, lo ponemos rojo para que veas el error
-        console.error(error);
-        const box = document.getElementById("box-carga");
-        box.style.borderColor = "red";
-        document.getElementById("txt-estado").innerText = "FALLLÓ";
-        document.getElementById("txt-estado").style.color = "red";
-        document.getElementById("num-porcentaje").style.color = "red";
-        document.getElementById("txt-detalle").innerHTML = `<span style="color:red;">${error.message}</span><br><br><button onclick="location.reload()" style="background:white; border:none; padding:10px; border-radius:5px;">Reintentar</button>`;
+        document.getElementById("box-carga").style.borderColor = "red";
+        document.getElementById("txt-estado").innerText = "ERROR";
+        document.getElementById("txt-detalle").innerText = error.message;
+        setTimeout(() => status.remove(), 4000);
     }
 }
 
@@ -107,12 +88,3 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.querySelector('input[type="file"]');
     if (btn) btn.addEventListener('change', subirVideoASupabase);
 });
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-    // PEGA AQUÍ EL CÓDIGO QUE TE PASÉ (el que empieza con const supabaseUrl...)
-    // Asegúrate de que no haya texto extraño fuera de estas etiquetas.
-</script>
-</body>
-</html>
-
