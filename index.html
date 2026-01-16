@@ -1,4 +1,33 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script> 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nai-Nai App</title>
+    <style>
+        body { background-color: #000; color: white; font-family: sans-serif; margin: 0; padding: 0; }
+        .header { padding: 20px; text-align: center; border-bottom: 1px solid #222; position: sticky; top: 0; background: black; z-index: 100; }
+        #feed-videos { max-width: 500px; margin: 20px auto; padding: 10px; }
+        .upload-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #00f2ea; color: black; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; border: none; z-index: 1000; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2 style="color: #00f2ea;">Nai-Nai</h2>
+    </div>
+
+    <div id="feed-videos">
+        <p style="text-align:center; color:gray; padding:50px;">Cargando videos...</p>
+    </div>
+
+    <label class="upload-btn">
+        + SUBIR VIDEO
+        <input type="file" accept="video/*" style="display: none;">
+    </label>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
 </body>
 </html>
+
