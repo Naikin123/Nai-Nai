@@ -17,5 +17,64 @@ async function cargarVideos() {
         contenedor.innerHTML = ""; 
 
         if (!data || data.length === 0) {
-            contenedor.
-                
+            contenedor.innerHTML = '<p style="color:white; text-align:center; padding:20px;">Todavía no hay videos. ¡Sube el primero!</p>';
+            return;
+        }
+
+        data.forEach(v => {
+            const card = document.createElement("div");
+            card.className = "post-card";
+            card.innerHTML = `
+                <div class="user-info">
+                    <img src="${v.avatar || 'https://i.ibb.co/jkcM4khz/file.png'}" class="avatar">
+                    <span>${v.usuario || 'Nai-Kin'}</span>
+                </div>
+                <video src="${v.url}" controls loop playsinline style="width:100%; border-radius:12px; margin-top:10px;"></video>
+            `;
+            contenedor.appendChild(card);
+        });
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function subirVideoASupabase(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    alert("⏳ Subiendo video... espera un momento.");
+
+    try {
+        const fileName = `${Date.now()}_video.mp4`;
+        
+        // CORRECCIÓN AQUÍ: 'videos' en minúsculas
+        const { data: storageData, error: storageError } = await _supabase.storage
+            .from('videos')
+            .upload(fileName, file);
+
+        if (storageError) throw storageError;
+
+        // CORRECCIÓN AQUÍ TAMBIÉN
+        const { data: { publicUrl } } = _supabase.storage
+            .from('videos')
+            .getPublicUrl(fileName);
+
+        const { error: tableError } = await _supabase
+            .from('videos')
+            .insert([{ 
+                url: publicUrl, 
+                usuario: "Nai-Kin", 
+                avatar: "https://i.ibb.co/jkcM4khz/file.png"
+            }]);
+
+        if (tableError) throw tableError;
+
+        alert('✅ ¡Video subido con éxito!');
+        location.reload(); 
+
+    } catch (error) {
+        alert('❌ Error: ' + error.message);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', cargarVideos);
