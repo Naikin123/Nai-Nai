@@ -2,7 +2,7 @@ const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// 1. CARGAR VIDEOS
+// --- 1. CARGAR VIDEOS ---
 async function cargarVideos() {
     const contenedor = document.getElementById("feed-videos");
     if (!contenedor) return;
@@ -22,7 +22,6 @@ async function cargarVideos() {
         }
 
         data.forEach(v => {
-            // Usamos video_url que es como se llama en tu base de datos
             const linkVideo = v.video_url || v.url;
             const nombreUser = v.user_name || v.usuario || 'Nai-Kin';
             const linkAvatar = v.avatar_url || v.avatar || 'https://i.ibb.co/jkcM4khz/file.png';
@@ -46,13 +45,14 @@ async function cargarVideos() {
     }
 }
 
-// 2. SUBIR VIDEO
+// --- 2. SUBIR VIDEO ---
 async function subirVideoASupabase(event) {
-    const file = event.target.files[0];
+    // Si se llama desde addEventListener, el archivo está en 'this.files' o 'event.target.files'
+    const input = event.target; 
+    const file = input.files[0];
     if (!file) return;
 
-    // AVISO: Muestra que detectó el archivo
-    alert("¡Video detectado! Empezando subida...");
+    alert("¡CONEXIÓN EXITOSA! Iniciando subida...");
 
     // BARRA DE PROGRESO
     const status = document.createElement("div");
@@ -67,7 +67,7 @@ async function subirVideoASupabase(event) {
     try {
         const fileName = `${Date.now()}_video.mp4`;
         
-        // CORRECCIÓN: Usamos 'videos' en minúsculas (Tu captura 1000044673.png lo confirma)
+        // Usamos 'videos' en minúsculas (el que sabemos que existe)
         const { data: storageData, error: storageError } = await _supabase.storage
             .from('videos')
             .upload(fileName, file, {
@@ -86,7 +86,6 @@ async function subirVideoASupabase(event) {
             .from('videos')
             .getPublicUrl(fileName);
 
-        // CORRECCIÓN: Usamos video_url, user_name, avatar_url
         const { error: tableError } = await _supabase
             .from('videos')
             .insert([{ 
@@ -97,15 +96,30 @@ async function subirVideoASupabase(event) {
 
         if (tableError) throw tableError;
 
-        status.innerHTML = "<h2 style='color:#2ecc71'>✅ ¡Subido con éxito!</h2>";
+        status.innerHTML = "<h2 style='color:#2ecc71'>✅ ¡LISTO!</h2>";
         setTimeout(() => location.reload(), 1500);
 
     } catch (error) {
-        // Si falla, borramos el cartel de carga y mostramos el error
         status.remove();
         alert('❌ Error: ' + error.message);
     }
 }
 
+// --- 3. AUTO-CONEXIÓN (La parte nueva) ---
+document.addEventListener('DOMContentLoaded', () => {
+    cargarVideos();
+    
+    // Buscamos cualquier botón de tipo archivo en tu página
+    const inputArchivo = document.querySelector('input[type="file"]');
+    
+    if (inputArchivo) {
+        // Le conectamos la función manualmente
+        inputArchivo.addEventListener('change', subirVideoASupabase);
+        console.log("Botón de subida encontrado y conectado.");
+    } else {
+        alert("⚠️ ERROR: No encuentro el botón <input type='file'> en tu página HTML. Revisa tu código.");
+    }
+});
+
+// Mantener esto por si acaso
 window.subirVideoASupabase = subirVideoASupabase;
-document.addEventListener('DOMContentLoaded', cargarVideos);
