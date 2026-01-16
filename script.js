@@ -2,7 +2,7 @@ const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// --- 1. CARGAR VIDEOS ---
+// 1. CARGAR VIDEOS
 async function cargarVideos() {
     const contenedor = document.getElementById("feed-videos");
     if (!contenedor) return;
@@ -22,18 +22,16 @@ async function cargarVideos() {
         }
 
         data.forEach(v => {
-            const linkVideo = v.video_url || v.url;
-            const nombreUser = v.user_name || v.usuario || 'Nai-Kin';
-            const linkAvatar = v.avatar_url || v.avatar || 'https://i.ibb.co/jkcM4khz/file.png';
-
+            // Intentamos leer cualquier columna que tenga el link
+            const linkVideo = v.video_url || v.url || v.link;
             if (linkVideo) {
                 const card = document.createElement("div");
                 card.className = "post-card";
                 card.style = "margin-bottom: 25px; background: #111; border-radius: 15px; padding: 12px; border: 1px solid #333;";
                 card.innerHTML = `
                     <div style="display:flex; align-items:center; margin-bottom:12px;">
-                        <img src="${linkAvatar}" style="width:45px; height:45px; border-radius:50%; margin-right:12px; border: 2px solid #00f2ea;">
-                        <span style="color:white; font-weight:bold;">${nombreUser}</span>
+                        <img src="https://i.ibb.co/jkcM4khz/file.png" style="width:45px; height:45px; border-radius:50%; margin-right:12px; border: 2px solid #00f2ea;">
+                        <span style="color:white; font-weight:bold;">Usuario</span>
                     </div>
                     <video src="${linkVideo}" controls loop playsinline style="width:100%; border-radius:10px; background:black;"></video>
                 `;
@@ -41,42 +39,30 @@ async function cargarVideos() {
             }
         });
     } catch (err) {
-        console.error("Error al cargar:", err);
+        console.error(err);
     }
 }
 
-// --- 2. SUBIR VIDEO ---
+// 2. SUBIR VIDEO
 async function subirVideoASupabase(event) {
-    // Si se llama desde addEventListener, el archivo está en 'this.files' o 'event.target.files'
-    const input = event.target; 
-    const file = input.files[0];
+    const file = event.target.files[0];
     if (!file) return;
 
-    alert("¡CONEXIÓN EXITOSA! Iniciando subida...");
-
-    // BARRA DE PROGRESO
     const status = document.createElement("div");
-    status.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.9); color:#00f2ea; padding:30px; border-radius:20px; z-index:99999; text-align:center; border: 2px solid #00f2ea; width: 80%;";
-    status.innerHTML = `
-        <h2 style="margin:0 0 10px 0;">Subiendo...</h2>
-        <div style="font-size: 40px; font-weight:bold;" id="percent">0%</div>
-        <p style="color:white; margin-top:10px;">Por favor espera</p>
-    `;
+    status.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.95); color:#00f2ea; padding:30px; border-radius:20px; z-index:99999; text-align:center; border: 2px solid #00f2ea; width: 80%;";
+    status.innerHTML = `<h2>Subiendo...</h2><div style="font-size: 40px; font-weight:bold;" id="percent">0%</div>`;
     document.body.appendChild(status);
 
     try {
         const fileName = `${Date.now()}_video.mp4`;
         
-        // Usamos 'videos' en minúsculas (el que sabemos que existe)
+        // Subida al bucket 'videos'
         const { data: storageData, error: storageError } = await _supabase.storage
             .from('videos')
             .upload(fileName, file, {
-                cacheControl: '3600',
-                upsert: false,
-                onUploadProgress: (progress) => {
-                    const percent = Math.round((progress.loaded / progress.total) * 100);
-                    const el = document.getElementById("percent");
-                    if(el) el.innerText = percent + "%";
+                onUploadProgress: (p) => {
+                    const percent = Math.round((p.loaded / p.total) * 100);
+                    document.getElementById("percent").innerText = percent + "%";
                 }
             });
 
@@ -86,15 +72,17 @@ async function subirVideoASupabase(event) {
             .from('videos')
             .getPublicUrl(fileName);
 
-        const { error: tableError } = await _supabase
-            .from('videos')
-            .insert([{ 
-                video_url: publicUrl,       
-                user_name: "Nai-Kin",       
-                avatar_url: "https://i.ibb.co/jkcM4khz/file.png"
-            }]);
+        // --- EL CAMBIO IMPORTANTE ---
+        // Vamos a intentar insertar solo la URL. Si falla, probamos con la otra columna.
+        let insertData = { video_url: publicUrl };
+        
+        const { error: tableError } = await _supabase.from('videos').insert([insertData]);
 
-        if (tableError) throw tableError;
+        if (tableError) {
+            console.log("Reintentando con columna 'url'...");
+            const { error: retryError } = await _supabase.from('videos').insert([{ url: publicUrl }]);
+            if (retryError) throw retryError;
+        }
 
         status.innerHTML = "<h2 style='color:#2ecc71'>✅ ¡LISTO!</h2>";
         setTimeout(() => location.reload(), 1500);
@@ -105,21 +93,9 @@ async function subirVideoASupabase(event) {
     }
 }
 
-// --- 3. AUTO-CONEXIÓN (La parte nueva) ---
+// Conectar todo
 document.addEventListener('DOMContentLoaded', () => {
     cargarVideos();
-    
-    // Buscamos cualquier botón de tipo archivo en tu página
-    const inputArchivo = document.querySelector('input[type="file"]');
-    
-    if (inputArchivo) {
-        // Le conectamos la función manualmente
-        inputArchivo.addEventListener('change', subirVideoASupabase);
-        console.log("Botón de subida encontrado y conectado.");
-    } else {
-        alert("⚠️ ERROR: No encuentro el botón <input type='file'> en tu página HTML. Revisa tu código.");
-    }
+    const btn = document.querySelector('input[type="file"]');
+    if (btn) btn.addEventListener('change', subirVideoASupabase);
 });
-
-// Mantener esto por si acaso
-window.subirVideoASupabase = subirVideoASupabase;
