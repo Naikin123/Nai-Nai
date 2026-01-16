@@ -90,3 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.querySelector('input[type="file"]');
     if (btn) btn.addEventListener('change', subirVideoASupabase);
 });
+
+const { error: tableError } = await _supabase.from('videos').insert([{ 
+    video_url: publicUrl, // Debe decir video_url exactamente
+    usuario: "Nai-Kin",
+    avatar: "https://i.ibb.co/jkcM4khz/file.png"
+}]);
