@@ -1,57 +1,109 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nai-Nai App</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
+const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
+const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    <div class="top-bar">
-        <div class="tabs">
-            <button class="tab-btn">Siguiendo</button>
-            <button class="tab-btn activo">Para ti</button>
+async function cargarVideos() {
+    const contenedor = document.getElementById("feed-videos");
+    if (!contenedor) return;
+    try {
+        const { data, error } = await _supabase.from('videos').select('*').order('id', { ascending: false });
+        if (error) throw error;
+        contenedor.innerHTML = ""; 
+        if (!data || data.length === 0) {
+            contenedor.innerHTML = '<p style="color:gray; text-align:center; padding:20px;">No hay videos aún.</p>';
+            return;
+        }
+        data.forEach(v => {
+            const link = v.video_url || v.url; 
+            if (link) {
+                const card = document.createElement("div");
+                card.className = "post-card";
+                card.style = "margin-bottom: 25px; background: #111; border-radius: 15px; padding: 10px; border: 1px solid #333;";
+                card.innerHTML = `
+                    <div style="display:flex; align-items:center; margin-bottom:10px;">
+                        <img src="${v.avatar || 'https://i.ibb.co/jkcM4khz/file.png'}" style="width:40px; height:40px; border-radius:50%; margin-right:10px; border: 1px solid #00f2ea;">
+                        <span style="color:white; font-weight:bold;">${v.usuario || 'Nai-Kin'}</span>
+                    </div>
+                    <video src="${link}" controls loop playsinline style="width:100%; border-radius:10px; background:black;"></video>
+                `;
+                contenedor.appendChild(card);
+            }
+        });
+    } catch (err) { console.error(err); }
+}
+
+async function subirVideoASupabase(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Crear cartel de estado persistente
+    const status = document.createElement("div");
+    status.id = "overlay-carga";
+    status.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; display:flex; align-items:center; justify-content:center; color:#00f2ea; text-align:center; font-family:sans-serif; padding:20px;";
+    status.innerHTML = `
+        <div id="box-carga" style="border: 2px solid #00f2ea; padding: 30px; border-radius: 20px; background:#000; width:100%; max-width:350px;">
+            <h2 id="txt-estado">ENVIANDO...</h2>
+            <h1 id="num-porcentaje" style="font-size:60px; margin:10px 0;">0%</h1>
+            <p id="txt-detalle" style="color:white; font-size:12px;">Subiendo archivo al servidor...</p>
         </div>
-        <div class="tags-scroll" id="listaTags">
-            </div>
-    </div>
+    `;
+    document.body.appendChild(status);
 
-    <div class="app-container">
+    try {
+        const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
         
-        <div class="perfil-resumen" onclick="abrirPerfil()">
-            <img id="miAvatarMini" src="https://i.ibb.co/jkcM4khz/file-000000000bd461fb894402f0ff51670d.png">
-            <div>
-                <div style="font-weight:bold; font-size:0.9rem;">Nai-Kin</div>
-                <div style="font-size:0.8rem; color:#777;">Toca para cambiar foto</div>
-            </div>
-            <div class="gua-badge">GUA</div>
-        </div>
+        // 1. INTENTAR SUBIDA AL STORAGE
+        const { data, error: storageError } = await _supabase.storage
+            .from('videos')
+            .upload(fileName, file, {
+                cacheControl: '3600',
+                upsert: false,
+                onUploadProgress: (p) => {
+                    const progreso = Math.round((p.loaded / p.total) * 100);
+                    document.getElementById("num-porcentaje").innerText = progreso + "%";
+                }
+            });
 
-        <div id="feed-videos">
-            <p style="text-align: center; margin-top: 50px; color: #555;">Cargando videos...</p>
-        </div>
-        
-        <div style="height: 100px;"></div>
-    </div>
+        if (storageError) {
+            throw new Error("ERROR STORAGE: " + storageError.message);
+        }
 
-    <div class="bottom-bar">
-        <input type="file" id="fileInput" accept="video/*" style="display: none;" onchange="subirVideoASupabase(event)">
-        
-        <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
-            + SUBIR VIDEO
-        </button>
-    </div>
+        document.getElementById("txt-detalle").innerText = "Archivo subido. Registrando en base de datos...";
 
-    <div id="modalPerfil" class="modal">
-        <div class="modal-content">
-            <h3>Elige tu Avatar</h3>
-            <div class="grid-fotos" id="galeria"></div>
-            <button class="btn-cerrar" onclick="document.getElementById('modalPerfil').style.display='none'">Cerrar</button>
-        </div>
-    </div>
+        // 2. OBTENER URL PÚBLICA
+        const { data: { publicUrl } } = _supabase.storage.from('videos').getPublicUrl(fileName);
 
-    <script src="script.js"></script>
-</body>
-</html>
+        // 3. INSERTAR EN LA TABLA
+        const { error: tableError } = await _supabase.from('videos').insert([{ 
+            video_url: publicUrl, 
+            usuario: "Nai-Kin",
+            avatar: "https://i.ibb.co/jkcM4khz/file.png"
+        }]);
+
+        if (tableError) {
+            throw new Error("ERROR TABLA: " + tableError.message);
+        }
+
+        // ÉXITO
+        document.getElementById("box-carga").style.borderColor = "#2ecc71";
+        document.getElementById("txt-estado").innerText = "¡COMPLETO!";
+        document.getElementById("txt-estado").style.color = "#2ecc71";
+        setTimeout(() => location.reload(), 1500);
+
+    } catch (error) {
+        // ERROR: No quitamos el cartel, lo ponemos rojo para que veas el error
+        console.error(error);
+        const box = document.getElementById("box-carga");
+        box.style.borderColor = "red";
+        document.getElementById("txt-estado").innerText = "FALLLÓ";
+        document.getElementById("txt-estado").style.color = "red";
+        document.getElementById("num-porcentaje").style.color = "red";
+        document.getElementById("txt-detalle").innerHTML = `<span style="color:red;">${error.message}</span><br><br><button onclick="location.reload()" style="background:white; border:none; padding:10px; border-radius:5px;">Reintentar</button>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    cargarVideos();
+    const btn = document.querySelector('input[type="file"]');
+    if (btn) btn.addEventListener('change', subirVideoASupabase);
+});
