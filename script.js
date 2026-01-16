@@ -2,16 +2,13 @@ const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// 1. FUNCIÓN PARA CARGAR LOS VIDEOS EN EL FEED
 async function cargarVideos() {
     const contenedor = document.getElementById("feed-videos");
     if (!contenedor) return;
-
     try {
         const { data, error } = await _supabase.from('videos').select('*').order('id', { ascending: false });
         if (error) throw error;
         contenedor.innerHTML = ""; 
-
         data.forEach(v => {
             const link = v.video_url || v.url; 
             if (link) {
@@ -28,23 +25,21 @@ async function cargarVideos() {
                 contenedor.appendChild(card);
             }
         });
-    } catch (err) { console.error("Error al cargar:", err); }
+    } catch (err) { console.error(err); }
 }
 
-// 2. FUNCIÓN PARA SUBIR (La que muestra el porcentaje)
 async function subirVideoASupabase(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    // CREAR EL CARTEL DE CARGA A LA FUERZA
     const status = document.createElement("div");
     status.id = "cartel-carga";
-    status.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#00f2ea; font-family:sans-serif;";
+    status.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; display:flex; align-items:center; justify-content:center; color:#00f2ea; font-family:sans-serif; padding:20px;";
     status.innerHTML = `
-        <div style="border: 4px solid #00f2ea; padding: 40px; border-radius: 20px; text-align:center;">
-            <h2 style="margin:0;">SUBIENDO VIDEO...</h2>
+        <div style="border: 4px solid #00f2ea; padding: 40px; border-radius: 20px; text-align:center; background:#000; width:90%; max-width:400px;">
+            <h2 style="margin:0;">SUBIENDO...</h2>
             <div style="font-size: 60px; font-weight:bold; margin: 20px 0;" id="percent">0%</div>
-            <p style="color:white;">No cierres esta ventana</p>
+            <p id="msg-estado" style="color:white;">Iniciando subida...</p>
         </div>
     `;
     document.body.appendChild(status);
@@ -52,54 +47,47 @@ async function subirVideoASupabase(event) {
     try {
         const fileName = `${Date.now()}_video.mp4`;
         
-        // Subir al Storage
+        // 1. Subir al Bucket
         const { data: storageData, error: storageError } = await _supabase.storage
             .from('videos')
             .upload(fileName, file, {
+                cacheControl: '3600',
+                upsert: false,
                 onUploadProgress: (p) => {
                     const percent = Math.round((p.loaded / p.total) * 100);
-                    const el = document.getElementById("percent");
-                    if (el) el.innerText = percent + "%";
+                    document.getElementById("percent").innerText = percent + "%";
                 }
             });
 
-        if (storageError) throw storageError;
+        if (storageError) throw new Error("Error en Storage: " + storageError.message);
+
+        document.getElementById("msg-estado").innerText = "Guardando en base de datos...";
 
         const { data: { publicUrl } } = _supabase.storage.from('videos').getPublicUrl(fileName);
 
-        // Guardar en la tabla (con la columna video_url que creaste)
+        // 2. Insertar en Tabla (Usando video_url que ya creamos)
         const { error: tableError } = await _supabase.from('videos').insert([{ 
             video_url: publicUrl, 
             usuario: "Nai-Kin",
             avatar: "https://i.ibb.co/jkcM4khz/file.png"
         }]);
 
-        if (tableError) throw tableError;
+        if (tableError) throw new Error("Error en Tabla: " + tableError.message);
 
-        document.getElementById("cartel-carga").innerHTML = "<h2 style='color:#2ecc71'>✅ ¡PUBLICADO!</h2>";
-        setTimeout(() => location.reload(), 1500);
+        status.innerHTML = "<div style='text-align:center;'><h1 style='color:#2ecc71; font-size:50px;'>✅</h1><h2 style='color:#2ecc71'>¡PUBLICADO!</h2></div>";
+        setTimeout(() => location.reload(), 2000);
 
     } catch (error) {
+        console.error(error);
+        alert(error.message); // Esto nos dirá qué falló exactamente
         if(status) status.remove();
-        alert('❌ Error: ' + error.message);
     }
 }
 
-// 3. AUTO-CONECTOR: Busca el botón apenas carga la página
 document.addEventListener('DOMContentLoaded', () => {
     cargarVideos();
-
-    // Esto busca CUALQUIER botón de subir archivos en tu HTML
     const inputFiles = document.querySelectorAll('input[type="file"]');
-    
-    if (inputFiles.length > 0) {
-        inputFiles.forEach(input => {
-            input.addEventListener('change', subirVideoASupabase);
-        });
-        console.log("Botón encontrado y conectado");
-    } else {
-        // Si no encuentra el botón, te avisa para que revises el HTML
-        alert("⚠️ ATENCIÓN: No encontré ningún botón para elegir archivos en tu HTML.");
-    }
+    inputFiles.forEach(input => {
+        input.addEventListener('change', subirVideoASupabase);
+    });
 });
-                          
