@@ -16,22 +16,26 @@ async function cargarVideos() {
         contenedor.innerHTML = ""; 
 
         if (!data || data.length === 0) {
-            contenedor.innerHTML = '<p style="color:white; text-align:center; padding:20px;">Todavía no hay videos visibles.</p>';
+            contenedor.innerHTML = '<p style="color:white; text-align:center; padding:20px;">No hay videos aún.</p>';
             return;
         }
 
         data.forEach(v => {
-            const linkVideo = v.url || v.video_url;
+            // Usamos los nombres exactos de tus columnas
+            const linkVideo = v.video_url || v.url;
+            const nombreUser = v.user_name || v.usuario || 'Nai-Kin';
+            const linkAvatar = v.avatar_url || v.avatar || 'https://i.ibb.co/jkcM4khz/file.png';
+
             if (linkVideo) {
                 const card = document.createElement("div");
                 card.className = "post-card";
-                card.style = "margin-bottom: 20px; background: #111; border-radius: 12px; padding: 10px;";
+                card.style = "margin-bottom: 25px; background: #111; border-radius: 15px; padding: 12px; border: 1px solid #333;";
                 card.innerHTML = `
-                    <div style="display:flex; align-items:center; margin-bottom:10px;">
-                        <img src="${v.avatar || 'https://i.ibb.co/jkcM4khz/file.png'}" style="width:40px; height:40px; border-radius:50%; margin-right:10px;">
-                        <span style="color:white; font-weight:bold;">${v.usuario || 'Nai-Kin'}</span>
+                    <div style="display:flex; align-items:center; margin-bottom:12px;">
+                        <img src="${linkAvatar}" style="width:45px; height:45px; border-radius:50%; margin-right:12px;">
+                        <span style="color:white; font-weight:bold;">${nombreUser}</span>
                     </div>
-                    <video src="${linkVideo}" controls loop playsinline style="width:100%; border-radius:8px; background:black;"></video>
+                    <video src="${linkVideo}" controls loop playsinline style="width:100%; border-radius:10px; background:black;"></video>
                 `;
                 contenedor.appendChild(card);
             }
@@ -53,45 +57,36 @@ async function subirVideoASupabase(event) {
     try {
         const fileName = `${Date.now()}_video.mp4`;
         
-        // --- PRUEBA 1: Intentar con 'VIDEOS' ---
-        let { data: storageData, error: storageError } = await _supabase.storage
+        // Intentamos con 'VIDEOS' que es el que funcionó
+        const { data: storageData, error: storageError } = await _supabase.storage
             .from('VIDEOS')
             .upload(fileName, file, {
                 onUploadProgress: (p) => {
                     const percent = Math.round((p.loaded / p.total) * 100);
-                    document.getElementById("percent").innerText = percent + "%";
+                    const el = document.getElementById("percent");
+                    if(el) el.innerText = percent + "%";
                 }
             });
 
-        let finalBucket = 'VIDEOS';
-
-        // --- PRUEBA 2: Si falló, intentar con 'videos' ---
-        if (storageError) {
-            console.log("Reintentando con minúsculas...");
-            const retry = await _supabase.storage
-                .from('videos')
-                .upload(fileName, file);
-            
-            if (retry.error) throw retry.error; // Si ambos fallan, lanza error
-            storageError = null;
-            finalBucket = 'videos';
-        }
+        if (storageError) throw storageError;
 
         const { data: { publicUrl } } = _supabase.storage
-            .from(finalBucket)
+            .from('VIDEOS')
             .getPublicUrl(fileName);
 
+        // --- CORRECCIÓN CLAVE AQUÍ ---
+        // Usamos los nombres que tu base de datos reconoce
         const { error: tableError } = await _supabase
             .from('videos')
             .insert([{ 
-                url: publicUrl, 
-                usuario: "Nai-Kin", 
-                avatar: "https://i.ibb.co/jkcM4khz/file.png"
+                video_url: publicUrl, 
+                user_name: "Nai-Kin", 
+                avatar_url: "https://i.ibb.co/jkcM4khz/file.png"
             }]);
 
         if (tableError) throw tableError;
 
-        status.innerHTML = "✅ ¡Logrado!";
+        status.innerHTML = "✅ ¡Publicado!";
         setTimeout(() => location.reload(), 1000);
 
     } catch (error) {
@@ -102,3 +97,4 @@ async function subirVideoASupabase(event) {
 
 window.subirVideoASupabase = subirVideoASupabase;
 document.addEventListener('DOMContentLoaded', cargarVideos);
+
