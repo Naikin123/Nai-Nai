@@ -80,4 +80,3 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.querySelector('input[type="file"]');
     if (input) input.addEventListener('change', subirVideoASupabase);
 });
-    
