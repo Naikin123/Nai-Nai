@@ -1,6 +1,11 @@
+// 1. URL de tu proyecto
 const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Usa tu llave completa
+
+// 2. Tu clave larga (Key) que empieza con eyJ...
+const supabaseKey = 'TU_CLAVE_COMPLETA_AQUÍ'; 
+
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
 
 const avatares = [
     "https://i.ibb.co/hF6VHB5F/1ec8541e-1.png", "https://i.ibb.co/kLMbfDM/c876007d.png", "https://i.ibb.co/TqMHL17S/44-sin-t-tulo2.png",
