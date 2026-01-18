@@ -48,10 +48,10 @@
                 <span id="p-estado" class="estado-badge">🔥</span>
             </div>
             
-            <h2 id="p-alias" style="margin:5px 0;">Usuario</h2>
+            <h2 id="p-alias" style="margin:5px 0;">Cargando...</h2>
             <p id="p-id" style="color:gray; font-size:0.8rem;">ID: ...</p>
             
-            <p id="p-bio" class="bio-text">Cargando bio...</p>
+            <p id="p-bio" class="bio-text">...</p>
             
             <a id="p-link" href="#" target="_blank" class="link-externo" style="display:none;">
                 <i class="fas fa-link"></i> <span id="p-link-text">Ver enlace</span>
@@ -59,7 +59,7 @@
 
             <div class="stats">
                 <div class="stat-box"><span>GUA</span><b id="p-gua">0</b></div>
-                <div class="stat-box"><span>Videos</span><b id="p-videos-count">0</b></div>
+                <div class="stat-box"><span>Videos</span><b id="p-videos-count">?</b></div>
             </div>
             
             <div class="botones-perfil">
@@ -71,30 +71,26 @@
 
     <div id="modal-editor" class="modal">
         <div class="modal-content">
-            <h3>Configuración de Socio</h3>
-            <label>Avatar:</label>
+            <h3>Configuración</h3>
             <div style="text-align:center; margin-bottom:10px;">
                 <img id="edit-avatar-preview" src="" style="width:60px; height:60px; border-radius:50%;">
-                <button onclick="abrirSelectorAvatar()" style="display:block; margin:5px auto; background:#333; color:white; border:none; padding:5px 10px; border-radius:5px;">Cambiar Foto</button>
+                <button onclick="abrirSelectorAvatar()" style="margin-top:5px;">Cambiar Foto</button>
             </div>
-            <label>Alias (Nombre):</label>
-            <input type="text" id="edit-alias" placeholder="Ej: El Rey del Ajedrez">
-            <label>Biografía (Max 150):</label>
-            <textarea id="edit-bio" maxlength="150" placeholder="¿Quién eres?"></textarea>
-            <label>Enlace Externo:</label>
-            <input type="text" id="edit-link" placeholder="https://...">
-            <label>Estado Actual:</label>
+            <label>Alias:</label>
+            <input type="text" id="edit-alias">
+            <label>Bio:</label>
+            <textarea id="edit-bio" maxlength="150"></textarea>
+            <label>Link:</label>
+            <input type="text" id="edit-link">
+            <label>Estado:</label>
             <select id="edit-estado">
                 <option value="🔥">🔥 Activo</option>
-                <option value="🥊">🥊 Entrenando</option>
-                <option value="🎮">🎮 Jugando</option>
-                <option value="📚">📚 Estudiando</option>
-                <option value="😴">😴 Ausente</option>
                 <option value="👑">👑 Modo Naikin</option>
+                <option value="🥊">🥊 Entrenando</option>
             </select>
             <div class="modal-actions">
                 <button onclick="cerrarEditor()" class="btn-cancel">Cancelar</button>
-                <button onclick="guardarPerfil()" class="btn-confirm">GUARDAR CAMBIOS</button>
+                <button onclick="guardarPerfil()" class="btn-confirm">Guardar</button>
             </div>
         </div>
     </div>
@@ -102,13 +98,10 @@
     <div id="modal-upload" class="modal">
         <div class="modal-content">
             <h3>Subir Video 🎬</h3>
-            <input type="text" id="up-titulo" placeholder="Título del video">
-            <textarea id="up-desc" placeholder="Descripción..."></textarea>
+            <input type="text" id="up-titulo" placeholder="Título">
+            <textarea id="up-desc" placeholder="Descripción"></textarea>
             <select id="up-etiqueta" class="input-select"></select>
-            <div class="config-section">
-                <h4>Opciones</h4>
-                <label><input type="checkbox" id="up-comentarios" checked> Comentarios</label>
-                <label><input type="checkbox" id="up-audio" checked> Audio</label>
+            <div style="margin:10px 0;">
                 <label>Orientación:</label>
                 <select id="up-orientacion">
                     <option value="horizontal">Horizontal</option>
@@ -124,9 +117,9 @@
 
     <div id="modal-avatar" class="modal">
         <div class="modal-content">
-            <h3>Elige tu Rostro</h3>
+            <h3>Elige Avatar</h3>
             <div id="grid-avatars" class="grid-fotos"></div>
-            <button onclick="document.getElementById('modal-avatar').style.display='none'" class="btn-cancel" style="margin-top:10px;">Cerrar</button>
+            <button onclick="document.getElementById('modal-avatar').style.display='none'" class="btn-cancel">Cerrar</button>
         </div>
     </div>
 
@@ -137,5 +130,4 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script> 
 </body>
-                        </html>
-    
+</html>
