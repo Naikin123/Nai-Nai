@@ -144,3 +144,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     cargarFeed('comunidad');
     configurarSubida();
 });
+// --- NUEVA LÓGICA DE INICIO ---
+
+window.continuarComoInvitado = () => {
+    // Si es invitado, le asignamos un ID basado en su navegador
+    if(!localStorage.getItem('nai_invitado_id')) {
+        localStorage.setItem('nai_invitado_id', 'INV-' + Math.floor(Math.random() * 9999));
+    }
+    myId = localStorage.getItem('nai_invitado_id');
+    document.getElementById('auth-container').style.display = 'none';
+    cargarPerfilUsuario();
+};
+
+async function checkUser() {
+    const { data: { user } } = await _supabase.auth.getUser();
+    
+    if (user) {
+        myId = user.id;
+        document.getElementById('auth-container').style.display = 'none';
+        await cargarPerfilUsuario();
+    } else {
+        // Si no hay usuario de Google, checamos si ya era invitado
+        if(localStorage.getItem('nai_invitado_id')) {
+            myId = localStorage.getItem('nai_invitado_id');
+            document.getElementById('auth-container').style.display = 'none';
+            cargarPerfilUsuario();
+        } else {
+            document.getElementById('auth-container').style.display = 'flex';
+        }
+    }
+}
+
+// El login de Google se queda igual
+window.loginGoogle = async function() {
+    const { data, error } = await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin }
+    });
+};
+    
