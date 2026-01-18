@@ -197,3 +197,13 @@ async function loginConGoogle() {
     });
     if (error) console.error("Error al entrar con Google:", error.message);
 }
+
+async function loginConGoogle() {
+    await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            // Esto le dice a Google que te regrese a tu página real, no a localhost
+            redirectTo: window.location.origin 
+        }
+    });
+}
