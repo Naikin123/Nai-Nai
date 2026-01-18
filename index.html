@@ -3,35 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nai-Nai PRO</title>
+    <title>Nai-Nai FINAL</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
     <div class="top-bar">
+        <button onclick="verPerfilNaikin()" class="btn-naikin-vip">
+            👑 IR A NAIKIN
+        </button>
+
         <div class="tabs">
             <button class="tab-btn activo" onclick="cambiarTab('comunidad')">Comunidad</button>
             <button class="tab-btn" onclick="cambiarTab('mis-videos')">Mis Videos</button>
             <button class="tab-btn" onclick="cambiarTab('perfil')">Mi Perfil</button>
         </div>
+        
         <div class="tags-scroll" id="barra-etiquetas">
             </div>
     </div>
 
     <div id="tab-comunidad" class="seccion-app">
         <div id="feed-comunidad" class="feed-container">
-            <p style="text-align:center; padding:20px; color:gray;">Cargando Nai-Nai...</p>
+            <p style="text-align:center; padding:20px; color:gray;">Cargando feed...</p>
         </div>
     </div>
 
     <div id="tab-mis-videos" class="seccion-app" style="display:none;">
         <div class="mis-videos-header">
-            <h3>Gestor de Contenido</h3>
-            <p>Sube, edita y borra tus creaciones.</p>
+            <h3>Mi Galería</h3>
         </div>
-        <div id="lista-mis-videos" class="feed-container">
-            </div>
+        <div id="lista-mis-videos" class="feed-container"></div>
         
         <label class="btn-float-upload">
             <i class="fas fa-plus"></i>
@@ -41,53 +44,90 @@
 
     <div id="tab-perfil" class="seccion-app" style="display:none;">
         <div class="perfil-card">
-            <img id="avatar-actual" src="" class="avatar-grande">
-            <h2 id="id-usuario-display">Usuario ID: ...</h2>
+            <div style="position:relative; display:inline-block;">
+                <img id="p-avatar" src="" class="avatar-grande">
+                <span id="p-estado" class="estado-badge">🔥</span>
+            </div>
+            
+            <h2 id="p-alias" style="margin:5px 0;">Usuario</h2>
+            <p id="p-id" style="color:gray; font-size:0.8rem;">ID: ...</p>
+            
+            <p id="p-bio" class="bio-text">Cargando bio...</p>
+            
+            <a id="p-link" href="#" target="_blank" class="link-externo" style="display:none;">
+                <i class="fas fa-link"></i> <span id="p-link-text">Ver enlace</span>
+            </a>
+
             <div class="stats">
-                <div class="stat-box"><span>GUA</span><b id="gua-puntos">100</b></div>
-                <div class="stat-box"><span>Videos</span><b id="num-videos">0</b></div>
+                <div class="stat-box"><span>GUA</span><b id="p-gua">0</b></div>
+                <div class="stat-box"><span>Videos</span><b id="p-videos-count">0</b></div>
             </div>
-            <button class="btn-editar-perfil" onclick="abrirSelectorAvatar()">Cambiar Avatar</button>
-            <button class="btn-normas" onclick="verReglas()">📜 Ver Reglas y Normas</button>
+            
+            <div class="botones-perfil">
+                <button class="btn-editar" onclick="abrirEditorPerfil()">✏️ Editar Perfil</button>
+                <button class="btn-normas" onclick="verReglas()">📜 Reglas</button>
+            </div>
         </div>
-        
-        <h3 style="padding:10px;">Mi Historial</h3>
-        <div id="grid-mis-videos-perfil" class="video-grid">
+    </div>
+
+    <div id="modal-editor" class="modal">
+        <div class="modal-content">
+            <h3>Configuración de Socio</h3>
+            
+            <label>Avatar:</label>
+            <div style="text-align:center; margin-bottom:10px;">
+                <img id="edit-avatar-preview" src="" style="width:60px; height:60px; border-radius:50%;">
+                <button onclick="abrirSelectorAvatar()" style="display:block; margin:5px auto; background:#333; color:white; border:none; padding:5px 10px; border-radius:5px;">Cambiar Foto</button>
             </div>
+
+            <label>Alias (Nombre):</label>
+            <input type="text" id="edit-alias" placeholder="Ej: El Rey del Ajedrez">
+
+            <label>Biografía (Max 150):</label>
+            <textarea id="edit-bio" maxlength="150" placeholder="¿Quién eres?"></textarea>
+
+            <label>Enlace Externo (Instagram/YouTube):</label>
+            <input type="text" id="edit-link" placeholder="https://...">
+
+            <label>Estado Actual:</label>
+            <select id="edit-estado">
+                <option value="🔥">🔥 Activo</option>
+                <option value="🥊">🥊 Entrenando</option>
+                <option value="🎮">🎮 Jugando</option>
+                <option value="📚">📚 Estudiando</option>
+                <option value="😴">😴 Ausente</option>
+                <option value="👑">👑 Modo Naikin</option>
+            </select>
+
+            <div class="modal-actions">
+                <button onclick="cerrarEditor()" class="btn-cancel">Cancelar</button>
+                <button onclick="guardarPerfil()" class="btn-confirm">GUARDAR CAMBIOS</button>
+            </div>
+        </div>
     </div>
 
     <div id="modal-upload" class="modal">
         <div class="modal-content">
-            <h3>Nuevo Video 🎬</h3>
-            
-            <label>Nombre del video:</label>
-            <input type="text" id="up-titulo" placeholder="Ej: Lentes épicos">
-            
-            <label>Descripción:</label>
-            <textarea id="up-desc" placeholder="Cuéntanos qué pasa..."></textarea>
-            
-            <label>Etiquetas:</label>
-            <select id="up-etiqueta" class="input-select">
-                </select>
+            <h3>Subir Video 🎬</h3>
+            <input type="text" id="up-titulo" placeholder="Título del video">
+            <textarea id="up-desc" placeholder="Descripción..."></textarea>
+            <select id="up-etiqueta" class="input-select"></select>
             
             <div class="config-section">
-                <h4>Configuración</h4>
-                <label><input type="checkbox" id="up-comentarios" checked> Permitir comentarios</label>
-                <label><input type="checkbox" id="up-audio" checked> Permitir uso de audio</label>
-                
+                <h4>Opciones</h4>
+                <label><input type="checkbox" id="up-comentarios" checked> Comentarios</label>
+                <label><input type="checkbox" id="up-audio" checked> Audio</label>
                 <label>Orientación:</label>
                 <select id="up-orientacion">
                     <option value="horizontal">Horizontal</option>
                     <option value="vertical">Vertical</option>
-                    <option value="ambos">Vertical y Horizontal</option>
                 </select>
-
-                <label>¿El video es tuyo?</label>
+                <label>¿Es tuyo?</label>
                 <select id="up-propio" onchange="toggleFuente(this.value)">
-                    <option value="si">Sí, es mío</option>
+                    <option value="si">Sí</option>
                     <option value="no">No (Créditos)</option>
                 </select>
-                <input type="text" id="up-fuente" placeholder="Pegar link de origen" style="display:none; margin-top:5px;">
+                <input type="text" id="up-fuente" placeholder="Link original" style="display:none;">
             </div>
 
             <div class="modal-actions">
@@ -99,13 +139,19 @@
 
     <div id="modal-avatar" class="modal">
         <div class="modal-content">
-            <h3>Elige tu identidad</h3>
+            <h3>Elige tu Rostro</h3>
             <div id="grid-avatars" class="grid-fotos"></div>
             <button onclick="document.getElementById('modal-avatar').style.display='none'" class="btn-cancel" style="margin-top:10px;">Cerrar</button>
         </div>
     </div>
 
+    <div id="modal-perfil-ajeno" class="modal">
+        <div id="contenido-perfil-ajeno" class="modal-content" style="border: 1px solid #00f2ea;">
+            </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script> 
 </body>
-</html>
+                </html>
+                
