@@ -188,3 +188,12 @@ window.loginGoogle = async function() {
     });
 };
     
+async function loginConGoogle() {
+    const { data, error } = await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin // Esto hace que regrese a tu página después de loguearse
+        }
+    });
+    if (error) console.error("Error al entrar con Google:", error.message);
+}
