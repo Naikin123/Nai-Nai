@@ -207,3 +207,14 @@ async function loginConGoogle() {
         }
     });
 }
+
+async function loginConGoogle() {
+    const { data, error } = await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            // Esto redirige automáticamente a tu página real
+            redirectTo: window.location.origin 
+        }
+    });
+    if (error) console.error("Error:", error.message);
+}
