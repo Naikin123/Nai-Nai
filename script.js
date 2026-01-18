@@ -1,12 +1,10 @@
-// 1. URL de tu proyecto
+// --- CONFIGURACIÓN DE CONEXIÓN ---
 const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
-
-// 2. Tu clave larga (Key) que empieza con eyJ...
-const supabaseKey = 'TU_CLAVE_COMPLETA_AQUÍ'; 
+const supabaseKey = 'TU_CLAVE_COMPLETA_AQUÍ'; // <--- PEGA TU CLAVE COMPLETA AQUÍ
 
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-
+// --- VARIABLES GLOBALES ---
 const avatares = [
     "https://i.ibb.co/hF6VHB5F/1ec8541e-1.png", "https://i.ibb.co/kLMbfDM/c876007d.png", "https://i.ibb.co/TqMHL17S/44-sin-t-tulo2.png",
     "https://i.ibb.co/Gf3LYb3q/39-sin-t-tulo4.png", "https://i.ibb.co/chtYqpFv/39-sin-t-tulo3.png", "https://i.ibb.co/fdXfwHnC/22-sin-t-tulo.png",
@@ -21,64 +19,81 @@ const avatares = [
     "https://i.ibb.co/wNs2x97p/86-sin-t-tulo.png", "https://i.ibb.co/d0GndZNk/91-sin-t-tulo.png"
 ];
 
-let myId = "1"; // Eres el dueño
-let currentVideoUrl = "";
+let myId = null;
+let currentProfile = null;
 
-// --- SISTEMA DE COMPARTIR REDES ---
-window.abrirShare = (url) => {
-    currentVideoUrl = url;
-    document.getElementById('modal-share').style.display = 'flex';
+// --- SISTEMA DE AUTENTICACIÓN (REPARADO) ---
+
+// 1. Escuchar cambios de sesión (Google nos avisa aquí)
+_supabase.auth.onAuthStateChange(async (event, session) => {
+    if (session) {
+        console.log("Sesión activa:", session.user);
+        myId = session.user.id;
+        document.getElementById('auth-container').style.display = 'none';
+        await cargarPerfilUsuario(session.user);
+    } else {
+        const invId = localStorage.getItem('nai_invitado_id');
+        if (invId) {
+            myId = invId;
+            document.getElementById('auth-container').style.display = 'none';
+            await cargarPerfilInvitado();
+        } else {
+            document.getElementById('auth-container').style.display = 'flex';
+        }
+    }
+});
+
+// 2. Función para Login con Google
+window.loginConGoogle = async function() {
+    const { error } = await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin 
+        }
+    });
+    if (error) alert("Error: " + error.message);
 }
 
-window.shareWhatsApp = () => {
-    const text = encodeURIComponent("¡Mira este video en Nai-Nai! 🎥 " + currentVideoUrl);
-    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+// 3. Función para Invitado
+window.continuarComoInvitado = () => {
+    if(!localStorage.getItem('nai_invitado_id')) {
+        localStorage.setItem('nai_invitado_id', 'INV-' + Math.floor(Math.random() * 9999));
+    }
+    location.reload(); // Recargamos para que onAuthStateChange detecte al invitado
+};
+
+// 4. Cargar Perfil de Google
+async function cargarPerfilUsuario(user) {
+    let { data: perfil } = await _supabase.from('perfiles').select('*').eq('user_id', user.id).single();
+    
+    if(!perfil) {
+        perfil = { 
+            user_id: user.id, 
+            alias: user.user_metadata.full_name || "Socio Nai", 
+            avatar: user.user_metadata.avatar_url || avatares[0], 
+            gua: 100,
+            estado: "🔥"
+        };
+        await _supabase.from('perfiles').insert([perfil]);
+    }
+    currentProfile = perfil;
+    actualizarPantallaPrincipal();
 }
 
-window.shareDiscord = () => {
-    navigator.clipboard.writeText(currentVideoUrl);
-    alert("¡Link copiado! Pégalo en Discord. (Discord no permite envío directo desde web sin bot)");
+// 5. Cargar Perfil de Invitado
+async function cargarPerfilInvitado() {
+    currentProfile = { alias: "Invitado", avatar: avatares[0], gua: 0, estado: "🕶️" };
+    actualizarPantallaPrincipal();
 }
 
-window.copiarLink = () => {
-    navigator.clipboard.writeText(currentVideoUrl);
-    alert("Copiado al portapapeles 🔗");
+function actualizarPantallaPrincipal() {
+    // Aquí pon el código para mostrar tu app y ocultar los botones de inicio
+    console.log("App lista para:", currentProfile.alias);
+    // document.getElementById('contenido-app').style.display = 'block';
 }
 
-window.cerrarShare = () => document.getElementById('modal-share').style.display='none';
+// --- FUNCIONES DE LA APP (COMENTARIOS, LIKES, ETC) ---
 
-// --- REGLAS ---
-window.mostrarReglas = () => {
-    alert("📜 REGLAS DE NAI-NAI:\n1. No contenido ofensivo.\n2. Respeta a la comunidad.\n3. Prohibido el spam.\n4. Si eres Naikin, eres el jefe.");
-}
-
-// --- COMENTARIOS ---
-let currentVideoId = null;
-window.abrirComentarios = async (id) => {
-    currentVideoId = id;
-    document.getElementById('modal-comentarios').style.display = 'flex';
-    const { data } = await _supabase.from('comentarios').select('*').eq('video_id', id).order('id', {ascending: true});
-    const lista = document.getElementById('lista-comentarios');
-    lista.innerHTML = data.map(c => `
-        <div style="margin-bottom:10px; font-size:0.9rem;">
-            <b style="color:#00f2ea;">${c.usuario}:</b> ${c.texto}
-        </div>
-    `).join('') || "No hay comentarios aún.";
-}
-
-window.enviarComentario = async () => {
-    const texto = document.getElementById('input-comentario').value;
-    if(!texto) return;
-    await _supabase.from('comentarios').insert([{
-        video_id: currentVideoId, user_id: myId, usuario: currentProfile.alias, texto: texto
-    }]);
-    document.getElementById('input-comentario').value = "";
-    abrirComentarios(currentVideoId);
-}
-
-window.cerrarComentarios = () => document.getElementById('modal-comentarios').style.display='none';
-
-// --- LIKES (REPARADO) ---
 window.darLike = async (btn, id) => {
     await _supabase.rpc('incrementar_like', { video_id: id });
     const span = btn.querySelector('span');
@@ -86,150 +101,20 @@ window.darLike = async (btn, id) => {
     btn.style.color = "#ff4444";
 }
 
-// (El resto de funciones como cargarFeed y cargarPerfil se mantienen de la versión anterior para no romper nada)
-
-
-// --- SISTEMA DE AUTENTICACIÓN ---
-
-// Verificar sesión al cargar
-async function checkUser() {
-    const { data: { user } } = await _supabase.auth.getUser();
-    
-    if (user) {
-        myId = user.id; // El ID ahora viene de Google
-        document.getElementById('auth-container').style.display = 'none';
-        await cargarPerfilUsuario();
-    } else {
-        document.getElementById('auth-container').style.display = 'flex';
-    }
+window.enviarComentario = async () => {
+    const texto = document.getElementById('input-comentario').value;
+    if(!texto || !currentProfile) return;
+    await _supabase.from('comentarios').insert([{
+        video_id: currentVideoId, 
+        user_id: myId, 
+        usuario: currentProfile.alias, 
+        texto: texto
+    }]);
+    document.getElementById('input-comentario').value = "";
+    abrirComentarios(currentVideoId);
 }
 
-// Función para Login con Google
-window.loginGoogle = async function() {
-    const { data, error } = await _supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            redirectTo: window.location.origin
-        }
-    });
-    if (error) alert("Error al conectar con Google: " + error.message);
-}
-
-// Función para Cerrar Sesión
-window.logout = async function() {
-    await _supabase.auth.signOut();
-    location.reload();
-}
-
-// Modificamos el cargarPerfilUsuario para que use el email de Google si es nuevo
-async function cargarPerfilUsuario() {
-    const { data: { user } } = await _supabase.auth.getUser();
-    let { data: perfil } = await _supabase.from('perfiles').select('*').eq('user_id', user.id).single();
-    
-    if(!perfil) {
-        const nuevo = { 
-            user_id: user.id, 
-            alias: user.user_metadata.full_name || "Nuevo Socio", 
-            avatar: user.user_metadata.avatar_url || avatares[0], 
-            gua: 100,
-            estado: "🔥"
-        };
-        await _supabase.from('perfiles').insert([nuevo]);
-        currentProfile = nuevo;
-    } else {
-        currentProfile = perfil;
-    }
-    actualizarDOMPerfil();
-}
-
-// Reemplaza tu inicialización por esta:
-document.addEventListener('DOMContentLoaded', async () => {
-    await checkUser(); // Ahora checkUser manda sobre el inicio
-    cargarEtiquetas();
-    cargarFeed('comunidad');
-    configurarSubida();
-});
-// --- NUEVA LÓGICA DE INICIO ---
-
-window.continuarComoInvitado = () => {
-    // Si es invitado, le asignamos un ID basado en su navegador
-    if(!localStorage.getItem('nai_invitado_id')) {
-        localStorage.setItem('nai_invitado_id', 'INV-' + Math.floor(Math.random() * 9999));
-    }
-    myId = localStorage.getItem('nai_invitado_id');
-    document.getElementById('auth-container').style.display = 'none';
-    cargarPerfilUsuario();
-};
-
-async function checkUser() {
-    const { data: { user } } = await _supabase.auth.getUser();
-    
-    if (user) {
-        myId = user.id;
-        document.getElementById('auth-container').style.display = 'none';
-        await cargarPerfilUsuario();
-    } else {
-        // Si no hay usuario de Google, checamos si ya era invitado
-        if(localStorage.getItem('nai_invitado_id')) {
-            myId = localStorage.getItem('nai_invitado_id');
-            document.getElementById('auth-container').style.display = 'none';
-            cargarPerfilUsuario();
-        } else {
-            document.getElementById('auth-container').style.display = 'flex';
-        }
-    }
-}
-
-// El login de Google se queda igual
-window.loginGoogle = async function() {
-    const { data, error } = await _supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin }
-    });
-};
-    
-async function loginConGoogle() {
-    const { data, error } = await _supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            redirectTo: window.location.origin // Esto hace que regrese a tu página después de loguearse
-        }
-    });
-    if (error) console.error("Error al entrar con Google:", error.message);
-}
-
-async function loginConGoogle() {
-    await _supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            // Esto le dice a Google que te regrese a tu página real, no a localhost
-            redirectTo: window.location.origin 
-        }
-    });
-}
-
-async function loginConGoogle() {
-    const { data, error } = await _supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            // Esto redirige automáticamente a tu página real
-            redirectTo: window.location.origin 
-        }
-    });
-    if (error) console.error("Error:", error.message);
-}
-
-// Esta función revisa automáticamente si el usuario ya inició sesión
-_supabase.auth.onAuthStateChange((event, session) => {
-  if (session) {
-    console.log("¡Usuario detectado!", session.user);
-    // Aquí ocultamos los botones de registro y mostramos tu app
-    document.getElementById('botones-inicio').style.display = 'none';
-    document.getElementById('contenido-app').style.display = 'block';
-    
-    // Si tienes un lugar para poner el nombre:
-    // document.getElementById('nombre-usuario').innerText = session.user.user_metadata.full_name;
-  } else {
-    console.log("No hay nadie logueado");
-  }
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => {
+    // No necesitamos llamar a checkUser, onAuthStateChange lo hace solo.
 });
