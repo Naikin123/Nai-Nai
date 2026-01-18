@@ -82,3 +82,65 @@ window.darLike = async (btn, id) => {
 }
 
 // (El resto de funciones como cargarFeed y cargarPerfil se mantienen de la versión anterior para no romper nada)
+
+
+// --- SISTEMA DE AUTENTICACIÓN ---
+
+// Verificar sesión al cargar
+async function checkUser() {
+    const { data: { user } } = await _supabase.auth.getUser();
+    
+    if (user) {
+        myId = user.id; // El ID ahora viene de Google
+        document.getElementById('auth-container').style.display = 'none';
+        await cargarPerfilUsuario();
+    } else {
+        document.getElementById('auth-container').style.display = 'flex';
+    }
+}
+
+// Función para Login con Google
+window.loginGoogle = async function() {
+    const { data, error } = await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin
+        }
+    });
+    if (error) alert("Error al conectar con Google: " + error.message);
+}
+
+// Función para Cerrar Sesión
+window.logout = async function() {
+    await _supabase.auth.signOut();
+    location.reload();
+}
+
+// Modificamos el cargarPerfilUsuario para que use el email de Google si es nuevo
+async function cargarPerfilUsuario() {
+    const { data: { user } } = await _supabase.auth.getUser();
+    let { data: perfil } = await _supabase.from('perfiles').select('*').eq('user_id', user.id).single();
+    
+    if(!perfil) {
+        const nuevo = { 
+            user_id: user.id, 
+            alias: user.user_metadata.full_name || "Nuevo Socio", 
+            avatar: user.user_metadata.avatar_url || avatares[0], 
+            gua: 100,
+            estado: "🔥"
+        };
+        await _supabase.from('perfiles').insert([nuevo]);
+        currentProfile = nuevo;
+    } else {
+        currentProfile = perfil;
+    }
+    actualizarDOMPerfil();
+}
+
+// Reemplaza tu inicialización por esta:
+document.addEventListener('DOMContentLoaded', async () => {
+    await checkUser(); // Ahora checkUser manda sobre el inicio
+    cargarEtiquetas();
+    cargarFeed('comunidad');
+    configurarSubida();
+});
