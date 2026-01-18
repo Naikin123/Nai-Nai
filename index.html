@@ -20,8 +20,7 @@
             <button class="tab-btn" onclick="cambiarTab('perfil')">Mi Perfil</button>
         </div>
         
-        <div class="tags-scroll" id="barra-etiquetas">
-            </div>
+        <div class="tags-scroll" id="barra-etiquetas"></div>
     </div>
 
     <div id="tab-comunidad" class="seccion-app">
@@ -65,7 +64,7 @@
             
             <div class="botones-perfil">
                 <button class="btn-editar" onclick="abrirEditorPerfil()">✏️ Editar Perfil</button>
-                <button class="btn-normas" onclick="verReglas()">📜 Reglas</button>
+                <button class="btn-normas" onclick="mostrarReglas()">📜 Reglas</button>
             </div>
         </div>
     </div>
@@ -73,22 +72,17 @@
     <div id="modal-editor" class="modal">
         <div class="modal-content">
             <h3>Configuración de Socio</h3>
-            
             <label>Avatar:</label>
             <div style="text-align:center; margin-bottom:10px;">
                 <img id="edit-avatar-preview" src="" style="width:60px; height:60px; border-radius:50%;">
                 <button onclick="abrirSelectorAvatar()" style="display:block; margin:5px auto; background:#333; color:white; border:none; padding:5px 10px; border-radius:5px;">Cambiar Foto</button>
             </div>
-
             <label>Alias (Nombre):</label>
             <input type="text" id="edit-alias" placeholder="Ej: El Rey del Ajedrez">
-
             <label>Biografía (Max 150):</label>
             <textarea id="edit-bio" maxlength="150" placeholder="¿Quién eres?"></textarea>
-
-            <label>Enlace Externo (Instagram/YouTube):</label>
+            <label>Enlace Externo:</label>
             <input type="text" id="edit-link" placeholder="https://...">
-
             <label>Estado Actual:</label>
             <select id="edit-estado">
                 <option value="🔥">🔥 Activo</option>
@@ -98,7 +92,6 @@
                 <option value="😴">😴 Ausente</option>
                 <option value="👑">👑 Modo Naikin</option>
             </select>
-
             <div class="modal-actions">
                 <button onclick="cerrarEditor()" class="btn-cancel">Cancelar</button>
                 <button onclick="guardarPerfil()" class="btn-confirm">GUARDAR CAMBIOS</button>
@@ -112,7 +105,6 @@
             <input type="text" id="up-titulo" placeholder="Título del video">
             <textarea id="up-desc" placeholder="Descripción..."></textarea>
             <select id="up-etiqueta" class="input-select"></select>
-            
             <div class="config-section">
                 <h4>Opciones</h4>
                 <label><input type="checkbox" id="up-comentarios" checked> Comentarios</label>
@@ -122,14 +114,7 @@
                     <option value="horizontal">Horizontal</option>
                     <option value="vertical">Vertical</option>
                 </select>
-                <label>¿Es tuyo?</label>
-                <select id="up-propio" onchange="toggleFuente(this.value)">
-                    <option value="si">Sí</option>
-                    <option value="no">No (Créditos)</option>
-                </select>
-                <input type="text" id="up-fuente" placeholder="Link original" style="display:none;">
             </div>
-
             <div class="modal-actions">
                 <button onclick="cancelarSubida()" class="btn-cancel">Cancelar</button>
                 <button onclick="confirmarSubida()" class="btn-confirm">PUBLICAR</button>
@@ -146,13 +131,11 @@
     </div>
 
     <div id="modal-perfil-ajeno" class="modal">
-        <div id="contenido-perfil-ajeno" class="modal-content" style="border: 1px solid #00f2ea;">
-            </div>
+        <div id="contenido-perfil-ajeno" class="modal-content" style="border: 1px solid #00f2ea;"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script> 
 </body>
-                </html>
-                
-<button class="btn-normas" onclick="mostrarReglas()">📜 Reglas</button>
+                        </html>
+    
