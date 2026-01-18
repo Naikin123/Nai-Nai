@@ -218,3 +218,18 @@ async function loginConGoogle() {
     });
     if (error) console.error("Error:", error.message);
 }
+
+// Esta función revisa automáticamente si el usuario ya inició sesión
+_supabase.auth.onAuthStateChange((event, session) => {
+  if (session) {
+    console.log("¡Usuario detectado!", session.user);
+    // Aquí ocultamos los botones de registro y mostramos tu app
+    document.getElementById('botones-inicio').style.display = 'none';
+    document.getElementById('contenido-app').style.display = 'block';
+    
+    // Si tienes un lugar para poner el nombre:
+    // document.getElementById('nombre-usuario').innerText = session.user.user_metadata.full_name;
+  } else {
+    console.log("No hay nadie logueado");
+  }
+});
