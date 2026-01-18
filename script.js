@@ -286,3 +286,9 @@ window.abrirSelectorAvatar = function() {
     document.getElementById('modal-avatar').style.display='flex';
         }
             
+
+// --- 2. NAIKIN Y PERFILES AJENOS ---
+window.verPerfilNaikin = async function() {
+    // Hemos puesto tu ID 3762 para que seas el VIP
+    abrirPerfilAjeno("3762"); 
+}
