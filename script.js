@@ -1,6 +1,6 @@
 // --- CONFIGURACIÓN DE CONEXIÓN ---
 const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
-const supabaseKey = 'TU_CLAVE_COMPLETA_AQUÍ'; // <--- PEGA TU CLAVE COMPLETA AQUÍ
+const supabaseKey = 'TU_CLAVE_COMPLETA_AQUÍ'; // <--- PEGA TU CLAVE (la que empieza con eyJ)
 
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -21,48 +21,50 @@ const avatares = [
 
 let myId = null;
 let currentProfile = null;
+let currentVideoId = null;
 
-// --- SISTEMA DE AUTENTICACIÓN (REPARADO) ---
+// --- SISTEMA DE AUTENTICACIÓN ---
 
-// 1. Escuchar cambios de sesión (Google nos avisa aquí)
 _supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log("Evento de Auth:", event);
     if (session) {
-        console.log("Sesión activa:", session.user);
         myId = session.user.id;
+        // Ocultar pantalla de inicio, mostrar app
         document.getElementById('auth-container').style.display = 'none';
+        const appContent = document.getElementById('contenido-app');
+        if(appContent) appContent.style.display = 'block';
+        
         await cargarPerfilUsuario(session.user);
     } else {
         const invId = localStorage.getItem('nai_invitado_id');
         if (invId) {
             myId = invId;
             document.getElementById('auth-container').style.display = 'none';
+            if(document.getElementById('contenido-app')) document.getElementById('contenido-app').style.display = 'block';
             await cargarPerfilInvitado();
         } else {
             document.getElementById('auth-container').style.display = 'flex';
+            if(document.getElementById('contenido-app')) document.getElementById('contenido-app').style.display = 'none';
         }
     }
 });
 
-// 2. Función para Login con Google
 window.loginConGoogle = async function() {
     const { error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: window.location.origin 
+            redirectTo: window.location.origin + window.location.pathname,
+            queryParams: { prompt: 'select_account' }
         }
     });
-    if (error) alert("Error: " + error.message);
+    if (error) alert("Error de Google: " + error.message);
 }
 
-// 3. Función para Invitado
 window.continuarComoInvitado = () => {
-    if(!localStorage.getItem('nai_invitado_id')) {
-        localStorage.setItem('nai_invitado_id', 'INV-' + Math.floor(Math.random() * 9999));
-    }
-    location.reload(); // Recargamos para que onAuthStateChange detecte al invitado
+    localStorage.setItem('nai_invitado_id', 'INV-' + Math.floor(Math.random() * 9999));
+    location.reload(); 
 };
 
-// 4. Cargar Perfil de Google
 async function cargarPerfilUsuario(user) {
     let { data: perfil } = await _supabase.from('perfiles').select('*').eq('user_id', user.id).single();
     
@@ -77,44 +79,48 @@ async function cargarPerfilUsuario(user) {
         await _supabase.from('perfiles').insert([perfil]);
     }
     currentProfile = perfil;
-    actualizarPantallaPrincipal();
+    console.log("Perfil cargado:", currentProfile.alias);
 }
 
-// 5. Cargar Perfil de Invitado
 async function cargarPerfilInvitado() {
     currentProfile = { alias: "Invitado", avatar: avatares[0], gua: 0, estado: "🕶️" };
-    actualizarPantallaPrincipal();
 }
 
-function actualizarPantallaPrincipal() {
-    // Aquí pon el código para mostrar tu app y ocultar los botones de inicio
-    console.log("App lista para:", currentProfile.alias);
-    // document.getElementById('contenido-app').style.display = 'block';
-}
-
-// --- FUNCIONES DE LA APP (COMENTARIOS, LIKES, ETC) ---
+// --- FUNCIONES DE LA APP ---
 
 window.darLike = async (btn, id) => {
-    await _supabase.rpc('incrementar_like', { video_id: id });
-    const span = btn.querySelector('span');
-    span.innerText = parseInt(span.innerText) + 1;
-    btn.style.color = "#ff4444";
+    const { error } = await _supabase.rpc('incrementar_like', { video_id: id });
+    if(!error) {
+        const span = btn.querySelector('span');
+        span.innerText = parseInt(span.innerText) + 1;
+        btn.style.color = "#ff4444";
+    }
 }
 
 window.enviarComentario = async () => {
     const texto = document.getElementById('input-comentario').value;
     if(!texto || !currentProfile) return;
-    await _supabase.from('comentarios').insert([{
+    
+    const { error } = await _supabase.from('comentarios').insert([{
         video_id: currentVideoId, 
         user_id: myId, 
         usuario: currentProfile.alias, 
         texto: texto
     }]);
-    document.getElementById('input-comentario').value = "";
-    abrirComentarios(currentVideoId);
+    
+    if(!error) {
+        document.getElementById('input-comentario').value = "";
+        abrirComentarios(currentVideoId);
+    }
 }
 
-// Inicialización
+window.logout = async () => {
+    localStorage.removeItem('nai_invitado_id');
+    await _supabase.auth.signOut();
+    location.reload();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // No necesitamos llamar a checkUser, onAuthStateChange lo hace solo.
+    // Aquí puedes llamar a tus funciones de carga de videos si las tienes
+    console.log("Nai-Nai listo.");
 });
