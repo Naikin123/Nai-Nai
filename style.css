@@ -73,3 +73,13 @@ video { width: 100%; display: block; max-height: 80vh; }
 
 .grid-fotos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .grid-fotos img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 5px; cursor: pointer; border: 2px solid transparent; }
+
+#auth-container {
+    pointer-events: all !important;
+    cursor: default;
+}
+#auth-container button {
+    cursor: pointer !important;
+    z-index: 3000;
+                   }
+                   
