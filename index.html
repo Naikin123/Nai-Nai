@@ -1,13 +1,80 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nai-Nai ELITE</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body>
+// --- 1. CONFIGURACIÓN FINAL (LLAVES REALES) ---
+const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
+
+// Ya puse aquí la llave que encontraste (la anon)
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o'; 
+
+const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// Variables globales para que no marque error
+let myId = null;
+let currentProfile = null;
+
+// --- 2. CONTROL DE SESIÓN ---
+_supabase.auth.onAuthStateChange(async (event, session) => {
+    if (session) {
+        myId = session.user.id;
+        mostrarApp(true);
+        await cargarPerfil(session.user);
+    } else {
+        const invId = localStorage.getItem('nai_invitado_id');
+        if (invId) {
+            myId = invId;
+            mostrarApp(true);
+            currentProfile = { alias: "Invitado", avatar: "https://i.ibb.co/hF6VHB5F/1ec8541e-1.png", gua: 0 };
+        } else {
+            mostrarApp(false);
+        }
+    }
+});
+
+function mostrarApp(usuarioLogueado) {
+    const auth = document.getElementById('auth-container');
+    const app = document.getElementById('contenido-app');
+    if(auth) auth.style.display = usuarioLogueado ? 'none' : 'flex';
+    if(app) app.style.display = usuarioLogueado ? 'block' : 'none';
+}
+
+// --- 3. FUNCIONES DE BOTONES ---
+window.loginConGoogle = async function() {
+    console.log("Iniciando Google...");
+    const { error } = await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin
+        }
+    });
+    if (error) alert("Error: " + error.message);
+};
+
+window.continuarComoInvitado = function() {
+    localStorage.setItem('nai_invitado_id', 'INV-' + Math.floor(Math.random() * 9999));
+    location.reload();
+};
+
+window.logout = async function() {
+    localStorage.removeItem('nai_invitado_id');
+    await _supabase.auth.signOut();
+    location.reload();
+};
+
+async function cargarPerfil(user) {
+    let { data: perfil } = await _supabase.from('perfiles').select('*').eq('user_id', user.id).single();
+    if (!perfil) {
+        perfil = { 
+            user_id: user.id, 
+            alias: user.user_metadata.full_name || "Socio Nai", 
+            avatar: user.user_metadata.avatar_url || "https://i.ibb.co/hF6VHB5F/1ec8541e-1.png", 
+            gua: 100 
+        };
+        await _supabase.from('perfiles').insert([perfil]);
+    }
+    currentProfile = perfil;
+    if(document.getElementById('p-alias')) document.getElementById('p-alias').innerText = perfil.alias;
+    if(document.getElementById('p-avatar')) document.getElementById('p-avatar').src = perfil.avatar;
+    if(document.getElementById('p-gua')) document.getElementById('p-gua').innerText = perfil.gua;
+}
+
 
     <div id="contenido-app" style="display:none;">
         <div class="top-bar">
