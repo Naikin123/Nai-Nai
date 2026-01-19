@@ -9,55 +9,62 @@
 </head>
 <body>
 
-    <div class="top-bar">
-        <button onclick="verPerfilNaikin()" class="btn-naikin-vip">👑 VIP</button>
-        <div class="tabs">
-            <button class="tab-btn activo" onclick="cambiarTab('comunidad')">Comunidad</button>
-            <button class="tab-btn" onclick="cambiarTab('mis-videos')">Mis Videos</button>
-            <button class="tab-btn" onclick="cambiarTab('perfil')">Perfil</button>
+    <div id="contenido-app" style="display:none;">
+        <div class="top-bar">
+            <button onclick="verPerfilNaikin()" class="btn-naikin-vip">👑 VIP</button>
+            <div class="tabs">
+                <button class="tab-btn activo" onclick="cambiarTab('comunidad')">Comunidad</button>
+                <button class="tab-btn" onclick="cambiarTab('mis-videos')">Mis Videos</button>
+                <button class="tab-btn" onclick="cambiarTab('perfil')">Perfil</button>
+            </div>
+            <div id="barra-etiquetas" class="tags-scroll"></div>
         </div>
-        <div class="tags-scroll" id="barra-etiquetas"></div>
+
+        <div id="tab-comunidad" class="seccion-app">
+            <div id="feed-comunidad" class="feed-container"></div>
+        </div>
+
+        <div id="tab-perfil" class="seccion-app" style="display:none;">
+            <div class="perfil-card">
+                <img id="p-avatar" src="" class="avatar-grande">
+                <h2 id="p-alias">Cargando...</h2>
+                <div class="stats">
+                    <div class="stat-box"><span>GUA</span><b id="p-gua">0</b></div>
+                </div>
+                <div class="botones-perfil">
+                    <button onclick="abrirEditorPerfil()">✏️ Editar</button>
+                    <button onclick="mostrarReglas()" style="background:#ff9800;">📜 REGLAS</button>
+                    <button onclick="logout()" style="background:#444;">Cerrar Sesión</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="tab-comunidad" class="seccion-app">
-        <div id="feed-comunidad" class="feed-container"></div>
-    </div>
-
-    <div id="tab-perfil" class="seccion-app" style="display:none;">
-        <div class="perfil-card">
-            <img id="p-avatar" src="" class="avatar-grande">
-            <h2 id="p-alias">Cargando...</h2>
-            <div class="stats">
-                <div class="stat-box"><span>GUA</span><b id="p-gua">0</b></div>
+    <div id="auth-container" class="modal" style="display:flex; background:rgba(0,0,0,0.95);">
+        <div class="modal-content" style="text-align:center; border: 2px solid #00f2ea;">
+            <img src="https://i.ibb.co/hF6VHB5F/1ec8541e-1.png" style="width:80px; margin-bottom:15px;">
+            <h2>Entrar a Nai-Nai</h2>
+            <div style="background: #440000; color: #ffaaaa; padding: 10px; border-radius: 5px; font-size: 0.8rem; margin-bottom: 20px;">
+                ⚠️ <b>AVISO:</b> Si no usas Gmail, tus videos podrían no guardarse para siempre.
             </div>
-            <div class="botones-perfil">
-                <button onclick="abrirEditorPerfil()">✏️ Editar</button>
-                <button onclick="mostrarReglas()" style="background:#ff9800;">📜 REGLAS</button>
-            </div>
+            <button onclick="loginConGoogle()" style="background:white; color:black; padding:12px; border-radius:8px; border:none; width:100%; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px; cursor:pointer;">
+                <img src="https://www.google.com/favicon.ico" style="width:18px;"> Registrarse con Gmail
+            </button>
+            <button onclick="continuarComoInvitado()" style="background:transparent; color:#00f2ea; border:1px solid #00f2ea; padding:10px; border-radius:8px; width:100%; cursor:pointer;">
+                Continuar como Invitado
+            </button>
         </div>
     </div>
 
     <div id="modal-comentarios" class="modal">
-        <div class="modal-content" style="max-height: 80vh;">
+        <div class="modal-content">
             <h3>Comentarios</h3>
-            <div id="lista-comentarios" style="overflow-y: auto; flex-grow: 1; margin-bottom: 10px;"></div>
+            <div id="lista-comentarios"></div>
             <div style="display:flex; gap:5px;">
-                <input type="text" id="input-comentario" placeholder="Escribe algo..." style="flex:1;">
+                <input type="text" id="input-comentario" placeholder="Escribe algo...">
                 <button onclick="enviarComentario()" class="btn-confirm">➔</button>
             </div>
-            <button onclick="cerrarComentarios()" class="btn-cancel" style="margin-top:10px;">Cerrar</button>
-        </div>
-    </div>
-
-    <div id="modal-share" class="modal">
-        <div class="modal-content">
-            <h3>Compartir en...</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button onclick="shareWhatsApp()" style="background:#25D366; color:white; border:none; padding:10px; border-radius:5px;"><i class="fab fa-whatsapp"></i> WhatsApp</button>
-                <button onclick="shareDiscord()" style="background:#5865F2; color:white; border:none; padding:10px; border-radius:5px;"><i class="fab fa-discord"></i> Discord</button>
-                <button onclick="copiarLink()" style="background:#333; color:white; border:none; padding:10px; border-radius:5px;"><i class="fas fa-link"></i> Copiar Link</button>
-            </div>
-            <button onclick="cerrarShare()" class="btn-cancel" style="margin-top:15px;">Cerrar</button>
+            <button onclick="cerrarComentarios()" class="btn-cancel">Cerrar</button>
         </div>
     </div>
 
@@ -65,47 +72,3 @@
     <script src="script.js"></script> 
 </body>
 </html>
-
-<div id="auth-container" class="modal" style="display:flex; background:rgba(0,0,0,0.9);">
-    <div class="modal-content" style="text-align:center;">
-        <img src="https://i.ibb.co/hF6VHB5F/1ec8541e-1.png" style="width:100px; margin-bottom:20px;">
-        <h2>Bienvenido a Nai-Nai</h2>
-        <p>Inicia sesión para subir videos y ganar GUA</p>
-        <br>
-        <button onclick="loginGoogle()" style="background:white; color:#333; padding:12px; border-radius:8px; border:none; width:100%; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px;">
-            <img src="https://www.google.com/favicon.ico" style="width:20px;"> Entrar con Google
-        </button>
-        <p style="font-size:0.7rem; color:gray; margin-top:20px;">Al entrar aceptas las reglas de la comunidad.</p>
-    </div>
-</div>
-
-<div id="auth-container" class="modal" style="display:flex; background:rgba(0,0,0,0.95);">
-    <div class="modal-content" style="text-align:center; border: 2px solid #00f2ea;">
-        <img src="https://i.ibb.co/hF6VHB5F/1ec8541e-1.png" style="width:80px; margin-bottom:15px;">
-        <h2>Entrar a Nai-Nai</h2>
-        
-        <div style="background: #440000; color: #ffaaaa; padding: 10px; border-radius: 5px; font-size: 0.8rem; margin-bottom: 20px;">
-            ⚠️ <b>AVISO:</b> Si no te registras con Gmail, no nos hacemos responsables si tus videos son borrados o modificados por otros socios.
-        </div>
-
-        <button onclick="loginGoogle()" style="background:white; color:#333; padding:12px; border-radius:8px; border:none; width:100%; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px;">
-            <img src="https://www.google.com/favicon.ico" style="width:18px;"> Registrarse con Gmail
-        </button>
-
-        <button onclick="continuarComoInvitado()" style="background:transparent; color:#00f2ea; border:1px solid #00f2ea; padding:10px; border-radius:8px; width:100%;">
-            Continuar como Invitado
-        </button>
-    </div>
-</div>
-
-<button onclick="loginConGoogle()" style="background:white; color:black; padding:10px; border-radius:5px; border:none; font-weight:bold; display:flex; align-items:center; gap:10px;">
-    <img src="https://www.google.com/favicon.ico" style="width:18px;"> Registrarse con Gmail
-</button>
-
-<button onclick="loginConGoogle()" class="tu-clase-de-estilo">
-    Registrarse con Google
-</button>
-
-<button onclick="loginConGoogle()" class="tu-clase-de-estilo">
-    Registrarse con Google
-</button>
