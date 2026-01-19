@@ -114,20 +114,34 @@ window.enviarComentario = async () => {
     }
 }
 
-window.logout = async () => {
-    localStorage.removeItem('nai_invitado_id');
-    await _supabase.auth.signOut();
-    location.reload();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Aquí puedes llamar a tus funciones de carga de videos si las tienes
-    console.log("Nai-Nai listo.");
-});
-
+// Función única de Login
 window.loginConGoogle = async function() {
-    console.log("Botón presionado");
-    alert("Iniciando conexión con Google..."); // Si sale esto, el botón funciona
+    console.log("Intentando conectar con Google...");
+    
+    try {
+        const { data, error } = await _supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                // Esto es vital para que funcione en móviles
+                redirectTo: window.location.origin + window.location.pathname,
+                queryParams: { prompt: 'select_account' }
+            }
+        });
+
+        if (error) throw error;
+    } catch (err) {
+        alert("Error al abrir Google: " + err.message);
+        console.error(err);
+    }
+};
+
+// Función para invitados
+window.continuarComoInvitado = () => {
+    localStorage.setItem('nai_invitado_id', 'INV-' + Math.floor(Math.random() * 9999));
+    document.getElementById('auth-container').style.display = 'none';
+    location.reload(); 
+};
+
 
     try {
         const { data, error } = await _supabase.auth.signInWithOAuth({
