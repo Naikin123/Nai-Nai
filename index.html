@@ -40,16 +40,18 @@
         </div>
     </div>
 
-    <div id="auth-container" class="modal" style="display:flex; background:rgba(0,0,0,0.95);">
+    <div id="auth-container" class="modal" style="display:flex; background:rgba(0,0,0,0.95); z-index: 9999;">
         <div class="modal-content" style="text-align:center; border: 2px solid #00f2ea;">
             <img src="https://i.ibb.co/hF6VHB5F/1ec8541e-1.png" style="width:80px; margin-bottom:15px;">
             <h2>Entrar a Nai-Nai</h2>
             <div style="background: #440000; color: #ffaaaa; padding: 10px; border-radius: 5px; font-size: 0.8rem; margin-bottom: 20px;">
                 ⚠️ <b>AVISO:</b> Si no usas Gmail, tus videos podrían no guardarse para siempre.
             </div>
+            
             <button onclick="loginConGoogle()" style="background:white; color:black; padding:12px; border-radius:8px; border:none; width:100%; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px; cursor:pointer;">
                 <img src="https://www.google.com/favicon.ico" style="width:18px;"> Registrarse con Gmail
             </button>
+            
             <button onclick="continuarComoInvitado()" style="background:transparent; color:#00f2ea; border:1px solid #00f2ea; padding:10px; border-radius:8px; width:100%; cursor:pointer;">
                 Continuar como Invitado
             </button>
@@ -72,7 +74,3 @@
     <script src="script.js"></script> 
 </body>
 </html>
-<button onclick="loginConGoogle()" style="cursor:pointer;">
-    Registrarse con Gmail
-</button>
-
