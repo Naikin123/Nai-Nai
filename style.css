@@ -1,8 +1,42 @@
-body { background-color: #050505; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 80px; }
-a { color: #00f2ea; text-decoration: none; }
+// --- CONEXIÓN ---
+const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
+const supabaseKey = 'TU_KEY_AQUÍ'; // <--- PEGA TU CLAVE LARGA AQUÍ
 
-/* BARRA SUPERIOR Y BOTÓN NAIKIN */
-.top-bar { position: sticky; top: 0; background: rgba(5,5,5,0.95); z-index: 100; border-bottom: 1px solid #222; backdrop-filter: blur(10px); text-align: center; }
+const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// --- FUNCIÓN DE LOGIN (CORREGIDA) ---
+window.loginConGoogle = async function() {
+    console.log("Iniciando Google...");
+    const { error } = await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            // Esto redirige a tu página actual automáticamente
+            redirectTo: window.location.origin + window.location.pathname,
+            queryParams: { prompt: 'select_account' }
+        }
+    });
+    if (error) alert("Error: " + error.message);
+};
+
+// --- CONTROL DE PANTALLAS ---
+_supabase.auth.onAuthStateChange((event, session) => {
+    if (session) {
+        // Si hay usuario, escondemos el registro y mostramos la app
+        document.getElementById('auth-container').style.display = 'none';
+        document.getElementById('contenido-app').style.display = 'block';
+        console.log("¡Bienvenido!", session.user.user_metadata.full_name);
+    } else {
+        // Si no hay usuario, mostramos la pantalla de entrada
+        document.getElementById('auth-container').style.display = 'flex';
+        document.getElementById('contenido-app').style.display = 'none';
+    }
+});
+
+// Función para invitado
+window.continuarComoInvitado = () => {
+    localStorage.setItem('nai_invitado_id', 'INV-' + Math.floor(Math.random() * 9999));
+    location.reload(); 
+};
 
 .btn-naikin-vip {
     background: linear-gradient(45deg, #ffd700, #ff8c00);
