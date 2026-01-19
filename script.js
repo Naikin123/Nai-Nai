@@ -53,3 +53,19 @@ async function cargarPerfil(user) {
         document.getElementById('p-gua').innerText = perfil.gua;
     }
 }
+
+function loginConGoogle() {
+    console.log("Botón presionado");
+    _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin
+        }
+    }).then(({ error }) => {
+        if (error) alert("Error de Supabase: " + error.message);
+    }).catch(err => {
+        alert("Error crítico: " + err.message);
+    });
+}
+// Hacerla global para el HTML
+window.loginConGoogle = loginConGoogle;
