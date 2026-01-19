@@ -124,3 +124,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // Aquí puedes llamar a tus funciones de carga de videos si las tienes
     console.log("Nai-Nai listo.");
 });
+
+window.loginConGoogle = async function() {
+    console.log("Botón presionado");
+    alert("Iniciando conexión con Google..."); // Si sale esto, el botón funciona
+
+    try {
+        const { data, error } = await _supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                // Esto asegura que use la URL actual de tu página
+                redirectTo: window.location.origin + window.location.pathname,
+                queryParams: {
+                    prompt: 'select_account'
+                }
+            }
+        });
+
+        if (error) {
+            console.error("Error de Supabase:", error.message);
+            alert("Error de configuración: " + error.message);
+        }
+    } catch (err) {
+        console.error("Error inesperado:", err);
+        alert("Ocurrió un error inesperado al conectar.");
+    }
+};
