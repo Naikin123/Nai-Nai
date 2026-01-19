@@ -1,28 +1,31 @@
-// --- 1. CONFIGURACIÓN FINAL (LLAVES REALES) ---
+// --- 1. CONFIGURACIÓN FINAL ---
 const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
 
-// Ya puse aquí la llave que encontraste (la anon)
+// LLAVE CORRECTA (Anon Public)
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o'; 
 
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Variables globales para que no marque error
+// Variables globales
 let myId = null;
 let currentProfile = null;
 
 // --- 2. CONTROL DE SESIÓN ---
 _supabase.auth.onAuthStateChange(async (event, session) => {
     if (session) {
+        // Usuario logueado
         myId = session.user.id;
         mostrarApp(true);
         await cargarPerfil(session.user);
     } else {
+        // Revisar si es invitado
         const invId = localStorage.getItem('nai_invitado_id');
         if (invId) {
             myId = invId;
             mostrarApp(true);
             currentProfile = { alias: "Invitado", avatar: "https://i.ibb.co/hF6VHB5F/1ec8541e-1.png", gua: 0 };
         } else {
+            // Nadie logueado, mostrar login
             mostrarApp(false);
         }
     }
@@ -35,7 +38,26 @@ function mostrarApp(usuarioLogueado) {
     if(app) app.style.display = usuarioLogueado ? 'block' : 'none';
 }
 
-// --- 3. FUNCIONES DE BOTONES ---
+// --- 3. FUNCIONES DE INTERFAZ (TABS) ---
+window.cambiarTab = function(tabName) {
+    // Ocultar todas las secciones
+    document.querySelectorAll('.seccion-app').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('activo'));
+    
+    // Mostrar la seleccionada
+    const tabSeleccionado = document.getElementById('tab-' + tabName);
+    if(tabSeleccionado) tabSeleccionado.style.display = 'block';
+    
+    // Activar botón
+    const botones = document.querySelectorAll('.tab-btn');
+    botones.forEach(btn => {
+        if(btn.textContent.toLowerCase().includes(tabName.replace('mis-videos','videos').replace('perfil','perfil'))) {
+            btn.classList.add('activo');
+        }
+    });
+};
+
+// --- 4. FUNCIONES DE LOGIN Y PERFIL ---
 window.loginConGoogle = async function() {
     console.log("Iniciando Google...");
     const { error } = await _supabase.auth.signInWithOAuth({
@@ -61,6 +83,7 @@ window.logout = async function() {
 async function cargarPerfil(user) {
     let { data: perfil } = await _supabase.from('perfiles').select('*').eq('user_id', user.id).single();
     if (!perfil) {
+        // Crear perfil si no existe
         perfil = { 
             user_id: user.id, 
             alias: user.user_metadata.full_name || "Socio Nai", 
@@ -70,74 +93,9 @@ async function cargarPerfil(user) {
         await _supabase.from('perfiles').insert([perfil]);
     }
     currentProfile = perfil;
+    
+    // Actualizar datos en pantalla
     if(document.getElementById('p-alias')) document.getElementById('p-alias').innerText = perfil.alias;
     if(document.getElementById('p-avatar')) document.getElementById('p-avatar').src = perfil.avatar;
     if(document.getElementById('p-gua')) document.getElementById('p-gua').innerText = perfil.gua;
 }
-
-
-    <div id="contenido-app" style="display:none;">
-        <div class="top-bar">
-            <button onclick="verPerfilNaikin()" class="btn-naikin-vip">👑 VIP</button>
-            <div class="tabs">
-                <button class="tab-btn activo" onclick="cambiarTab('comunidad')">Comunidad</button>
-                <button class="tab-btn" onclick="cambiarTab('mis-videos')">Mis Videos</button>
-                <button class="tab-btn" onclick="cambiarTab('perfil')">Perfil</button>
-            </div>
-            <div id="barra-etiquetas" class="tags-scroll"></div>
-        </div>
-
-        <div id="tab-comunidad" class="seccion-app">
-            <div id="feed-comunidad" class="feed-container"></div>
-        </div>
-
-        <div id="tab-perfil" class="seccion-app" style="display:none;">
-            <div class="perfil-card">
-                <img id="p-avatar" src="" class="avatar-grande">
-                <h2 id="p-alias">Cargando...</h2>
-                <div class="stats">
-                    <div class="stat-box"><span>GUA</span><b id="p-gua">0</b></div>
-                </div>
-                <div class="botones-perfil">
-                    <button onclick="abrirEditorPerfil()">✏️ Editar</button>
-                    <button onclick="mostrarReglas()" style="background:#ff9800;">📜 REGLAS</button>
-                    <button onclick="logout()" style="background:#444;">Cerrar Sesión</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="auth-container" class="modal" style="display:flex; background:rgba(0,0,0,0.95); z-index: 9999;">
-        <div class="modal-content" style="text-align:center; border: 2px solid #00f2ea;">
-            <img src="https://i.ibb.co/hF6VHB5F/1ec8541e-1.png" style="width:80px; margin-bottom:15px;">
-            <h2>Entrar a Nai-Nai</h2>
-            <div style="background: #440000; color: #ffaaaa; padding: 10px; border-radius: 5px; font-size: 0.8rem; margin-bottom: 20px;">
-                ⚠️ <b>AVISO:</b> Si no usas Gmail, tus videos podrían no guardarse para siempre.
-            </div>
-            
-            <button onclick="loginConGoogle()" style="background:white; color:black; padding:12px; border-radius:8px; border:none; width:100%; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px; cursor:pointer;">
-                <img src="https://www.google.com/favicon.ico" style="width:18px;"> Registrarse con Gmail
-            </button>
-            
-            <button onclick="continuarComoInvitado()" style="background:transparent; color:#00f2ea; border:1px solid #00f2ea; padding:10px; border-radius:8px; width:100%; cursor:pointer;">
-                Continuar como Invitado
-            </button>
-        </div>
-    </div>
-
-    <div id="modal-comentarios" class="modal">
-        <div class="modal-content">
-            <h3>Comentarios</h3>
-            <div id="lista-comentarios"></div>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="input-comentario" placeholder="Escribe algo...">
-                <button onclick="enviarComentario()" class="btn-confirm">➔</button>
-            </div>
-            <button onclick="cerrarComentarios()" class="btn-cancel">Cerrar</button>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script> 
-</body>
-</html>
