@@ -1,58 +1,36 @@
-// --- 1. CONFIGURACIÓN ---
 const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o'; 
 
-// ⚠️ BORRA EL TEXTO DE ABAJO Y PEGA TU LLAVE REAL (la que empieza con eyJ...)
-const supabaseKey = 'PEGAR_AQUI_LA_LLAVE_LARGA'; 
-
-// Inicializar cliente
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Variables globales (FALTABAN ESTAS)
 let myId = null;
 let currentProfile = null;
 
-// --- 2. CONTROL DE SESIÓN ---
 _supabase.auth.onAuthStateChange(async (event, session) => {
-    console.log("Estado de sesión:", event); // Para ver si funciona en la consola
     if (session) {
         myId = session.user.id;
-        mostrarApp(true);
+        document.getElementById('auth-container').style.display = 'none';
+        document.getElementById('contenido-app').style.display = 'block';
         await cargarPerfil(session.user);
     } else {
         const invId = localStorage.getItem('nai_invitado_id');
         if (invId) {
             myId = invId;
-            mostrarApp(true);
-            currentProfile = { alias: "Invitado", avatar: "https://i.ibb.co/hF6VHB5F/1ec8541e-1.png", gua: 0 };
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('contenido-app').style.display = 'block';
         } else {
-            mostrarApp(false);
+            document.getElementById('auth-container').style.display = 'flex';
+            document.getElementById('contenido-app').style.display = 'none';
         }
     }
 });
 
-function mostrarApp(usuarioLogueado) {
-    const authContainer = document.getElementById('auth-container');
-    const appContainer = document.getElementById('contenido-app');
-    
-    if(authContainer) authContainer.style.display = usuarioLogueado ? 'none' : 'flex';
-    if(appContainer) appContainer.style.display = usuarioLogueado ? 'block' : 'none';
-}
-
-// --- 3. FUNCIONES DE BOTONES ---
-
-// Función para el botón de Gmail
 window.loginConGoogle = async function() {
-    console.log("Intentando iniciar sesión con Google...");
     const { error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-            redirectTo: window.location.href // Esto asegura que vuelva a la misma página
-        }
+        options: { redirectTo: window.location.origin }
     });
-    if (error) {
-        alert("Error al conectar: " + error.message);
-        console.error(error);
-    }
+    if (error) alert("Error: " + error.message);
 };
 
 window.continuarComoInvitado = function() {
@@ -66,44 +44,12 @@ window.logout = async function() {
     location.reload();
 };
 
-window.cambiarTab = function(tabName) {
-    // Ocultar todas las secciones
-    document.querySelectorAll('.seccion-app').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('activo'));
-    
-    // Mostrar la elegida
-    document.getElementById('tab-' + tabName).style.display = 'block';
-    
-    // Buscar el botón correspondiente (corrección simple)
-    const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.innerText.toLowerCase().includes(tabName.replace('mis-videos', 'videos')));
-    if(btn) btn.classList.add('activo');
-};
-
 async function cargarPerfil(user) {
-    // Intentar buscar perfil existente
-    let { data: perfil, error } = await _supabase
-        .from('perfiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-    // Si no existe, crearlo (o si hay error al buscar)
-    if (!perfil) {
-        const nuevoPerfil = { 
-            user_id: user.id, 
-            alias: user.user_metadata.full_name || "Socio Nai", 
-            avatar: user.user_metadata.avatar_url || "https://i.ibb.co/hF6VHB5F/1ec8541e-1.png", 
-            gua: 100 
-        };
-        
-        const { error: errorInsert } = await _supabase.from('perfiles').insert([nuevoPerfil]);
-        if (!errorInsert) perfil = nuevoPerfil;
-    }
-    
+    let { data: perfil } = await _supabase.from('perfiles').select('*').eq('user_id', user.id).single();
     if (perfil) {
         currentProfile = perfil;
-        if(document.getElementById('p-alias')) document.getElementById('p-alias').innerText = perfil.alias;
-        if(document.getElementById('p-avatar')) document.getElementById('p-avatar').src = perfil.avatar;
-        if(document.getElementById('p-gua')) document.getElementById('p-gua').innerText = perfil.gua;
+        document.getElementById('p-alias').innerText = perfil.alias;
+        document.getElementById('p-avatar').src = perfil.avatar;
+        document.getElementById('p-gua').innerText = perfil.gua;
     }
 }
