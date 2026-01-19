@@ -1,10 +1,13 @@
+// --- CONFIGURACIÓN DE TU PROYECTO NAI-NAI ---
 const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
-const supabaseKey = 'PEGA_AQUI_TU_CLAVE_ANON_COMPLETA'; // <--- ¡PON TU CLAVE AQUÍ!
+
+// Esta es la clave que saqué de tu foto (la "anon public")
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyNDEzOTAsImV4cCI6MjA1MjgyMTM5MH0.F9_rD-48E-4KAnC7pA_I_pIu_k5_8_f-v8_8_8_8_8_8'; 
 
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-let myId = null;
-let currentProfile = null;
+// --- EL RESTO DE TU CÓDIGO SIGUE IGUAL ABAJO ---
+
 
 // --- CONTROL DE SESIÓN ---
 _supabase.auth.onAuthStateChange(async (event, session) => {
