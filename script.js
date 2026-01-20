@@ -3,13 +3,11 @@ const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
 const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Variables Globales
-let usuarioActual = null;
-let perfilData = null;
-let etiquetasSeleccionadas = [];
+let perfilActual = null;
+let etiquetasSel = [];
 let avatarTemp = "";
 
-// LISTA DE AVATARES
+// TUS IMÁGENES
 const AVATARES = [
     "https://i.ibb.co/hF6VHB5F/1ec8541e-1.png", "https://i.ibb.co/kLMbfDM/c876007d.png",
     "https://i.ibb.co/TqMHL17S/44-sin-t-tulo2.png", "https://i.ibb.co/Gf3LYb3q/39-sin-t-tulo4.png",
@@ -28,167 +26,154 @@ const AVATARES = [
     "https://i.ibb.co/nqN37BDq/82-sin-t-tulo2.png", "https://i.ibb.co/vCdRv7qG/86-sin-t-tulo2.png",
     "https://i.ibb.co/wNs2x97p/86-sin-t-tulo.png", "https://i.ibb.co/d0GndZNk/91-sin-t-tulo.png"
 ];
+const TAGS = ["Humor", "Científico", "Epico", "Juegos", "Corto", "Vlogs", "Cocina", "Música", "Terror", "Arte", "Noticias"];
 
-// LISTA DE ETIQUETAS
-const TAGS = [
-    "Epico", "Juegos", "Corto", "Largo", "Vtuber", "Ciencia", 
-    "Vlogs", "Cocina", "Música", "Tutorial", "Cine", "Humor", 
-    "Terror", "ASMR", "Arte", "IA", "Noticias", "Random"
-];
-
-// --- 2. SISTEMA DE INICIO (El cerebro) ---
+// --- INICIO ---
 window.onload = async () => {
-    // Verificar si hay sesión de Google
     const { data: { session } } = await _supabase.auth.getSession();
     const invitadoId = localStorage.getItem('nai_invitado_id');
-
-    if (session) {
-        // Es usuario Google
-        await iniciarApp(session.user.id, 'google', session.user.user_metadata);
-    } else if (invitadoId) {
-        // Es invitado
-        await iniciarApp(invitadoId, 'invitado', null);
-    } else {
-        // No hay nadie
-        mostrarLogin();
-    }
+    
+    if (session) iniciar(session.user.id, 'google', session.user.user_metadata);
+    else if (invitadoId) iniciar(invitadoId, 'invitado', null);
+    else document.getElementById('auth-container').style.display = 'flex';
 };
 
-function mostrarLogin() {
-    document.getElementById('auth-container').style.display = 'flex';
-    document.getElementById('contenido-app').style.display = 'none';
-}
-
-async function iniciarApp(uid, tipo, metadata) {
-    // Ocultar login y mostrar app
+async function iniciar(uid, tipo, meta) {
     document.getElementById('auth-container').style.display = 'none';
     document.getElementById('contenido-app').style.display = 'block';
 
-    // Buscar perfil en DB
-    let { data: perfil, error } = await _supabase
-        .from('perfiles')
-        .select('*')
-        .eq('user_id', uid) // Como ahora es TEXT, esto NO fallará
-        .single();
+    let { data: perfil } = await _supabase.from('perfiles').select('*').eq('user_id', uid).single();
 
-    // Si no existe, crearlo
     if (!perfil) {
-        console.log("Creando perfil nuevo...");
-        const nuevoPerfil = {
+        const nuevo = {
             user_id: uid,
-            alias: metadata ? metadata.full_name : "Invitado",
-            avatar: metadata ? metadata.avatar_url : AVATARES[0],
-            tipo_cuenta: tipo,
-            gua: 100
+            alias: meta ? meta.full_name : "Invitado",
+            avatar: meta ? meta.avatar_url : AVATARES[0],
+            tipo_cuenta: tipo
         };
-        const { data } = await _supabase.from('perfiles').insert([nuevoPerfil]).select().single();
+        const { data } = await _supabase.from('perfiles').insert([nuevo]).select().single();
         perfil = data;
     }
-
-    perfilData = perfil;
-    usuarioActual = uid;
-    actualizarInterfaz();
+    perfilActual = perfil;
+    actualizarUI();
     cargarFeed();
 }
 
-function actualizarInterfaz() {
-    if (!perfilData) return;
-    document.getElementById('p-alias').innerText = perfilData.alias;
-    document.getElementById('p-avatar').src = perfilData.avatar;
-    document.getElementById('p-gua').innerText = perfilData.gua;
+function actualizarUI() {
+    if(!perfilActual) return;
+    document.getElementById('p-alias').innerText = perfilActual.alias;
+    document.getElementById('p-avatar').src = perfilActual.avatar;
+    document.getElementById('p-gua').innerText = perfilActual.gua;
     
-    // Bloquear input si ya es .Nai
-    const inputAlias = document.getElementById('edit-alias');
-    if (inputAlias) inputAlias.disabled = perfilData.alias.endsWith('.Nai');
+    const socialLink = document.getElementById('p-link-social');
+    if(perfilActual.link_social) {
+        socialLink.href = perfilActual.link_social;
+        socialLink.style.display = 'block';
+    } else {
+        socialLink.style.display = 'none';
+    }
 }
 
-// --- 3. FUNCIONES DE BOTONES DE ACCESO ---
-window.loginConGoogle = async () => {
-    await _supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin }
-    });
-};
-
-window.entrarComoInvitado = () => {
-    const idGenerado = 'INV-' + Date.now();
-    localStorage.setItem('nai_invitado_id', idGenerado);
-    location.reload();
-};
-
-window.logout = async () => {
-    localStorage.removeItem('nai_invitado_id');
-    await _supabase.auth.signOut();
-    location.reload();
-};
-
-// --- 4. FUNCIONES DE PERFIL (.NAI) ---
+// --- LÓGICA CUENTA .NAI (REVERSIBLE) ---
 window.abrirEditorPerfil = () => {
     document.getElementById('modal-perfil').style.display = 'flex';
-    document.getElementById('edit-alias').value = perfilData.alias;
-    avatarTemp = perfilData.avatar;
+    document.getElementById('edit-alias').value = perfilActual.alias;
+    document.getElementById('edit-social').value = perfilActual.link_social || '';
+    avatarTemp = perfilActual.avatar;
     
-    // Cargar Avatares
-    const grid = document.getElementById('grid-avatares');
-    grid.innerHTML = AVATARES.map(url => `
-        <img src="${url}" class="avatar-option ${url === perfilData.avatar ? 'selected' : ''}" 
-        onclick="selectAvatar(this, '${url}')">
+    // Configurar botón Nai
+    const btnNai = document.getElementById('btn-nai-action');
+    if (perfilActual.alias.endsWith('.Nai')) {
+        btnNai.innerText = "❌ Quitar Cuenta .Nai";
+        btnNai.style.background = "#555";
+    } else {
+        btnNai.innerText = "✨ Convertir en Cuenta .Nai";
+        btnNai.style.background = "#4a00e0";
+    }
+
+    // Grid Avatares
+    document.getElementById('grid-avatares').innerHTML = AVATARES.map(url => `
+        <img src="${url}" class="avatar-option ${url === perfilActual.avatar ? 'selected' : ''}" 
+        onclick="selAvatar(this, '${url}')">
     `).join('');
 };
 
-window.selectAvatar = (el, url) => {
+window.gestionarCuentaNai = () => {
+    const esNai = perfilActual.alias.endsWith('.Nai');
+    document.getElementById('modal-perfil').style.display = 'none'; // Ocultar editor
+    document.getElementById('modal-nai-confirm').style.display = 'flex'; // Mostrar confirmación
+    
+    const texto = document.getElementById('nai-mensaje-texto');
+    const btn = document.querySelector('#modal-nai-confirm .btn-confirmar');
+    
+    if (esNai) {
+        texto.innerText = "¿Seguro que quieres quitar el '.Nai' de tu nombre? Perderás las ventajas asociadas.";
+        btn.innerText = "QUITAR .NAI";
+        btn.onclick = () => procesarCambioNai(false);
+    } else {
+        texto.innerText = "Esto ayuda a que te registres a otros proyectos míos con esta cuenta y te dará ventajas futuras.";
+        btn.innerText = "ACEPTAR";
+        btn.onclick = () => procesarCambioNai(true);
+    }
+};
+
+window.procesarCambioNai = (activar) => {
+    let nuevoNombre = perfilActual.alias;
+    if (activar) {
+        if (!nuevoNombre.endsWith('.Nai')) nuevoNombre = nuevoNombre.trim() + '.Nai';
+    } else {
+        if (nuevoNombre.endsWith('.Nai')) nuevoNombre = nuevoNombre.replace('.Nai', '').trim();
+    }
+    document.getElementById('edit-alias').value = nuevoNombre;
+    document.getElementById('modal-nai-confirm').style.display = 'none';
+    document.getElementById('modal-perfil').style.display = 'flex';
+    
+    // Actualizar botón visualmente
+    const btnNai = document.getElementById('btn-nai-action');
+    btnNai.innerText = activar ? "❌ Quitar Cuenta .Nai" : "✨ Convertir en Cuenta .Nai";
+    btnNai.style.background = activar ? "#555" : "#4a00e0";
+};
+
+window.guardarCambiosPerfil = async () => {
+    const alias = document.getElementById('edit-alias').value;
+    const social = document.getElementById('edit-social').value;
+    const tipo = alias.endsWith('.Nai') ? 'app' : 'google'; // O invitado, simple lógica
+
+    await _supabase.from('perfiles').update({
+        alias: alias,
+        avatar: avatarTemp,
+        link_social: social,
+        tipo_cuenta: tipo
+    }).eq('user_id', perfilActual.user_id);
+    
+    location.reload();
+};
+
+window.selAvatar = (el, url) => {
     document.querySelectorAll('.avatar-option').forEach(img => img.classList.remove('selected'));
     el.classList.add('selected');
     avatarTemp = url;
 };
 
-window.convertirEnCuentaApp = () => {
-    const input = document.getElementById('edit-alias');
-    if (!input.value.endsWith('.Nai')) {
-        input.value = input.value.trim().replace(/\s+/g, '') + '.Nai';
-        alert("¡Nombre transformado! Si guardas, será permanente.");
-    }
+// --- SUBIR VIDEO (CON REGLAS Y LINKS) ---
+window.verificarOriginalidad = () => {
+    const esOriginal = document.getElementById('v-original').value === 'true';
+    document.getElementById('campo-fuente').style.display = esOriginal ? 'none' : 'block';
 };
 
-window.guardarCambiosPerfil = async () => {
-    const nuevoAlias = document.getElementById('edit-alias').value;
-    const nuevoTipo = nuevoAlias.endsWith('.Nai') ? 'app' : perfilData.tipo_cuenta;
-
-    const { error } = await _supabase.from('perfiles').update({
-        alias: nuevoAlias,
-        avatar: avatarTemp,
-        tipo_cuenta: nuevoTipo
-    }).eq('user_id', usuarioActual);
-
-    if (error) {
-        alert("Error al guardar: " + error.message);
-    } else {
-        perfilData.alias = nuevoAlias;
-        perfilData.avatar = avatarTemp;
-        perfilData.tipo_cuenta = nuevoTipo;
-        actualizarInterfaz();
-        window.cerrarEditorPerfil();
-    }
-};
-
-window.cerrarEditorPerfil = () => document.getElementById('modal-perfil').style.display = 'none';
-
-// --- 5. SUBIR VIDEO ---
 window.abrirModalSubida = () => {
+    etiquetasSel = [];
+    document.getElementById('lista-tags').innerHTML = TAGS.map(t => `<span class="tag-option" onclick="toggleTag(this, '${t}')">${t}</span>`).join('');
     document.getElementById('modal-subida').style.display = 'flex';
-    etiquetasSeleccionadas = [];
-    document.getElementById('lista-tags').innerHTML = TAGS.map(tag => `
-        <span class="tag-option" onclick="toggleTag(this, '${tag}')">${tag}</span>
-    `).join('');
 };
 
 window.toggleTag = (el, tag) => {
-    if (etiquetasSeleccionadas.includes(tag)) {
-        etiquetasSeleccionadas = etiquetasSeleccionadas.filter(t => t !== tag);
+    if (etiquetasSel.includes(tag)) {
+        etiquetasSel = etiquetasSel.filter(t => t !== tag);
         el.classList.remove('selected');
     } else {
-        if (etiquetasSeleccionadas.length >= 3) return alert("Máximo 3 etiquetas");
-        etiquetasSeleccionadas.push(tag);
+        if (etiquetasSel.length >= 3) return alert("Máximo 3 etiquetas");
+        etiquetasSel.push(tag);
         el.classList.add('selected');
     }
 };
@@ -196,108 +181,108 @@ window.toggleTag = (el, tag) => {
 window.procesarSubida = async () => {
     const file = document.getElementById('v-archivo').files[0];
     const titulo = document.getElementById('v-titulo').value;
-    
-    if (!file || !titulo) return alert("Falta video o título");
+    const esOriginal = document.getElementById('v-original').value === 'true';
+    const fuente = document.getElementById('v-fuente').value;
 
-    // ADVERTENCIA SI ES INVITADO
-    if (perfilData.tipo_cuenta === 'invitado') {
-        const aceptar = confirm("⚠️ AVISO DE RESPONSABILIDAD\n\nAl no tener cuenta registrada, Nai-Nai no se hace responsable si este contenido es borrado o editado.\n\n¿Aceptar y subir?");
-        if (!aceptar) return;
+    if (!file || !titulo) return alert("Falta archivo o título.");
+    if (!esOriginal && !fuente) return alert("¡Debes poner el link de la fuente original!");
+
+    // Validar GUA bajo
+    if (perfilActual.gua < 50) {
+        if(!confirm("⚠️ Tu nivel de GUA es bajo. Tu video estará bajo vigilancia estricta. ¿Continuar?")) return;
     }
 
-    alert("⏳ Subiendo video... esto puede tardar unos segundos.");
-    
-    // 1. Subir Archivo
-    const nombreArchivo = `${Date.now()}_${Math.floor(Math.random()*1000)}`;
-    const { data, error } = await _supabase.storage.from('videos-bucket').upload(nombreArchivo, file);
-    
-    if (error) return alert("Error al subir archivo: " + error.message);
+    alert("Subiendo...");
+    const path = `public/${Date.now()}_${Math.floor(Math.random()*999)}`;
+    const { error: upErr } = await _supabase.storage.from('videos-bucket').upload(path, file);
+    if(upErr) return alert("Error subida: " + upErr.message);
 
-    // 2. Obtener URL
-    const { data: urlData } = _supabase.storage.from('videos-bucket').getPublicUrl(nombreArchivo);
+    const { data: { publicUrl } } = _supabase.storage.from('videos-bucket').getPublicUrl(path);
 
-    // 3. Guardar Datos
-    const { error: dbError } = await _supabase.from('videos').insert([{
-        user_id: usuarioActual,
-        video_url: urlData.publicUrl,
+    await _supabase.from('videos').insert([{
+        user_id: perfilActual.user_id,
+        video_url: publicUrl,
         titulo: titulo,
         descripcion: document.getElementById('v-desc').value,
+        link_externo: document.getElementById('v-link-ext').value,
+        es_original: esOriginal,
+        fuente_original: fuente,
         orientacion: document.getElementById('v-orientacion').value,
         comentarios_activos: document.getElementById('v-comentarios').value === 'true',
-        etiquetas: etiquetasSeleccionadas.join(','),
-        autor_alias: perfilData.alias,
-        autor_avatar: perfilData.avatar
+        etiquetas: etiquetasSel.join(','),
+        autor_alias: perfilActual.alias,
+        autor_avatar: perfilActual.avatar
     }]);
 
-    if (dbError) {
-        alert("Error guardando datos: " + dbError.message);
-    } else {
-        alert("✅ ¡Video Publicado!");
-        window.cerrarModalSubida();
-        cargarFeed();
-    }
+    alert("¡Video subido!");
+    location.reload();
 };
 
-window.cerrarModalSubida = () => document.getElementById('modal-subida').style.display = 'none';
-
-// --- 6. FEED ---
+// --- FEED Y REPORTES GUA ---
 async function cargarFeed() {
+    const { data: videos } = await _supabase.from('videos').select('*').order('created_at', {ascending:false});
     const feed = document.getElementById('feed-comunidad');
-    feed.innerHTML = '<p style="text-align:center; padding:20px;">Cargando videos...</p>';
-
-    const { data: videos, error } = await _supabase
-        .from('videos')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (!videos || videos.length === 0) {
-        feed.innerHTML = '<p style="text-align:center; padding:20px;">No hay videos aún.</p>';
-        return;
-    }
-
+    
     feed.innerHTML = videos.map(v => {
         const tags = v.etiquetas ? v.etiquetas.split(',').map(t => `<span class="tag-badge">#${t}</span>`).join('') : '';
-        const estiloVideo = v.orientacion === 'vertical' ? 'aspect-ratio: 9/16; max-height: 500px;' : 'aspect-ratio: 16/9;';
+        const estilo = v.orientacion === 'vertical' ? 'aspect-ratio: 9/16; max-height:500px;' : 'aspect-ratio: 16/9;';
         
+        // Lógica de créditos en descripción
+        let creditosHtml = "";
+        if (!v.es_original && v.fuente_original) {
+            creditosHtml = `<div style="font-size:0.8rem; color:#ffaaaa; margin-top:5px;">⚠️ Fuente Original: <a href="${v.fuente_original}" target="_blank" style="color:#ffaaaa;">Ver Fuente</a></div>`;
+        }
+        let linkExtHtml = "";
+        if (v.link_externo) {
+            linkExtHtml = `<a href="${v.link_externo}" target="_blank" style="display:block; margin-top:5px; color:#00f2ea;">🔗 Enlace Externo</a>`;
+        }
+
         return `
             <div class="video-card">
                 <div class="video-header">
-                    <img src="${v.autor_avatar || AVATARES[0]}" class="avatar-mini">
-                    <div>
-                        <b>${v.autor_alias}</b>
-                        <div style="font-size:0.75rem; color:#888;">${new Date(v.created_at).toLocaleDateString()}</div>
-                    </div>
+                    <img src="${v.autor_avatar}" class="avatar-mini">
+                    <div><b>${v.autor_alias}</b></div>
+                    <button onclick="reportarVideo('${v.id}', '${v.user_id}')" style="margin-left:auto; background:none; border:none; cursor:pointer;">🚩</button>
                 </div>
-                <video src="${v.video_url}" controls style="width:100%; ${estiloVideo} background:#000;"></video>
-                <div class="video-info">
+                <video src="${v.video_url}" controls style="width:100%; ${estilo} background:#000;"></video>
+                <div class="video-content">
                     <h3>${v.titulo}</h3>
                     <p>${v.descripcion || ''}</p>
-                    <div style="margin:5px 0;">${tags}</div>
-                    <div style="display:flex; gap:15px; margin-top:10px;">
-                        <button style="background:none; border:none; color:#00f2ea;">❤️ ${v.likes}</button>
-                        ${v.comentarios_activos ? '<button style="background:none; border:none; color:white;">💬 Comentar</button>' : '<span style="color:gray; font-size:0.8rem;">🚫 Comentarios desactivados</span>'}
-                    </div>
+                    ${creditosHtml}
+                    ${linkExtHtml}
+                    <div style="margin-top:5px;">${tags}</div>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-// CAMBIO DE PESTAÑAS
+// SISTEMA DE REPORTE AUTOMÁTICO (BAJA GUA)
+window.reportarVideo = async (vidId, autorId) => {
+    if(!confirm("¿Reportar este video? Si es falso, se te restará GUA a ti.")) return;
+
+    // 1. Registrar reporte en video
+    await _supabase.rpc('increment_report', { row_id: vidId }); // (Simplificado: Solo sumamos en cliente visualmente o manual)
+    
+    // 2. BAJAR GUA AL AUTOR AUTOMÁTICAMENTE (-5 puntos)
+    // Primero obtenemos el gua actual del autor
+    let { data: autor } = await _supabase.from('perfiles').select('gua').eq('user_id', autorId).single();
+    if(autor) {
+        let nuevoGua = autor.gua - 5;
+        await _supabase.from('perfiles').update({ gua: nuevoGua }).eq('user_id', autorId);
+        alert("Reporte enviado. La confianza del usuario ha disminuido.");
+    }
+};
+
+// UTILIDADES
+window.cerrarModal = (id) => document.getElementById(id).style.display = 'none';
 window.cambiarTab = (tab) => {
     document.querySelectorAll('.seccion-app').forEach(s => s.style.display = 'none');
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activo'));
-    
-    document.getElementById('tab-' + tab).style.display = 'block';
-    
-    // Activar botón visualmente
-    const btns = document.querySelectorAll('.tab-btn');
-    if (tab === 'comunidad') btns[0].classList.add('activo');
-    if (tab === 'perfil') btns[1].classList.add('activo');
-    
-    if (tab === 'perfil') {
-        // Cargar videos propios
-        // (Aquí podrías agregar lógica para filtrar videos propios)
-    }
+    document.getElementById('tab-'+tab).style.display = 'block';
+    // Lógica simple de tabs...
 };
+window.loginConGoogle = async () => await _supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+window.entrarComoInvitado = () => { localStorage.setItem('nai_invitado_id', 'INV-'+Date.now()); location.reload(); };
+window.logout = async () => { localStorage.removeItem('nai_invitado_id'); await _supabase.auth.signOut(); location.reload(); };
         
