@@ -40,3 +40,4 @@ _supabase.auth.onAuthStateChange((event, session) => {
         if (app) app.style.display = 'none';
     }
 });
+
