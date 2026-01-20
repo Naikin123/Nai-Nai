@@ -3,111 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nai-Nai</title>
+    <title>Nai-Nai App</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
-    <div id="contenido-app" style="display:none;">
-        <div class="top-bar">
-            <button onclick="verPerfilNaikin()" class="btn-naikin-vip">👑 VIP</button>
-            <div class="tabs">
-                <button class="tab-btn activo" onclick="cambiarTab('comunidad')">Comunidad</button>
-                <button class="tab-btn" onclick="cambiarTab('mis-videos')">Mis Videos</button>
-                <button class="tab-btn" onclick="cambiarTab('perfil')">Perfil</button>
+    <div id="auth-container" class="modal-login">
+        <div class="login-box">
+            <img src="https://i.ibb.co/hF6VHB5F/1ec8541e-1.png" class="logo-login">
+            <h2>Nai-Nai</h2>
+            <p>Libertad de contenido</p>
+            
+            <button onclick="loginConGoogle()" class="btn-google">
+                <i class="fab fa-google"></i> Entrar con Google
+            </button>
+            
+            <button onclick="entrarComoInvitado()" class="btn-invitado">
+                Continuar como Invitado
+            </button>
+            
+            <div class="disclaimer-login">
+                Al entrar aceptas las reglas de la comunidad Nai.
             </div>
-            <div id="barra-etiquetas" class="tags-scroll"></div>
+        </div>
+    </div>
+
+    <div id="contenido-app" style="display:none;">
+        
+        <div class="top-bar">
+            <div class="logo-top">NAI-NAI</div>
+            <button onclick="abrirModalSubida()" class="btn-subir-video">+ SUBIR</button>
+        </div>
+
+        <div class="tabs-container">
+            <button class="tab-btn activo" onclick="cambiarTab('comunidad')">Para Ti</button>
+            <button class="tab-btn" onclick="cambiarTab('perfil')">Mi Perfil</button>
         </div>
 
         <div id="tab-comunidad" class="seccion-app">
-            <div id="feed-comunidad" class="feed-container"></div>
-        </div>
-
-        <div id="tab-mis-videos" class="seccion-app" style="display:none;">
-            <h3>Mis Videos</h3>
-            <div id="mis-videos-grid"></div>
+            <div id="feed-comunidad" class="feed-grid">
+                </div>
         </div>
 
         <div id="tab-perfil" class="seccion-app" style="display:none;">
-            <div class="perfil-card">
-                <img id="p-avatar" src="" class="avatar-grande">
-                <h2 id="p-alias">Cargando...</h2>
-                <div class="stats">
-                    <div class="stat-box"><span>GUA</span><b id="p-gua">0</b></div>
-                </div>
-                <div class="botones-perfil">
-                    <button onclick="abrirEditorPerfil()">✏️ Editar</button>
-                    <button onclick="mostrarReglas()" style="background:#ff9800;">📜 REGLAS</button>
-                    <button onclick="logout()" style="background:#444;">Cerrar Sesión</button>
+            <div class="perfil-header">
+                <img id="p-avatar" src="" class="avatar-perfil" onclick="abrirEditorPerfil()">
+                <h2 id="p-alias">Usuario</h2>
+                <div class="badge-gua">💎 <span id="p-gua">0</span> GUA</div>
+                
+                <div class="perfil-acciones">
+                    <button onclick="abrirEditorPerfil()" class="btn-editar">✏️ Editar Perfil</button>
+                    <button onclick="logout()" class="btn-logout">Salir</button>
                 </div>
             </div>
+            <h3>Mis Videos</h3>
+            <div id="mis-videos-lista" class="feed-grid"></div>
         </div>
+
     </div>
 
-    <div id="auth-container" class="modal" style="display:flex; background:rgba(0,0,0,0.95); z-index: 9999;">
-        <div class="modal-content" style="text-align:center; border: 2px solid #00f2ea;">
-            <img src="https://i.ibb.co/hF6VHB5F/1ec8541e-1.png" style="width:80px; margin-bottom:15px;">
-            <h2>Entrar a Nai-Nai</h2>
-            <div style="background: #440000; color: #ffaaaa; padding: 10px; border-radius: 5px; font-size: 0.8rem; margin-bottom: 20px;">
-                ⚠️ <b>AVISO:</b> Si no usas Gmail, tus videos podrían no guardarse para siempre.
-            </div>
-            
-            <button onclick="loginConGoogle()" style="background:white; color:black; padding:12px; border-radius:8px; border:none; width:100%; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px; cursor:pointer;">
-                <img src="https://www.google.com/favicon.ico" style="width:18px;"> Registrarse con Gmail
-            </button>
-            
-            <button onclick="continuarComoInvitado()" style="background:transparent; color:#00f2ea; border:1px solid #00f2ea; padding:10px; border-radius:8px; width:100%; cursor:pointer;">
-                Continuar como Invitado
-            </button>
-        </div>
-    </div>
-
-    <div id="modal-comentarios" class="modal">
+    <div id="modal-subida" class="modal-overlay" style="display:none;">
         <div class="modal-content">
-            <h3>Comentarios</h3>
-            <div id="lista-comentarios"></div>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="input-comentario" placeholder="Escribe algo...">
-                <button onclick="enviarComentario()" class="btn-confirm">➔</button>
+            <h3>📹 Nuevo Video</h3>
+            
+            <input type="text" id="v-titulo" placeholder="Título del video" maxlength="50">
+            <textarea id="v-desc" placeholder="Descripción (Opcional)" rows="3"></textarea>
+            
+            <div class="opcion-grupo">
+                <label>Orientación:</label>
+                <select id="v-orientacion">
+                    <option value="vertical">📱 Vertical (9:16)</option>
+                    <option value="horizontal">💻 Horizontal (16:9)</option>
+                    <option value="ambos">🔄 Adaptable</option>
+                </select>
             </div>
-            <button onclick="cerrarComentarios()" class="btn-cancel">Cerrar</button>
+
+            <div class="opcion-grupo">
+                <label>Comentarios:</label>
+                <select id="v-comentarios">
+                    <option value="true">✅ Activos</option>
+                    <option value="false">🚫 Desactivados</option>
+                </select>
+            </div>
+
+            <div class="etiquetas-container">
+                <p>Etiquetas:</p>
+                <div id="lista-tags" class="tags-wrapper">
+                    </div>
+            </div>
+
+            <div class="file-area">
+                <input type="file" id="v-archivo" accept="video/*">
+            </div>
+
+            <div class="modal-botones">
+                <button onclick="cerrarModalSubida()" class="btn-cancelar">Cancelar</button>
+                <button onclick="procesarSubida()" class="btn-confirmar">PUBLICAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-perfil" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h3>Editar Identidad</h3>
+            
+            <input type="text" id="edit-alias" placeholder="Nuevo nombre">
+            <button onclick="convertirEnCuentaApp()" class="btn-cuenta-app">✨ Volver Cuenta .Nai</button>
+            
+            <p>Elige tu Avatar:</p>
+            <div id="grid-avatares" class="avatars-grid">
+                </div>
+
+            <div class="modal-botones">
+                <button onclick="cerrarEditorPerfil()" class="btn-cancelar">Cancelar</button>
+                <button onclick="guardarCambiosPerfil()" class="btn-confirmar">GUARDAR</button>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script> 
+    <script src="script.js"></script>
 </body>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script>
-        const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
-        const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-        console.log("Sistema Nai-Nai cargado");
-
-        async function loginConGoogle() {
-            alert("¡Ahora sí detecto el clic!"); // Esto te avisará si el botón ya despertó
-            const { error } = await _supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: window.location.origin }
-            });
-            if (error) alert("Error: " + error.message);
-        }
-
-        // Para invitados
-        function continuarComoInvitado() {
-            localStorage.setItem('nai_invitado_id', 'INV-' + Math.floor(Math.random() * 9999));
-            location.reload();
-        }
-
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (session || localStorage.getItem('nai_invitado_id')) {
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('contenido-app').style.display = 'block';
-            }
-        });
-    </script>
-</body>
-    
+</html>
