@@ -1,60 +1,33 @@
-:root { --bg: #0f0f0f; --card: #1e1e1e; --primary: #00f2ea; --text: #fff; }
-body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--text); }
+:root { --p: #00f2ea; --bg: #000; --card: #121212; }
+body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
 
-/* LOGIN */
-.modal-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; justify-content: center; align-items: center; z-index: 999; }
-.login-box { text-align: center; width: 80%; max-width: 300px; }
-.logo-login { width: 80px; border-radius: 50%; border: 2px solid var(--primary); margin-bottom: 20px; }
-.btn-google, .btn-invitado { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-.btn-google { background: white; color: black; }
-.btn-invitado { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+/* FEED VERTICAL TIKTOK */
+.feed-container { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; }
+.v-card { height: 100vh; width: 100%; scroll-snap-align: start; position: relative; background: #000; display: flex; align-items: center; }
+.v-card video { width: 100%; height: 100%; object-fit: contain; }
 
-/* APP */
-.top-bar { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.9); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
-.logo-top { color: var(--primary); font-weight: 900; letter-spacing: 2px; }
-.btn-subir-video { background: var(--primary); border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; }
-
-.tabs-container { display: flex; border-bottom: 1px solid #333; }
-.tab-btn { flex: 1; background: none; border: none; color: #777; padding: 15px; font-size: 1rem; }
-.tab-btn.activo { color: var(--primary); border-bottom: 2px solid var(--primary); }
-
-/* PERFIL (DISEÑO MEJORADO) */
-.perfil-card { padding: 20px; background: var(--card); margin-bottom: 10px; }
-.perfil-top { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-.avatar-perfil { 
-    width: 80px; height: 80px; /* TAMAÑO FIJO PEQUEÑO */
-    border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); 
-}
-.perfil-info h2 { margin: 0; font-size: 1.5rem; }
-.badge-gua { font-size: 0.9rem; color: #aaa; margin-top: 5px; }
-.perfil-acciones { display: flex; gap: 10px; }
-.btn-editar, .btn-logout { flex: 1; padding: 8px; border-radius: 5px; border: none; cursor: pointer; }
-.btn-editar { background: #333; color: white; }
-.btn-logout { background: #500; color: white; }
-
-/* FEED */
-.feed-grid { padding: 10px; padding-bottom: 80px; }
-.video-card { background: var(--card); border-radius: 10px; overflow: hidden; margin-bottom: 20px; border: 1px solid #333; }
-.video-header { padding: 10px; display: flex; align-items: center; gap: 10px; }
-.avatar-mini { width: 35px; height: 35px; border-radius: 50%; }
-.video-content { padding: 10px; }
+.v-overlay { position: absolute; bottom: 80px; left: 15px; right: 15px; pointer-events: none; }
+.v-overlay * { pointer-events: auto; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+.v-actions { position: absolute; right: 15px; bottom: 150px; display: flex; flexDirection: column; gap: 20px; }
 
 /* MODALES */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 200; }
-.modal-content { background: #222; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
-input, textarea, select { width: 100%; padding: 10px; margin-bottom: 10px; background: #333; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
-.reglas-box { background: #322; padding: 10px; border-radius: 5px; font-size: 0.8rem; margin-bottom: 15px; border-left: 3px solid #f00; }
-.reglas-box ol { padding-left: 20px; margin: 5px 0; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+.modal-content { background: var(--card); padding: 20px; border-radius: 20px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
 
-/* BOTONES */
-.modal-botones { display: flex; gap: 10px; margin-top: 15px; }
-.btn-confirmar { flex: 1; background: var(--primary); border: none; padding: 10px; border-radius: 5px; font-weight: bold; }
-.btn-cancelar { flex: 1; background: #444; color: white; border: none; padding: 10px; border-radius: 5px; }
-.btn-cuenta-app { width: 100%; background: #4a00e0; color: white; padding: 10px; border-radius: 5px; border: none; font-weight: bold; margin-bottom: 10px; }
-.avatars-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-.avatar-option { width: 100%; aspect-ratio: 1; border-radius: 5px; cursor: pointer; border: 2px solid transparent; }
-.avatar-option.selected { border-color: var(--primary); }
-.tag-badge { background: #444; color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 5px; }
-.tag-option { display: inline-block; background: #333; padding: 5px 10px; margin: 2px; border-radius: 15px; cursor: pointer; font-size: 0.8rem; }
-.tag-option.selected { background: var(--primary); color: black; }
-                         
+/* PERFIL */
+.avatar-m { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--p); }
+.p-nai { color: var(--p); font-weight: bold; font-size: 0.9rem; }
+.btn-nai-promo { width: 100%; padding: 12px; background: linear-gradient(45deg, #4a00e0, #8e2de2); border: none; color: white; border-radius: 10px; margin: 10px 0; font-weight: bold; }
+
+/* NAV */
+.nav-bar { position: fixed; bottom: 0; width: 100%; height: 60px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; }
+.nav-bar button { background: none; border: none; font-size: 1.5rem; color: white; }
+
+/* EDITOR */
+.editor-tools { display: flex; gap: 5px; margin: 10px 0; overflow-x: auto; }
+.editor-tools button { padding: 5px 10px; border-radius: 5px; border: 1px solid var(--p); background: none; color: white; font-size: 0.7rem; }
+.switch-box { display: flex; justify-content: space-between; padding: 10px 0; }
+
+.btn-confirmar { background: var(--p); color: #000; font-weight: bold; padding: 10px; border: none; border-radius: 8px; flex: 1; }
+.btn-danger { background: #333; color: white; padding: 10px; border: none; border-radius: 8px; flex: 1; }
+.btn-opc { width: 100%; background: #222; color: #ccc; border: 1px solid #444; padding: 10px; border-radius: 8px; margin: 5px 0; }
