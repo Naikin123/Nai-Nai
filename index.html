@@ -3,113 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nai-Nai Super App</title>
+    <title>Nai-Nai App</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-    <div id="pantalla-referidos" class="modal-full" style="display:none;">
-        <div class="box-comun">
-            <h2>💰 Futuro Nai-Nai</h2>
-            <p>En un futuro, la manera de ganar dinero real será compartiendo la app.</p>
+    <div id="pantalla-referidos" class="modal-full" style="display:none; z-index: 3000;">
+        <div class="box-intro">
+            <h1>💎 Nai-Nai Future</h1>
+            <p>En el futuro, ganarás dinero compartiendo esta app.</p>
             <hr>
-            <p>¿Quién te invitó? (Nombre, .Nai o Google)</p>
-            <input type="text" id="ref-input" placeholder="Nombre de tu amigo">
-            <button onclick="guardarReferido()" class="btn-principal">Entrar a Nai-Nai</button>
+            <p>¿Quién te invitó?</p>
+            <input type="text" id="ref-input" placeholder="Ej: usuario.Nai o Google">
+            <button onclick="guardarReferido()" class="btn-primary">Entrar a Nai-Nai</button>
         </div>
     </div>
 
-    <div id="auth-container" class="modal-full">
-        <div class="box-comun">
-            <img src="https://i.ibb.co/hF6VHB5F/1ec8541e-1.png" class="logo-main">
-            <h1>Nai-Nai</h1>
+    <div id="auth-container" class="modal-full" style="display:none; z-index: 2000;">
+        <div class="box-intro">
+            <img src="https://i.ibb.co/hF6VHB5F/1ec8541e-1.png" class="logo-grande">
+            <h2>Nai-Nai</h2>
+            <p>Comunidad de Confianza</p>
             <button onclick="loginGoogle()" class="btn-google">Entrar con Google</button>
-            <button onclick="entrarInvitado()" class="btn-invitado">Modo Invitado</button>
+            <button onclick="entrarInvitado()" class="btn-invitado">Entrar como Invitado</button>
         </div>
     </div>
 
-    <div id="app" style="display:none;">
-        <div class="feed-container" id="feed-vertical">
+    <div id="app-interface" style="display:none;">
+        
+        <div id="feed-vertical" class="feed-container">
             </div>
 
         <div class="nav-bar">
-            <button onclick="mostrarSeccion('feed')">🏠</button>
-            <button onclick="abrirEditor()">➕</button>
-            <button onclick="mostrarSeccion('perfil')">👤</button>
+            <button onclick="recargarFeed()">🏠</button>
+            <button onclick="abrirEditor()" class="btn-plus">➕</button>
+            <button onclick="abrirPerfil()">👤</button>
+        </div>
+    </div>
+
+    <div id="modal-editor" class="modal-overlay" style="display:none;">
+        <div class="modal-content editor-panel">
+            <h3>🎬 Nuevo Video</h3>
+            
+            <div class="preview-box">
+                <video id="preview-v" loop playsinline></video>
+                <div class="marca-agua-preview" id="watermark-preview">Tu.Nai</div>
+            </div>
+
+            <div class="editor-tools">
+                <span onclick="setFilter('none')">🚫</span>
+                <span onclick="setFilter('grayscale(1)')">⚫⚪</span>
+                <span onclick="setFilter('sepia(1)')">bf</span>
+                <span onclick="setFilter('hue-rotate(90deg)')">👽</span>
+                <span onclick="setFilter('contrast(200%)')">🔥</span>
+            </div>
+
+            <input type="text" id="v-titulo" placeholder="Título divertido...">
+            <div class="switch-row">
+                <label>¿Es contenido original?</label>
+                <select id="v-original" onchange="toggleFuente()">
+                    <option value="true">✅ Sí, es mío</option>
+                    <option value="false">❌ No (Dar créditos)</option>
+                </select>
+            </div>
+            <input type="text" id="v-fuente" placeholder="Link del creador original" style="display:none;">
+            
+            <div class="switch-row">
+                <label>Marca de Agua .Nai</label>
+                <input type="checkbox" id="v-watermark" checked onchange="toggleWatermarkVis()">
+            </div>
+            
+            <input type="file" id="file-input" accept="video/*" onchange="cargarVideoFile(event)" style="margin-top:10px;">
+
+            <div class="action-buttons">
+                <button onclick="cerrarModal('modal-editor')" class="btn-sec">Cancelar</button>
+                <button onclick="subirVideo()" class="btn-primary">PUBLICAR</button>
+            </div>
         </div>
     </div>
 
     <div id="modal-perfil" class="modal-overlay" style="display:none;">
         <div class="modal-content">
             <div class="perfil-header">
-                <img id="p-avatar" class="avatar-m" src="">
-                <div class="p-info">
+                <img id="p-avatar" src="" class="avatar-perfil">
+                <div>
                     <h2 id="p-alias">Usuario</h2>
-                    <span id="p-cuenta-nai" class="p-nai"></span>
-                    <div class="p-gua">🛡️ GUA: <span id="p-gua-val">100</span></div>
+                    <div id="p-cuenta-nai" class="badge-nai"></div>
+                    <small>🛡️ GUA: <span id="p-gua">0</span></small>
                 </div>
             </div>
-            
-            <button onclick="abrirConfig()" class="btn-opc">⚙️ Opciones Avanzadas</button>
-            <button onclick="toggleCuentaNai()" id="btn-nai" class="btn-nai-promo">✨ Gestionar Cuenta .Nai</button>
-            <button onclick="logout()" class="btn-danger">Cerrar Sesión</button>
-            <button onclick="cerrarModales()" class="btn-close">Cerrar</button>
+
+            <button onclick="gestionarCuentaNai()" class="btn-full-nai">✨ Gestión Cuenta .Nai</button>
+            <button onclick="abrirOpcionesAvanzadas()" class="btn-full-opt">⚙️ Opciones Avanzadas</button>
+            <button onclick="cerrarSesion()" class="btn-danger">Cerrar Sesión</button>
+            <button onclick="cerrarModal('modal-perfil')" class="btn-sec">Volver</button>
         </div>
     </div>
 
-    <div id="modal-config" class="modal-overlay" style="display:none;">
+    <div id="modal-opciones" class="modal-overlay" style="display:none;">
         <div class="modal-content">
-            <h3>Opciones Avanzadas</h3>
-            <div class="switch-box">
-                <label>Modo Fantasma (Al ver)</label>
-                <input type="checkbox" id="priv-ver" onchange="cambiarPrivacidad('ver')">
+            <h3>👻 Privacidad Fantasma</h3>
+            <p style="font-size:0.8rem; color:#aaa;">Controla quién te ve.</p>
+            
+            <div class="switch-row">
+                <span>Ocultar al ver videos</span>
+                <input type="checkbox" id="check-priv-ver" onchange="cambiarPrivacidad('ver')">
             </div>
-            <div class="switch-box">
-                <label>Modo Fantasma (Al comentar)</label>
-                <input type="checkbox" id="priv-com" onchange="cambiarPrivacidad('comentar')">
+            <div class="switch-row">
+                <span>Anónimo al comentar</span>
+                <input type="checkbox" id="check-priv-com" onchange="cambiarPrivacidad('comentar')">
             </div>
+
             <hr>
-            <button onclick="abrirEditorContrasena()" class="btn-opc">Editar Contraseña .Nai</button>
-            <button onclick="cerrarModales()" class="btn-close">Volver</button>
+            <button onclick="cambiarPassNai()" class="btn-sec">🔑 Cambiar Contraseña .Nai</button>
+            <button onclick="cerrarModal('modal-opciones')" class="btn-primary">Listo</button>
         </div>
     </div>
 
-    <div id="modal-editor" class="modal-overlay" style="display:none;">
-        <div class="modal-content editor-box">
-            <h3>Editor Nai-Nai</h3>
-            <video id="preview-v" controls style="width:100%; border-radius:10px;"></video>
-            
-            <div class="editor-tools">
-                <button onclick="aplicarFiltro('grayscale(1)')">B/N</button>
-                <button onclick="aplicarFiltro('sepia(1)')">Retro</button>
-                <button onclick="aplicarFiltro('hue-rotate(90deg)')">Snap</button>
-                <button onclick="aplicarFiltro('none')">Limpiar</button>
-            </div>
-
-            <input type="text" id="v-titulo" placeholder="Título">
-            <input type="text" id="v-link-ext" placeholder="Link externo (opcional)">
-            
-            <select id="v-original" onchange="checkOriginal()">
-                <option value="true">Es mío</option>
-                <option value="false">No es mío (Dar créditos)</option>
-            </select>
-            <input type="text" id="v-fuente" placeholder="Link video original" style="display:none;">
-
-            <div class="switch-box">
-                <label>Marca de agua .Nai</label>
-                <input type="checkbox" id="v-watermark" checked>
-            </div>
-
-            <input type="file" id="file-input" accept="video/*" onchange="loadVideo(event)">
-            
-            <div class="modal-botones">
-                <button onclick="cerrarModales()" class="btn-danger">Cancelar</button>
-                <button onclick="subirVideo()" class="btn-confirmar">PUBLICAR</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 </body>
 </html>
