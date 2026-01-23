@@ -1,55 +1,71 @@
-/* RESET Y VARIABLES */
-:root { --bg: #000; --card: #1a1a1a; --accent: #00f2ea; --text: #fff; }
-body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: sans-serif; overflow: hidden; }
+/* VARIABLES NEÓN */
+:root {
+    --bg: #050505;
+    --card: #111;
+    --neon-blue: #00f2ea;
+    --neon-purple: #bd00ff;
+    --text: #fff;
+}
 
-/* MODALES DE PANTALLA COMPLETA (Login / Referidos) */
-.modal-full { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: flex; justify-content: center; align-items: center; }
-.box-intro { text-align: center; width: 80%; max-width: 300px; }
-.logo-grande { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent); margin-bottom: 20px; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
 
-/* BOTONES */
-.btn-primary { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 8px; font-weight: bold; color: #000; margin-top: 10px; cursor: pointer; }
-.btn-sec { width: 100%; padding: 12px; background: #333; border: 1px solid #555; color: #fff; border-radius: 8px; margin-top: 5px; cursor: pointer; }
-.btn-google { width: 100%; padding: 12px; background: white; color: black; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
-.btn-invitado { width: 100%; padding: 12px; background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 8px; cursor: pointer; }
-.btn-danger { width: 100%; padding: 12px; background: #500; color: white; border: none; border-radius: 8px; margin-top: 10px; cursor: pointer; }
-.btn-full-nai { width: 100%; padding: 10px; background: linear-gradient(45deg, #4a00e0, #8e2de2); border: none; border-radius: 8px; color: white; margin-bottom: 5px; cursor: pointer; }
-.btn-full-opt { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #ccc; border-radius: 8px; margin-bottom: 5px; cursor: pointer; }
+/* UTILIDADES NEÓN */
+.neon-text { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+.neon-text-sub { color: var(--neon-purple); text-shadow: 0 0 5px var(--neon-purple); }
+.neon-box { background: var(--card); border: 1px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 242, 234, 0.2); }
+.neon-border { border: 2px solid var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
+.neon-border-thin { border: 1px solid var(--neon-blue); }
+.btn-neon { background: var(--neon-blue); color: #000; font-weight: bold; border: none; padding: 10px; border-radius: 5px; box-shadow: 0 0 10px var(--neon-blue); cursor: pointer; width: 100%; }
+.btn-neon-purple { background: var(--neon-purple); color: #fff; font-weight: bold; border: none; padding: 10px; border-radius: 5px; box-shadow: 0 0 10px var(--neon-purple); cursor: pointer; width: 100%; margin-bottom: 10px; }
+.neon-divider { border-color: var(--neon-blue); opacity: 0.3; }
 
-/* FEED VERTICAL (ESTILO TIKTOK) */
-.feed-container { height: 100vh; width: 100vw; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; }
-.video-card { height: 100vh; width: 100vw; scroll-snap-align: start; position: relative; display: flex; align-items: center; justify-content: center; background: #000; }
-.video-card video { width: 100%; height: 100%; object-fit: cover; } /* cover para llenar pantalla */
+/* MODALES FULL */
+.modal-full { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; }
+.box-intro { text-align: center; width: 80%; max-width: 300px; padding: 30px; border-radius: 15px; }
+.logo-neon { width: 80px; border-radius: 50%; border: 3px solid var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue); }
 
-/* INTERFAZ SOBRE VIDEO */
-.overlay-info { position: absolute; bottom: 80px; left: 15px; width: 70%; pointer-events: none; text-shadow: 1px 1px 3px #000; }
-.overlay-info h3, .overlay-info p { margin: 5px 0; pointer-events: auto; }
-.overlay-actions { position: absolute; right: 10px; bottom: 120px; display: flex; flex-direction: column; gap: 20px; align-items: center; }
-.action-btn { background: rgba(0,0,0,0.5); border: none; color: white; font-size: 1.5rem; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+/* BOTONES AUTH */
+.btn-google { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; background: white; color: black; }
+.btn-invitado { width: 100%; padding: 10px; background: transparent; color: var(--neon-blue); cursor: pointer; }
 
-/* MARCA DE AGUA AUTOMÁTICA */
-.watermark-overlay { position: absolute; top: 40px; right: 20px; font-weight: bold; opacity: 0.6; font-size: 0.9rem; text-shadow: 1px 1px 2px black; pointer-events: none; }
+/* FEED VERTICAL */
+.feed-container { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; background: #000; }
+.video-card { height: 100vh; width: 100vw; scroll-snap-align: start; position: relative; display: flex; justify-content: center; align-items: center; background: #000; }
+.video-card video { width: 100%; height: 100%; object-fit: cover; }
 
-/* BARRA NAVEGACIÓN */
-.nav-bar { position: fixed; bottom: 0; width: 100%; height: 60px; background: black; border-top: 1px solid #333; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
-.nav-bar button { background: none; border: none; font-size: 1.5rem; color: #777; cursor: pointer; }
-.nav-bar .btn-plus { font-size: 2rem; color: var(--accent); }
+/* OVERLAYS VIDEO */
+.overlay-info { position: absolute; bottom: 80px; left: 15px; width: 70%; pointer-events: none; text-shadow: 1px 1px 3px black; }
+.overlay-info * { pointer-events: auto; }
+.overlay-actions { position: absolute; right: 10px; bottom: 120px; display: flex; flexDirection: column; gap: 20px; }
+.action-btn { width: 45px; height: 45px; border-radius: 50%; background: rgba(0,0,0,0.6); border: 1px solid var(--neon-blue); color: var(--neon-blue); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.watermark { position: absolute; top: 30px; right: 20px; color: var(--neon-blue); opacity: 0.7; font-weight: bold; text-shadow: 0 0 5px var(--neon-blue); pointer-events: none; }
+
+/* NAV BAR */
+.nav-bar { position: fixed; bottom: 0; width: 100%; height: 60px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 2px solid var(--neon-blue); box-shadow: 0 -5px 15px rgba(0, 242, 234, 0.3); z-index: 100; }
+.nav-bar button { background: none; border: none; font-size: 1.8rem; color: #555; cursor: pointer; }
+.btn-plus-neon { color: var(--neon-blue) !important; filter: drop-shadow(0 0 5px var(--neon-blue)); }
 
 /* MODALES FLOTANTES */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2500; display: flex; align-items: center; justify-content: center; }
-.modal-content { background: var(--card); padding: 20px; border-radius: 15px; width: 90%; max-width: 350px; max-height: 80vh; overflow-y: auto; text-align: center; }
-input, select { width: 100%; padding: 10px; margin: 5px 0; background: #222; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2500; display: flex; align-items: center; justify-content: center; }
+.modal-content { padding: 20px; border-radius: 15px; width: 90%; max-width: 350px; max-height: 85vh; overflow-y: auto; }
+input[type="text"] { width: 100%; padding: 10px; margin: 5px 0; background: #222; border: 1px solid var(--neon-blue); color: white; border-radius: 5px; box-sizing: border-box; }
 
 /* EDITOR */
-.preview-box { width: 100%; height: 300px; background: #000; position: relative; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 10px; border: 1px solid #333; }
+.preview-box { height: 300px; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden; border-radius: 10px; margin-bottom: 10px; }
 .preview-box video { max-width: 100%; max-height: 100%; }
-.editor-tools { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; overflow-x: auto; padding-bottom: 5px; }
-.editor-tools span { font-size: 1.5rem; cursor: pointer; padding: 5px; border: 1px solid #333; border-radius: 5px; }
-.switch-row { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; text-align: left; font-size: 0.9rem; }
-.switch-row input[type="checkbox"] { width: auto; }
+.editor-tools { display: flex; gap: 8px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 5px; }
+.editor-tools button { background: #222; color: var(--neon-blue); border: 1px solid var(--neon-blue); padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; cursor: pointer; white-space: nowrap; }
+.switch-row { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; color: var(--neon-blue); }
 
-/* PERFIL */
-.perfil-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; text-align: left; }
-.avatar-perfil { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
-.badge-nai { color: var(--accent); font-weight: bold; font-size: 0.9rem; }
-                                    
+/* PERFIL REIMAGINADO */
+.perfil-top { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+.avatar-grande { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; }
+.btn-upload-avatar { position: absolute; bottom: 0; right: 0; background: var(--neon-blue); color: black; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 2px solid #000; }
+.input-alias-edit { background: transparent !important; border: none !important; border-bottom: 2px solid var(--neon-blue) !important; font-size: 1.5rem; text-align: center; color: var(--neon-blue) !important; font-weight: bold; margin-top: 10px; }
+.badge-nai-neon { color: var(--neon-purple); font-weight: bold; text-shadow: 0 0 8px var(--neon-purple); margin: 5px 0; }
+.btn-mini-save { background: #333; color: var(--neon-blue); border: 1px solid var(--neon-blue); padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-bottom: 10px; font-size: 0.8rem; }
+.btn-dark-opt { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #ccc; border-radius: 8px; margin-bottom: 5px; cursor: pointer; }
+.btn-danger { background: #500; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; width: 100%; }
+.modal-botones { display: flex; gap: 10px; margin-top: 15px; }
+.modal-botones button { flex: 1; }
+  
