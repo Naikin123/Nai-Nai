@@ -1,58 +1,96 @@
-/* Estilo Cyber-Nai 2026 */
-:root {
-  --fondo-oscuro: #050505;
-  --cian-neon: #00F2EA;
-  --morado-neon: #9b5de5;
-  --texto: #ffffff;
+:root{
+  --bg:#0b0f1a;
+  --panel:#0f1116;
+  --card:#151621;
+  --neon-blue:#4cc9f0;
+  --neon-purple:#9b5de5;
+  --gray-soft:#9aa0a6;
+  --text:#e6eef8;
+  --danger:#ff6b6b;
 }
 
-body {
-  background-color: var(--fondo-oscuro);
-  color: var(--texto);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 20px;
+/* Reset */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background: linear-gradient(180deg,#05060a,#0b0d10);
+  color:var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
 
-/* Títulos con resplandor */
-h1, h2 {
-  color: var(--cian-neon);
-  text-shadow: 0 0 10px rgba(0, 242, 234, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 2px;
+/* Header */
+.app-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 24px;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  background:linear-gradient(90deg, rgba(11,13,16,0.6), rgba(15,17,22,0.4));
+}
+.brand h1{color:var(--neon-blue);letter-spacing:1px;font-size:1.4rem}
+.brand .tagline{color:var(--gray-soft);font-size:.9rem;margin-top:2px}
+
+.top-actions{display:flex;gap:12px;align-items:center}
+.top-actions .badge{
+  background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));
+  padding:6px 10px;border-radius:999px;font-weight:700;color:#021018;font-size:.9rem
+}
+.top-actions .link{color:var(--gray-soft);text-decoration:none;font-size:.95rem}
+
+/* Layout grid */
+.main-grid{
+  display:grid;
+  grid-template-columns: 300px 1fr 320px;
+  gap:18px;
+  padding:20px;
+  align-items:start;
 }
 
-/* Tarjetas de contenido */
-.card, section, aside {
-  background: #111;
-  border: 1px solid #222;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-}
+/* Panels & cards */
+.panel{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.02)}
+.card{background:var(--card);padding:12px;border-radius:10px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.02)}
+.card h3{color:var(--neon-purple);margin-bottom:8px}
+.muted{color:var(--gray-soft);font-size:.92rem}
+.small{font-size:.9rem;color:var(--gray-soft)}
 
-/* Botones estilo Nai Nai */
-button, .btn {
-  background: transparent;
-  border: 1px solid var(--cian-neon);
-  color: var(--cian-neon);
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: 0.3s;
-  font-weight: bold;
-}
+/* Feed */
+.feed-list{display:flex;flex-direction:column;gap:12px}
+.feed-item{display:flex;gap:12px;align-items:flex-start;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));border:1px solid rgba(255,255,255,0.02)}
+.thumb{width:170px;height:100px;border-radius:8px;background:#081018;display:flex;align-items:center;justify-content:center;color:var(--gray-soft);overflow:hidden}
+.feed-meta{flex:1}
+.feed-meta h4{color:var(--neon-blue);margin-bottom:6px}
+.feed-meta p{color:var(--gray-soft);font-size:.92rem}
 
-button:hover {
-  background: var(--cian-neon);
-  color: #000;
-  box-shadow: 0 0 20px var(--cian-neon);
-}
+/* Uploader & editor */
+.upload-area label{display:block;margin-top:8px}
+.uploader-controls{display:flex;gap:8px;margin-top:8px}
+.btn{display:inline-block;padding:8px 12px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text);text-decoration:none;cursor:pointer}
+.btn.primary{background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));color:#021018;border:1px solid rgba(255,255,255,0.06)}
+.btn.danger{background:linear-gradient(90deg,var(--danger),#ff8a8a);color:#140808}
 
-/* Sistema GUA resaltado */
-#gua-value {
-  font-size: 1.5rem;
-  color: var(--morado-neon);
-  text-shadow: 0 0 5px var(--morado-neon);
+/* Video preview/editor */
+.video-preview{margin-top:10px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.02);background:#06070a;min-height:160px;display:flex;align-items:center;justify-content:center;color:var(--gray-soft)}
+.editor-area{min-height:160px;border-radius:8px;padding:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));display:flex;align-items:center;justify-content:center;color:var(--gray-soft)}
+
+/* Profile */
+.profile-header{display:flex;gap:12px;align-items:center}
+.avatar{width:72px;height:72px;border-radius:12px;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));display:flex;align-items:center;justify-content:center;color:#031018;font-weight:700}
+.profile-info .profile-name{font-size:1rem}
+.profile-meta{color:var(--gray-soft);font-size:.9rem;margin-top:6px}
+.profile-links ul{list-style:disc;margin-left:16px;color:var(--gray-soft)}
+
+/* Forms */
+.profile-form label, .profile-form input, .profile-form textarea{display:block;width:100%;margin-top:8px}
+.profile-form input, .profile-form textarea{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.01);color:var(--text)}
+
+/* Footer */
+.app-footer{text-align:center;padding:10px 20px;border-top:1px solid rgba(255,255,255,0.02);color:var(--gray-soft);margin-top:14px}
+
+/* Responsive */
+@media (max-width:1100px){
+  .main-grid{grid-template-columns:1fr;padding:12px}
+  .panel-left,.panel-right{order:2}
+  .panel-center{order:1}
 }
