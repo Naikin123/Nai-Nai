@@ -2,13 +2,18 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Nai Nai — Prototipo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nai Nai — Ecosistema Digital</title>
+  <meta name="description" content="Plataforma social creativa con sistema de reputación GUA.">
+
   <link rel="stylesheet" href="css/style.css">
+
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
   <div id="app" class="app-root">
+    
     <header class="app-header" role="banner">
       <div class="brand">
         <h1>Nai Nai</h1>
@@ -17,91 +22,146 @@
 
       <nav class="top-actions" role="navigation">
         <span id="userBadge" class="badge">Invitado</span>
-        <a id="link-feed" class="link" href="#feed">Feed</a>
+        <a id="link-feed" class="link active" href="#feed">Feed</a>
         <a id="link-profile" class="link" href="#profile">Perfil</a>
-        <a class="link" href="terms.html" target="_blank">Términos</a>
+        <a id="link-rules" class="link" href="terms.html" target="_blank">Términos</a>
       </nav>
     </header>
 
-    <main class="main-grid" role="main">
+    <main class="main-grid">
 
-      <aside class="panel panel-left">
-        <h2 id="rulesTitle">Reglas & GUA</h2>
+      <aside class="panel panel-left" id="panel-info">
+        <h2>Reglas & Estatus</h2>
+
         <section class="card">
-          <h3>Sistema GUA</h3>
-          <p>GUA = reputación. Sube con buen contenido, baja con reportes.</p>
-          <p><strong>Tu GUA:</strong> <span id="gua-value">0</span></p>
+          <h3>💎 Sistema GUA</h3>
+          <p>Tu reputación digital. Ganas por reportes válidos y buen contenido. Pierdes por spam o mal comportamiento.</p>
+          <div class="gua-display">
+            <span>Tu GUA:</span>
+            <strong id="gua-value" class="neon-text">0</strong>
+          </div>
         </section>
+
         <section class="card">
-          <h3>Estado</h3>
-          <p class="small muted">Modo: Prototipo. Los datos se guardan localmente para demostración.</p>
+          <h3>📜 Resumen de Normas</h3>
+          <ul class="small-list">
+            <li><strong>+18:</strong> Prohibido (salvo educativo/humor etiquetado).</li>
+            <li><strong>Monetización:</strong> No disponible actualmente.</li>
+            <li><strong>Sanciones:</strong> Desde pérdida de GUA hasta baneo permanente.</li>
+          </ul>
+          <p class="muted small" style="margin-top:10px">Nota: La supervisión es humana y puede demorar.</p>
         </section>
       </aside>
 
-      <section class="panel panel-center" id="feed">
-        <div class="panel-row">
-          <h2>Feed</h2>
+      <section class="panel panel-center" id="panel-feed">
+        
+        <div class="feed-header">
+          <h2>Feed Global</h2>
           <div class="feed-controls">
-            <select id="feedFormat" aria-label="Formato">
-              <option value="mix">Mixto (V/H)</option>
-              <option value="vertical">Solo vertical</option>
-              <option value="horizontal">Solo horizontal</option>
+            <select id="feedFormat">
+              <option value="mix">Formato: Mixto</option>
+              <option value="vertical">Solo Vertical</option>
+              <option value="horizontal">Solo Horizontal</option>
             </select>
-            <select id="feedRepeat" aria-label="Repetidos">
-              <option value="both">Todos</option>
-              <option value="unique">Sin repetidos</option>
+            <select id="feedRepeat">
+              <option value="both">Repetidos: Ambos</option>
+              <option value="unique">Sin Repetir</option>
             </select>
           </div>
         </div>
 
-        <div id="feedList" class="feed-list"></div>
-        <hr>
+        <div id="feedList" class="feed-list">
+          <p class="loading-text">Cargando el ecosistema...</p>
+        </div>
 
-        <div class="upload-area card" id="uploader">
-          <h3>Subir video (Demo)</h3>
-          <label>Archivo: <input id="videoFile" type="file" accept="video/*,image/*"></label>
-          <label>Desc: <input id="videoDesc" type="text" placeholder="Descripción..."></label>
-          <div class="uploader-controls">
-            <a id="previewBtn" class="btn primary" href="#">Previsualizar</a>
-            <a id="publishBtn" class="btn" href="#">Publicar</a>
+        <hr class="neon-divider">
+
+        <div class="card upload-card" id="uploader">
+          <h3>📹 Subir Contenido</h3>
+          <p class="muted small">Configura los metadatos de tu video antes de publicar.</p>
+
+          <div class="form-group">
+            <label>Archivo:</label>
+            <input id="videoFile" type="file" accept="video/*,image/*">
           </div>
-          <div id="videoPreview" class="video-preview">Vista previa aquí</div>
+
+          <div class="form-group">
+            <label>Título y Etiquetas:</label>
+            <input id="videoTags" type="text" placeholder="Ej: #humor, #ciencia, #música">
+          </div>
+
+          <div class="form-group">
+            <label>Orientación:</label>
+            <select id="videoOrientation">
+              <option value="vertical">Vertical</option>
+              <option value="horizontal">Horizontal</option>
+            </select>
+          </div>
+
+          <div class="uploader-actions">
+            <button id="previewBtn" class="btn">Previsualizar</button>
+            <button id="publishBtn" class="btn primary">Publicar</button>
+          </div>
+
+          <div id="videoPreview" class="video-preview"></div>
         </div>
       </section>
 
-      <aside class="panel panel-right" id="profile">
-        <h2>Perfil</h2>
-        <section class="card">
+      <aside class="panel panel-right" id="panel-profile">
+        <h2>Tu Identidad</h2>
+
+        <section class="card profile-card">
           <div class="profile-header">
-            <div class="avatar" id="avatarUi">IMG</div>
-            <div class="profile-info">
+            <div class="avatar" id="avatarDisplay">NN</div>
+            <div class="profile-details">
               <strong id="profileDisplay">Invitado</strong>
-              <div class="small muted" id="profileHandle">@anonimo</div>
+              <span id="profileHandle" class="muted">@anonimo</span>
             </div>
           </div>
           
-          <div class="profile-form" style="margin-top:10px">
-             <input id="inputUser" type="text" placeholder="Usuario (simulado)">
-             <div class="form-actions" style="margin-top:5px">
-               <a id="loginBtn" class="btn primary" href="#">Entrar (Simular)</a>
-               <a id="logoutBtn" class="btn danger" href="#" style="display:none">Salir</a>
-             </div>
+          <div class="profile-stats">
+            <span>Rol: <strong id="profileRole">Usuario</strong></span>
+            <span>Cuenta .Nai: <strong id="naiHandleText">--</strong></span>
           </div>
+
+          <details id="authDetails">
+            <summary>Iniciar Sesión / Registro</summary>
+            <form id="authForm" onsubmit="return false;">
+              <input id="inputEmail" type="email" placeholder="Correo (Gmail)">
+              <input id="inputPass" type="password" placeholder="Contraseña">
+              <input id="inputNai" type="text" placeholder="Crear Alias .Nai (Solo registro)">
+              
+              <div class="auth-buttons">
+                <button id="loginBtn" class="btn">Entrar</button>
+                <button id="registerBtn" class="btn">Registrarse</button>
+              </div>
+            </form>
+          </details>
+
+          <button id="logoutBtn" class="btn danger" style="display:none; width:100%; margin-top:10px;">Cerrar Sesión</button>
         </section>
 
         <section class="card">
-          <h3>Block de notas (Local)</h3>
-          <textarea id="noteBlock" rows="5" placeholder="Escribe aquí..."></textarea>
-          <div style="margin-top:8px;">
-            <a id="saveNoteBtn" class="btn" href="#">Guardar</a>
-            <a id="clearNoteBtn" class="btn danger" href="#">Borrar</a>
-          </div>
+          <h3>📝 Notas Privadas</h3>
+          <textarea id="noteBlock" rows="5" placeholder="Escribe ideas aquí (se guardan en tu dispositivo)..."></textarea>
+          <button id="saveNoteBtn" class="btn small" style="margin-top:5px">Guardar Nota</button>
+        </section>
+
+        <section class="card">
+          <h3>🏆 Logros</h3>
+          <ul id="achievementsList" class="small-list">
+            <li>🚀 Visitante (Desbloqueado)</li>
+          </ul>
         </section>
       </aside>
 
     </main>
-    <footer class="app-footer"><small>Nai Nai — Prototipo v1.0</small></footer>
+
+    <footer class="app-footer">
+      <small>© 2026 Nai Nai Project. Prototipo Alpha.</small>
+    </footer>
   </div>
+
   <script src="js/app.js"></script>
 </body>
 </html>
