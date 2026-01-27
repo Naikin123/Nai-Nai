@@ -1,243 +1,200 @@
-// Nai Nai — app.js (vanilla)
+// Nai Nai — app.js (Fixed)
 
 // -----------------------------
-// Supabase setup
+// 1. Configuración e Inicialización
 // -----------------------------
-// WARNING: In production, do NOT expose service_role keys or secret keys in frontend.
-// Use server functions or edge functions for sensitive operations.
 const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
+// Nota: Es seguro usar la KEY pública (anon) si tienes RLS configurado en el backend.
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// -----------------------------
-// Simple client state (demo)
-// -----------------------------
+// Estado local de la aplicación
 const state = {
-  user: null,
-  gua: 0,
+  user: null, // null = invitado
   feed: [],
-  achievements: [],
-  localNotesKey: 'nai_notes_v1'
+  notesKey: 'nai_local_note_v1'
 };
 
-// ---------- helper ----------
+// Helpers rápidos
 const el = id => document.getElementById(id);
-function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-// ---------- seed feed ----------
-function seedFeed(){
+// -----------------------------
+// 2. Lógica del Feed
+// -----------------------------
+function seedFeed() {
+  // Datos falsos para probar la interfaz
   state.feed = [
-    { id:'f1', title:'Demo Vertical — Humor', tags:['humor'], orientation:'vertical', repeated:false, author:'@demo' },
-    { id:'f2', title:'Demo Horizontal — Edu', tags:['educativo'], orientation:'horizontal', repeated:false, author:'@demo' },
-    { id:'f3', title:'Demo Mix — Música', tags:['música','tendencia'], orientation:'both', repeated:true, author:'@music' }
+    { id: 1, title: 'Tutorial de JS', author: '@dev_master', type: 'vertical', repeated: false, desc: 'Aprende hooks rápidos.' },
+    { id: 2, title: 'Paisaje 4K', author: '@traveler', type: 'horizontal', repeated: false, desc: 'Vistas de la montaña.' },
+    { id: 3, title: 'Meme del gato', author: '@funny_cat', type: 'vertical', repeated: true, desc: 'Jajaja miren esto.' },
+    { id: 4, title: 'Música LoFi', author: '@chill_beats', type: 'horizontal', repeated: true, desc: 'Para estudiar.' },
+    { id: 5, title: 'Unboxing tech', author: '@tech_guy', type: 'vertical', repeated: false, desc: 'Nuevo gadget.' }
   ];
+  renderFeed();
 }
-seedFeed();
 
-// ---------- render feed ----------
-function renderFeed(){
-  const list = el('feedList');
-  list.innerHTML = '';
-  const format = el('feedFormat').value;
-  const repeat = el('feedRepeat').value;
-  let items = state.feed.slice();
+function renderFeed() {
+  const container = el('feedList');
+  container.innerHTML = ''; // Limpiar
 
-  if(format === 'vertical') items = items.filter(i => i.orientation === 'vertical' || i.orientation === 'both');
-  if(format === 'horizontal') items = items.filter(i => i.orientation === 'horizontal' || i.orientation === 'both');
+  const formatFilter = el('feedFormat').value; // mix, vertical, horizontal
+  const repeatFilter = el('feedRepeat').value; // both, unique
 
-  if(repeat === 'repeated') items = items.filter(i => i.repeated);
-  if(repeat === 'unique') items = items.filter(i => !i.repeated);
+  // Filtrar datos
+  let items = state.feed.filter(item => {
+    // Filtro de formato
+    if (formatFilter === 'vertical' && item.type !== 'vertical') return false;
+    if (formatFilter === 'horizontal' && item.type !== 'horizontal') return false;
+    
+    // Filtro de repetidos
+    if (repeatFilter === 'unique' && item.repeated === true) return false;
+    
+    return true;
+  });
 
-  items.forEach(it => {
-    const card = document.createElement('article');
+  if (items.length === 0) {
+    container.innerHTML = '<p class="muted" style="text-align:center; padding:20px;">No hay videos con estos filtros.</p>';
+    return;
+  }
+
+  // Generar HTML
+  items.forEach(item => {
+    const card = document.createElement('div');
     card.className = 'feed-item';
-    const thumb = document.createElement('div');
-    thumb.className = 'thumb';
-    thumb.textContent = it.orientation.toUpperCase();
-    const meta = document.createElement('div');
-    meta.className = 'feed-meta';
-    meta.innerHTML = `<h4>${escapeHtml(it.title)}</h4><p class="muted">Por ${escapeHtml(it.author)} · ${it.tags.join(', ')}</p>`;
-    card.appendChild(thumb);
-    card.appendChild(meta);
-    list.appendChild(card);
+    card.innerHTML = `
+      <div class="thumb">
+        <span>${item.type === 'vertical' ? '📱' : '📺'} PLAY</span>
+      </div>
+      <div class="feed-meta">
+        <h4>${item.title}</h4>
+        <p class="small text-blue">${item.author}</p>
+        <p class="muted">${item.desc}</p>
+        ${item.repeated ? '<span style="font-size:0.7rem; color:var(--danger)">[Repetido]</span>' : ''}
+      </div>
+    `;
+    container.appendChild(card);
   });
 }
 
-// ---------- profile UI ----------
-function updateProfileUI(){
-  const badge = el('userBadge');
-  const display = el('profileDisplay');
-  const handle = el('profileHandle');
-  const naiText = el('naiHandleText');
+// Eventos de filtros
+el('feedFormat').addEventListener('change', renderFeed);
+el('feedRepeat').addEventListener('change', renderFeed);
 
-  if(state.user){
-    badge.textContent = state.user.display || state.user.nai || 'Usuario';
-    display.textContent = state.user.display || 'Usuario';
-    handle.textContent = (state.user.nai) ? '@' + state.user.nai : '@registrado';
-    naiText.textContent = state.user.nai || '—';
-    el('logoutBtn').style.display = '';
-    el('registerBtn').style.display = 'none';
+// -----------------------------
+// 3. Lógica de Subida (Preview)
+// -----------------------------
+el('previewBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  const fileInput = el('videoFile');
+  const previewBox = el('videoPreview');
+  
+  if (fileInput.files && fileInput.files[0]) {
+    const file = fileInput.files[0];
+    const url = URL.createObjectURL(file);
+    
+    // Detectar si es imagen o video para el tag correcto
+    if (file.type.startsWith('video/')) {
+      previewBox.innerHTML = `<video src="${url}" controls style="max-width:100%; max-height:200px; border-radius:8px;"></video>`;
+    } else {
+      previewBox.innerHTML = `<img src="${url}" style="max-width:100%; max-height:200px; border-radius:8px;">`;
+    }
+  } else {
+    previewBox.innerHTML = '<span style="color:var(--danger)">Por favor selecciona un archivo primero.</span>';
+  }
+});
+
+el('publishBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  const desc = el('videoDesc').value;
+  if(!desc) return alert('Añade una descripción');
+  
+  // Simular publicación agregando al feed local
+  state.feed.unshift({
+    id: Date.now(),
+    title: 'Nuevo Upload (Demo)',
+    author: state.user ? state.user : '@invitado',
+    type: 'vertical', // Default para demo
+    repeated: false,
+    desc: desc
+  });
+  
+  alert('¡Video publicado en el feed local!');
+  renderFeed();
+  el('videoDesc').value = '';
+  el('videoPreview').innerHTML = 'Vista previa aquí';
+});
+
+// -----------------------------
+// 4. Perfil y Auth (Simulado)
+// -----------------------------
+function updateProfileUI() {
+  if (state.user) {
+    // Logueado
+    el('profileDisplay').textContent = state.user;
+    el('profileHandle').textContent = '@usuario_verificado';
+    el('userBadge').textContent = 'Usuario';
+    el('avatarUi').style.background = 'var(--neon-blue)';
+    
     el('loginBtn').style.display = 'none';
+    el('inputUser').style.display = 'none';
+    el('logoutBtn').style.display = 'inline-block';
+    
+    // GUA Simulado
+    el('gua-value').textContent = '150';
   } else {
-    badge.textContent = 'Invitado';
-    display.textContent = 'Invitado';
-    handle.textContent = '@invitado';
-    naiText.textContent = '—';
+    // Invitado
+    el('profileDisplay').textContent = 'Invitado';
+    el('profileHandle').textContent = '@anonimo';
+    el('userBadge').textContent = 'Invitado';
+    el('avatarUi').style.background = '#333';
+    
+    el('loginBtn').style.display = 'inline-block';
+    el('inputUser').style.display = 'block';
     el('logoutBtn').style.display = 'none';
-    el('registerBtn').style.display = '';
-    el('loginBtn').style.display = '';
-  }
-  el('profileGua').textContent = 'GUA: ' + state.gua;
-  el('gua-value').textContent = state.gua;
-}
-
-// ---------- notes ----------
-function saveNotes(){
-  const text = el('noteBlock').value;
-  if(state.user && state.user.registered){
-    localStorage.setItem('nai_notes_' + state.user.id, text);
-    alert('Nota guardada (demo).');
-  } else {
-    localStorage.setItem(state.localNotesKey, text);
-    alert('Nota guardada localmente (invitado).');
-  }
-}
-function loadNotes(){
-  if(state.user && state.user.registered){
-    el('noteBlock').value = localStorage.getItem('nai_notes_' + state.user.id) || '';
-  } else {
-    el('noteBlock').value = localStorage.getItem(state.localNotesKey) || '';
-  }
-}
-function clearNotes(){
-  if(confirm('Borrar notas?')){
-    if(state.user && state.user.registered) localStorage.removeItem('nai_notes_' + state.user.id);
-    else localStorage.removeItem(state.localNotesKey);
-    el('noteBlock').value = '';
+    el('gua-value').textContent = '0';
   }
 }
 
-// ---------- file preview ----------
-const inputFile = el('videoFile');
-if(inputFile){
-  inputFile.addEventListener('change', handleFileSelect);
-}
-function handleFileSelect(e){
-  const f = e.target.files && e.target.files[0];
-  if(!f) return;
-  const preview = el('videoPreview');
-  preview.innerHTML = '';
-  const url = URL.createObjectURL(f);
-  if(f.type.startsWith('video/')){
-    const v = document.createElement('video');
-    v.src = url; v.controls = true; v.style.maxWidth = '100%'; v.style.height = 'auto';
-    preview.appendChild(v);
-  } else {
-    const i = document.createElement('img');
-    i.src = url; i.style.maxWidth = '100%';
-    preview.appendChild(i);
-  }
-}
+el('loginBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  const name = el('inputUser').value || 'Usuario Test';
+  state.user = name;
+  updateProfileUI();
+});
 
-// ---------- meta save ----------
-if(el('saveMetaBtn')){
-  el('saveMetaBtn').addEventListener('click', ()=>{
-    const tags = el('videoTags').value.split(',').map(s=>s.trim()).filter(Boolean);
-    const desc = el('videoDesc').value.trim();
-    const orientation = el('videoOrientation').value;
-    const cropMode = document.querySelector('input[name="cropMode"]:checked').value;
-    const author = state.user ? state.user.nai : 'invitado';
-    const id = 'f'+(Date.now());
-    state.feed.unshift({ id, title: desc || 'Sin título', tags, orientation, repeated:false, author });
-    renderFeed();
-    alert('Metadatos guardados (demo).');
-  });
-}
-
-// ---------- register / login (demo using emailLike) ----------
-async function registerAccount(){
-  const display = el('inputDisplayName').value.trim();
-  const nai = el('inputNai').value.trim();
-  const pass = el('inputPass').value;
-  if(!nai || !pass){ alert('Handle y contraseña requeridos para registro.'); return; }
-  try{
-    const emailLike = nai + '@nai.local';
-    const res = await supabase.auth.signUp({ email: emailLike, password: pass }, { data: { display, nai } });
-    if(res.error) { console.warn(res.error); alert('Error creando cuenta (demo).'); return; }
-    state.user = { id: res.data.user.id, display, nai, registered:true };
-    updateProfileUI(); loadNotes();
-    alert('Cuenta creada (demo).');
-  }catch(e){ console.error(e); alert('Error en registro.'); }
-}
-async function loginAccount(){
-  const nai = el('inputNai').value.trim();
-  const pass = el('inputPass').value;
-  if(!nai || !pass){ alert('Handle y contraseña requeridos.'); return; }
-  try{
-    const emailLike = nai + '@nai.local';
-    const res = await supabase.auth.signInWithPassword({ email: emailLike, password: pass });
-    if(res.error) { console.warn(res.error); alert('Error iniciando sesión (demo).'); return; }
-    state.user = { id: res.data.user.id, display: res.data.user.user_metadata?.display || nai, nai, registered:true };
-    updateProfileUI(); loadNotes();
-    alert('Sesión iniciada (demo).');
-  }catch(e){ console.error(e); alert('Error al iniciar sesión.'); }
-}
-async function logout(){
-  await supabase.auth.signOut();
+el('logoutBtn').addEventListener('click', (e) => {
+  e.preventDefault();
   state.user = null;
   updateProfileUI();
-  loadNotes();
+});
+
+// -----------------------------
+// 5. Block de Notas (LocalStorage)
+// -----------------------------
+function loadNote() {
+  const saved = localStorage.getItem(state.notesKey);
+  if (saved) el('noteBlock').value = saved;
 }
 
-// ---------- achievements ----------
-function seedAchievements(){
-  state.achievements = [
-    'Subidor de videos (10)',
-    'Comentarista (10 comentarios)',
-    'Usuario Rate',
-    'Usuario Certificado',
-    'Curador (100 upvotes)'
-  ];
-  renderAchievements();
-}
-function renderAchievements(){
-  const ul = el('achievementsList');
-  if(!ul) return;
-  ul.innerHTML = '';
-  state.achievements.forEach(a=>{
-    const li = document.createElement('li');
-    li.textContent = a;
-    ul.appendChild(li);
-  });
-}
+el('saveNoteBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  const text = el('noteBlock').value;
+  localStorage.setItem(state.notesKey, text);
+  alert('Nota guardada en este dispositivo.');
+});
 
-// ---------- GUA demo ----------
-function changeGua(delta, reason){
-  state.gua = Math.max(0, state.gua + delta);
-  el('gua-value').textContent = state.gua;
-  if(el('profileGua')) el('profileGua').textContent = 'GUA: ' + state.gua;
-  console.info('GUA change', delta, reason);
-}
+el('clearNoteBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  localStorage.removeItem(state.notesKey);
+  el('noteBlock').value = '';
+});
 
-// ---------- binding & init ----------
-function bindUI(){
-  if(el('feedFormat')) el('feedFormat').addEventListener('change', renderFeed);
-  if(el('feedRepeat')) el('feedRepeat').addEventListener('change', renderFeed);
-  if(el('registerBtn')) el('registerBtn').addEventListener('click', registerAccount);
-  if(el('loginBtn')) el('loginBtn').addEventListener('click', loginAccount);
-  if(el('logoutBtn')) el('logoutBtn').addEventListener('click', logout);
-  if(el('saveNoteBtn')) el('saveNoteBtn').addEventListener('click', saveNotes);
-  if(el('clearNoteBtn')) el('clearNoteBtn').addEventListener('click', clearNotes);
-  if(el('previewBtn')) el('previewBtn').addEventListener('click', (e)=>{ e.preventDefault(); const f = inputFile.files && inputFile.files[0]; if(!f){ alert('Selecciona archivo.'); return; } const url = URL.createObjectURL(f); const preview = el('editorArea'); preview.innerHTML=''; if(f.type.startsWith('video/')){ const v=document.createElement('video'); v.src=url; v.controls=true; v.style.maxWidth='100%'; preview.appendChild(v); } else { const img=document.createElement('img'); img.src=url; img.style.maxWidth='100%'; preview.appendChild(img);} });
-  if(el('saveMetaBtn')) el('saveMetaBtn').addEventListener('click',(e)=>{ e.preventDefault(); });
-}
-
-function init(){
-  bindUI();
-  renderFeed();
-  seedAchievements();
+// -----------------------------
+// 6. Init
+// -----------------------------
+document.addEventListener('DOMContentLoaded', () => {
+  seedFeed();
+  loadNote();
   updateProfileUI();
-  loadNotes();
-  changeGua(10, 'Inicio demo');
-}
-init();
+  console.log('Nai Nai app iniciada.');
+});
