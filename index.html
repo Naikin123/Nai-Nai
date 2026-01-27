@@ -2,166 +2,222 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nai Nai — Ecosistema Digital</title>
-  <meta name="description" content="Plataforma social creativa con sistema de reputación GUA.">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nai Nai — Prototipo</title>
 
+  <!-- Styles -->
   <link rel="stylesheet" href="css/style.css">
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <!-- Supabase client (defer para cargar antes del app.js) -->
+  <script defer src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- App JS (defer) -->
+  <script defer src="js/app.js"></script>
 </head>
 <body>
-
   <div id="app" class="app-root">
-    
     <header class="app-header" role="banner">
       <div class="brand">
         <h1>Nai Nai</h1>
         <p class="tagline">Social · Creatividad · Comunidad</p>
       </div>
 
-      <nav class="top-actions" role="navigation">
+      <nav class="top-actions" role="navigation" aria-label="Navegación principal">
         <span id="userBadge" class="badge">Invitado</span>
-        <a id="link-feed" class="link active" href="#feed">Feed</a>
+        <a id="link-feed" class="link" href="#feed">Feed</a>
         <a id="link-profile" class="link" href="#profile">Perfil</a>
-        <a id="link-rules" class="link" href="terms.html" target="_blank">Términos</a>
+        <a id="link-terms" class="link" href="terms.html" target="_blank" rel="noopener">Términos</a>
       </nav>
     </header>
 
-    <main class="main-grid">
+    <main class="main-grid" role="main">
 
-      <aside class="panel panel-left" id="panel-info">
-        <h2>Reglas & Estatus</h2>
+      <!-- LEFT: reglas / info -->
+      <aside class="panel panel-left" id="rules" aria-labelledby="rulesTitle">
+        <h2 id="rulesTitle">Reglas & Resumen</h2>
 
-        <section class="card">
-          <h3>💎 Sistema GUA</h3>
-          <p>Tu reputación digital. Ganas por reportes válidos y buen contenido. Pierdes por spam o mal comportamiento.</p>
-          <div class="gua-display">
-            <span>Tu GUA:</span>
-            <strong id="gua-value" class="neon-text">0</strong>
-          </div>
+        <section class="card" aria-labelledby="monetTitle">
+          <h3 id="monetTitle">Reglas de Monetización (Resumen)</h3>
+          <ul>
+            <li>La monetización no está disponible ahora; se implementará en un futuro lejano.</li>
+            <li>No todos ganan dinero: depende de GUA, verificación y antigüedad.</li>
+            <li>Si activas monetización no es garantía de ingreso; si crees que hubo error contacta al Creador o Admins.</li>
+            <li>Si no estás registrado Nai Nai no se hace responsable por pérdida de videos.</li>
+          </ul>
         </section>
 
-        <section class="card">
-          <h3>📜 Resumen de Normas</h3>
-          <ul class="small-list">
-            <li><strong>+18:</strong> Prohibido (salvo educativo/humor etiquetado).</li>
-            <li><strong>Monetización:</strong> No disponible actualmente.</li>
-            <li><strong>Sanciones:</strong> Desde pérdida de GUA hasta baneo permanente.</li>
-          </ul>
-          <p class="muted small" style="margin-top:10px">Nota: La supervisión es humana y puede demorar.</p>
+        <section class="card" aria-labelledby="guaTitle">
+          <h3 id="guaTitle">Sistema GUA (resumen)</h3>
+          <p>GUA = reputación. Suben: reportes válidos, encuestas, buen etiquetado. Bajan: spam, mal etiquetado, reportes válidos.</p>
+          <p><strong>Tu GUA:</strong> <span id="gua-value">0</span></p>
+        </section>
+
+        <section class="card" aria-labelledby="sanctitle">
+          <h3 id="sanctitle">Sanciones (resumen)</h3>
+          <ol>
+            <li>Advertencia</li>
+            <li>Pérdida de GUA</li>
+            <li>Suspensión temporal</li>
+            <li>Suspensión permanente</li>
+            <li>Apelaciones (pueden tardar)</li>
+          </ol>
+        </section>
+
+        <section class="card small" aria-labelledby="noteTitle">
+          <h3 id="noteTitle">Nota</h3>
+          <p>La plataforma cuenta con pocas personas supervisando; sanciones, pagos y revisiones pueden tardar en procesarse.</p>
         </section>
       </aside>
 
-      <section class="panel panel-center" id="panel-feed">
-        
-        <div class="feed-header">
-          <h2>Feed Global</h2>
-          <div class="feed-controls">
-            <select id="feedFormat">
-              <option value="mix">Formato: Mixto</option>
-              <option value="vertical">Solo Vertical</option>
-              <option value="horizontal">Solo Horizontal</option>
-            </select>
-            <select id="feedRepeat">
-              <option value="both">Repetidos: Ambos</option>
-              <option value="unique">Sin Repetir</option>
-            </select>
+      <!-- CENTER: feed / upload / editor -->
+      <section class="panel panel-center" id="feed" aria-labelledby="feedTitle">
+        <div class="panel-row">
+          <h2 id="feedTitle">Feed</h2>
+          <div class="feed-controls" aria-hidden="false">
+            <label for="feedFormat">Formato:
+              <select id="feedFormat" aria-label="Formato de feed">
+                <option value="mix">Mixto (V/H)</option>
+                <option value="vertical">Solo vertical</option>
+                <option value="horizontal">Solo horizontal</option>
+              </select>
+            </label>
+            <label for="feedRepeat">Repetidos:
+              <select id="feedRepeat" aria-label="Repetidos">
+                <option value="both">Ambos</option>
+                <option value="repeated">Repetidos</option>
+                <option value="unique">No repetidos</option>
+              </select>
+            </label>
           </div>
         </div>
 
-        <div id="feedList" class="feed-list">
-          <p class="loading-text">Cargando el ecosistema...</p>
-        </div>
+        <div id="feedList" class="feed-list" aria-live="polite"></div>
 
-        <hr class="neon-divider">
+        <hr>
 
-        <div class="card upload-card" id="uploader">
-          <h3>📹 Subir Contenido</h3>
-          <p class="muted small">Configura los metadatos de tu video antes de publicar.</p>
+        <div class="upload-area card" id="uploader" aria-labelledby="uploaderTitle">
+          <h3 id="uploaderTitle">Subir video (metadatos)</h3>
+          <p class="muted">Subida demo: selecciona un archivo para previsualizar y establecer metadatos. El procesamiento real queda para backend.</p>
 
-          <div class="form-group">
-            <label>Archivo:</label>
-            <input id="videoFile" type="file" accept="video/*,image/*">
-          </div>
+          <label>Archivo de video:
+            <input id="videoFile" type="file" accept="video/*,image/*" aria-label="Archivo de video">
+          </label>
 
-          <div class="form-group">
-            <label>Título y Etiquetas:</label>
-            <input id="videoTags" type="text" placeholder="Ej: #humor, #ciencia, #música">
-          </div>
-
-          <div class="form-group">
-            <label>Orientación:</label>
-            <select id="videoOrientation">
+          <label>Orientación:
+            <select id="videoOrientation" aria-label="Orientación del video">
               <option value="vertical">Vertical</option>
               <option value="horizontal">Horizontal</option>
+              <option value="both">Ambos (auto)</option>
             </select>
+          </label>
+
+          <label>Etiquetas (coma separadas):
+            <input id="videoTags" type="text" placeholder="humor,educativo,música" aria-label="Etiquetas del video">
+          </label>
+
+          <label>Descripción:
+            <textarea id="videoDesc" rows="3" placeholder="Descripción / público objetivo" aria-label="Descripción del video"></textarea>
+          </label>
+
+          <div class="editor-options" role="radiogroup" aria-label="Opciones de recorte">
+            <p><strong>Recorte:</strong></p>
+            <label><input type="radio" name="cropMode" value="vertical" checked> Vertical</label>
+            <label><input type="radio" name="cropMode" value="horizontal"> Horizontal</label>
+            <label><input type="radio" name="cropMode" value="both"> Ambos</label>
           </div>
 
-          <div class="uploader-actions">
-            <button id="previewBtn" class="btn">Previsualizar</button>
-            <button id="publishBtn" class="btn primary">Publicar</button>
+          <div class="uploader-controls" role="group" aria-label="Controles de subida">
+            <a id="previewBtn" class="btn" href="#" role="button">Previsualizar</a>
+            <a id="saveMetaBtn" class="btn primary" href="#" role="button">Guardar metadatos</a>
+            <a id="publishBtn" class="btn" href="#" role="button">Publicar (simulado)</a>
           </div>
 
-          <div id="videoPreview" class="video-preview"></div>
+          <div id="videoPreview" class="video-preview" aria-live="polite"></div>
+        </div>
+
+        <div class="editor card" id="videoEditor" aria-labelledby="editorTitle">
+          <h3 id="editorTitle">Editor (preview / recorte simple)</h3>
+          <p class="muted">Edición cliente básica: vista previa, orientación y captura de fotograma. Procesado real en backend/servicios especializados.</p>
+          <div id="editorArea" class="editor-area" aria-live="polite"></div>
         </div>
       </section>
 
-      <aside class="panel panel-right" id="panel-profile">
-        <h2>Tu Identidad</h2>
+      <!-- RIGHT: perfil / notas / logros -->
+      <aside class="panel panel-right" id="profile" aria-labelledby="profileTitle">
+        <h2 id="profileTitle">Perfil</h2>
 
-        <section class="card profile-card">
+        <section class="card" id="profileCard">
           <div class="profile-header">
-            <div class="avatar" id="avatarDisplay">NN</div>
-            <div class="profile-details">
-              <strong id="profileDisplay">Invitado</strong>
-              <span id="profileHandle" class="muted">@anonimo</span>
+            <div class="avatar" id="avatarPreview">MP4</div>
+            <div class="profile-info">
+              <div class="profile-name">
+                <strong id="profileDisplay">Invitado</strong>
+                <span class="muted" id="profileHandle">@invitado</span>
+              </div>
+              <div class="profile-meta">
+                <span id="profileRole">Usuario</span> · <span id="profileGua">GUA: 0</span>
+              </div>
             </div>
           </div>
-          
-          <div class="profile-stats">
-            <span>Rol: <strong id="profileRole">Usuario</strong></span>
-            <span>Cuenta .Nai: <strong id="naiHandleText">--</strong></span>
+
+          <div class="profile-links">
+            <p><strong>Cuenta .Nai:</strong> <span id="naiHandleText">—</span></p>
+            <p><strong>Redes / Links:</strong></p>
+            <ul id="profileLinksList" class="small muted"></ul>
           </div>
 
-          <details id="authDetails">
-            <summary>Iniciar Sesión / Registro</summary>
-            <form id="authForm" onsubmit="return false;">
-              <input id="inputEmail" type="email" placeholder="Correo (Gmail)">
-              <input id="inputPass" type="password" placeholder="Contraseña">
-              <input id="inputNai" type="text" placeholder="Crear Alias .Nai (Solo registro)">
-              
-              <div class="auth-buttons">
-                <button id="loginBtn" class="btn">Entrar</button>
-                <button id="registerBtn" class="btn">Registrarse</button>
+          <details>
+            <summary>Editar perfil / cuentas</summary>
+            <form id="profileForm" class="profile-form" onsubmit="return false;">
+              <label>Nombre visible:
+                <input id="inputDisplayName" type="text" placeholder="Nombre público">
+              </label>
+
+              <label>Crear cuenta .Nai (opcional):
+                <input id="inputNai" type="text" placeholder="Cuenta .Nai (única)">
+              </label>
+
+              <label>Contraseña (obligatoria solo si creas cuenta):
+                <input id="inputPass" type="password" placeholder="Contraseña">
+              </label>
+
+              <label>Links (coma separados):
+                <input id="inputLinks" type="text" placeholder="https://twitter.com/ej / https://youtube...">
+              </label>
+
+              <p class="muted small">Si no te registras, no nos responsabilizamos de pérdida de datos.</p>
+
+              <div class="form-actions">
+                <a id="registerBtn" class="btn primary" href="#" role="button">Crear cuenta / Registrar</a>
+                <a id="loginBtn" class="btn" href="#" role="button">Iniciar sesión</a>
+                <a id="logoutBtn" class="btn danger" href="#" role="button" style="display:none">Cerrar sesión</a>
               </div>
             </form>
           </details>
-
-          <button id="logoutBtn" class="btn danger" style="display:none; width:100%; margin-top:10px;">Cerrar Sesión</button>
         </section>
 
-        <section class="card">
-          <h3>📝 Notas Privadas</h3>
-          <textarea id="noteBlock" rows="5" placeholder="Escribe ideas aquí (se guardan en tu dispositivo)..."></textarea>
-          <button id="saveNoteBtn" class="btn small" style="margin-top:5px">Guardar Nota</button>
+        <section class="card" aria-labelledby="notesTitle">
+          <h3 id="notesTitle">Block de notas (privado)</h3>
+          <textarea id="noteBlock" rows="6" placeholder="Notas privadas (guardado local si no estás registrado)"></textarea>
+          <div style="margin-top:8px;">
+            <a id="saveNoteBtn" class="btn" href="#" role="button">Guardar nota</a>
+            <a id="clearNoteBtn" class="btn danger" href="#" role="button">Borrar nota</a>
+          </div>
+          <p class="muted small">Invitados: el block de notas puede perderse al cambiar dispositivo.</p>
         </section>
 
-        <section class="card">
-          <h3>🏆 Logros</h3>
-          <ul id="achievementsList" class="small-list">
-            <li>🚀 Visitante (Desbloqueado)</li>
-          </ul>
+        <section class="card" aria-labelledby="achTitle">
+          <h3 id="achTitle">Logros & Roles</h3>
+          <ul id="achievementsList" class="small"></ul>
         </section>
       </aside>
 
     </main>
 
-    <footer class="app-footer">
-      <small>© 2026 Nai Nai Project. Prototipo Alpha.</small>
+    <footer class="app-footer" role="contentinfo">
+      <div>
+        <small>Nai Nai — Prototipo. Dark / Neon theme.</small>
+      </div>
     </footer>
   </div>
-
-  <script src="js/app.js"></script>
 </body>
 </html>
