@@ -1,136 +1,58 @@
+/* Estilo Cyber-Nai 2026 */
 :root {
-  --bg: #050505;
-  --panel: #0a0a0a;
-  --card: #111111;
-  --neon-cyan: #00F2EA; /* Tu color principal */
-  --neon-purple: #9b5de5;
-  --text-main: #ffffff;
-  --text-muted: #888888;
-  --danger: #ff4444;
+  --fondo-oscuro: #050505;
+  --cian-neon: #00F2EA;
+  --morado-neon: #9b5de5;
+  --texto: #ffffff;
 }
 
-/* Base */
-* { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  background-color: var(--bg);
-  color: var(--text-main);
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Scrollbar personalizada */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--neon-cyan); }
-
-/* Header */
-.app-header {
-  background: rgba(10, 10, 10, 0.9);
-  border-bottom: 1px solid #222;
-  padding: 15px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(10px);
-}
-
-.brand h1 { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0, 242, 234, 0.4); font-size: 1.5rem; letter-spacing: 1px; }
-.tagline { color: var(--text-muted); font-size: 0.8rem; }
-
-.top-actions { display: flex; gap: 15px; align-items: center; }
-.badge { background: var(--neon-cyan); color: #000; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
-.link { color: var(--text-muted); text-decoration: none; transition: 0.3s; }
-.link:hover, .link.active { color: var(--neon-cyan); }
-
-/* Grid Layout */
-.main-grid {
-  display: grid;
-  grid-template-columns: 280px 1fr 300px; /* Izquierda, Centro, Derecha */
-  gap: 20px;
+  background-color: var(--fondo-oscuro);
+  color: var(--texto);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
   padding: 20px;
-  flex: 1;
-  overflow: hidden; /* Para que el scroll sea interno en los paneles si es necesario */
 }
 
-/* Paneles y Tarjetas */
-.panel { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; height: 100%; }
-.card {
-  background: var(--card);
+/* Títulos con resplandor */
+h1, h2 {
+  color: var(--cian-neon);
+  text-shadow: 0 0 10px rgba(0, 242, 234, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Tarjetas de contenido */
+.card, section, aside {
+  background: #111;
   border: 1px solid #222;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-.card h3 { color: var(--neon-purple); margin-bottom: 10px; font-size: 1rem; text-transform: uppercase; }
-
-/* Textos Especiales */
-.muted { color: var(--text-muted); }
-.small-list { list-style: none; padding-left: 5px; font-size: 0.9rem; color: var(--text-muted); }
-.small-list li { margin-bottom: 6px; border-bottom: 1px solid #222; padding-bottom: 4px; }
-.neon-text { color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan); }
-
-/* Feed */
-.feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.feed-controls select { background: #000; color: #fff; border: 1px solid #333; padding: 5px; border-radius: 5px; }
-
-.feed-item {
-  background: #0f0f0f;
-  border: 1px solid #222;
-  border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 15px;
-  transition: transform 0.2s;
-}
-.feed-item:hover { border-color: var(--neon-cyan); transform: translateY(-2px); }
-.video-placeholder {
-  background: #000;
-  height: 200px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #333;
-  margin-bottom: 10px;
-  border: 1px dashed #333;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.8);
 }
 
-/* Inputs y Botones */
-input, textarea, select {
-  width: 100%;
-  background: #050505;
-  border: 1px solid #333;
-  color: white;
-  padding: 8px;
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
-input:focus, textarea:focus { outline: none; border-color: var(--neon-cyan); }
-
-.btn {
+/* Botones estilo Nai Nai */
+button, .btn {
   background: transparent;
-  border: 1px solid var(--neon-cyan);
-  color: var(--neon-cyan);
-  padding: 8px 15px;
-  border-radius: 6px;
+  border: 1px solid var(--cian-neon);
+  color: var(--cian-neon);
+  padding: 10px 20px;
+  border-radius: 5px;
   cursor: pointer;
   transition: 0.3s;
   font-weight: bold;
 }
-.btn:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 10px var(--neon-cyan); }
-.btn.primary { background: var(--neon-cyan); color: #000; }
-.btn.danger { border-color: var(--danger); color: var(--danger); }
-.btn.danger:hover { background: var(--danger); color: white; box-shadow: 0 0 10px var(--danger); }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .main-grid { grid-template-columns: 1fr; overflow-y: auto; }
-  .panel-left, .panel-right { order: 2; }
-  .panel-center { order: 1; }
-  .app-header { flex-direction: column; gap: 10px; }
+button:hover {
+  background: var(--cian-neon);
+  color: #000;
+  box-shadow: 0 0 20px var(--cian-neon);
+}
+
+/* Sistema GUA resaltado */
+#gua-value {
+  font-size: 1.5rem;
+  color: var(--morado-neon);
+  text-shadow: 0 0 5px var(--morado-neon);
 }
