@@ -1,6 +1,6 @@
-// js/app.js
-// Nai Nai — demo app logic
-// Supabase (demo key) - NO usar en producción
+// script.js (corregido para carga desde la raíz)
+
+// Supabase config (demo). En producción, mueve operaciones sensibles al servidor.
 const supabaseUrl = 'https://icxjeadofnotafxcpkhz.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeGplYWRvZm5vdGFmeGNvdGFmeGNwa2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwOTM1MjEsImV4cCI6MjA4MzY2OTUyMX0.COAgUCOMa7la7EIg-fTo4eAvb-9lY83xemQNJGFnY7o';
 
@@ -8,25 +8,24 @@ let supabase = null;
 if (window.supabase && typeof window.supabase.createClient === 'function') {
   supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 } else {
-  console.warn('Supabase client not loaded.');
+  console.warn('Supabase client not available (demo).');
 }
 
-// ---------- Helpers ----------
+// Helpers
 const el = id => document.getElementById(id);
 const exists = id => !!el(id);
 function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-function noop(){}
 
-// ---------- STATE ----------
+// State
 const state = {
-  user: null,        // null = invitado
+  user: null,
   gua: 0,
   feed: [],
   achievements: [],
   localNotesKey: 'nai_notes_v1'
 };
 
-// ---------- DEMO SEED ----------
+// Seed
 function seedFeed(){
   state.feed = [
     { id:'f1', title:'Demo Vertical — Humor', tags:['humor'], orientation:'vertical', repeated:false, author:'@demo' },
@@ -44,7 +43,7 @@ function seedAchievements(){
   ];
 }
 
-// ---------- RENDER ----------
+// Render functions
 function renderFeed(){
   if(!exists('feedList')) return;
   const list = el('feedList'); list.innerHTML = '';
@@ -104,12 +103,11 @@ function updateProfileUI(){
   if(exists('gua-value')) el('gua-value').textContent = state.gua;
 }
 
-// ---------- NOTES ----------
+// Notes
 function saveNotes(){
   if(!exists('noteBlock')) return;
   const text = el('noteBlock').value;
   if(state.user && state.user.registered){
-    // demo: save locally keyed by user id. In prod: save to Supabase table notes.
     localStorage.setItem('nai_notes_' + state.user.id, text);
     alert('Nota guardada (demo).');
   } else {
@@ -133,7 +131,7 @@ function clearNotes(){
   el('noteBlock').value = '';
 }
 
-// ---------- UPLOAD PREVIEW ----------
+// File preview
 function handleFileSelect(e){
   const f = e.target.files && e.target.files[0];
   if(!f) return;
@@ -148,7 +146,7 @@ function handleFileSelect(e){
   }
 }
 
-// ---------- SAVE METADATA (local demo) ----------
+// Save metadata demo
 function saveMetaDemo(){
   if(!exists('videoTags') || !exists('videoDesc') || !exists('videoOrientation')) return alert('Campos faltan (demo).');
   const tags = el('videoTags').value.split(',').map(s=>s.trim()).filter(Boolean);
@@ -162,7 +160,7 @@ function saveMetaDemo(){
   alert('Metadatos guardados (demo).');
 }
 
-// ---------- SUBIR A STORAGE (EJEMPLO) ----------
+// Upload demo to Supabase Storage (requires bucket 'videos')
 async function uploadToSupabaseStorage(){
   if(!supabase) return alert('Supabase no inicializado (demo).');
   const fileInput = el('videoFile');
@@ -170,15 +168,13 @@ async function uploadToSupabaseStorage(){
   const file = fileInput.files[0];
   const path = `videos/${Date.now()}_${file.name}`;
   try{
-    // demo: sube con la anon key (no seguro para producción)
     const { data, error } = await supabase.storage.from('videos').upload(path, file);
     if(error){ console.error(error); alert('Error subiendo (ver consola)'); return; }
-    // ejemplo: guardar metadata en la tabla videos (requiere endpoint seguro o RLS)
     alert('Archivo subido a storage (demo). Ruta: ' + data.path);
   }catch(err){ console.error(err); alert('Error al subir (demo).'); }
 }
 
-// ---------- AUTH (demo con emailLike) ----------
+// Auth demo (emailLike)
 async function registerAccount(){
   if(!exists('inputNai') || !exists('inputPass')) return alert('Formulario no disponible (demo).');
   const display = el('inputDisplayName').value.trim();
@@ -216,16 +212,15 @@ async function logout(){
   loadNotes();
 }
 
-// ---------- GUA logic (simple demo) ----------
+// GUA demo
 function changeGua(delta, reason){
   state.gua = Math.max(0, state.gua + delta);
   if(exists('gua-value')) el('gua-value').textContent = state.gua;
   if(exists('profileGua')) el('profileGua').textContent = 'GUA: ' + state.gua;
-  // opcional: en producción enviar gua_history a la DB
   console.info('GUA change', delta, reason);
 }
 
-// ---------- BIND UI & INIT ----------
+// Bind UI
 function bindUI(){
   if(exists('feedFormat')) el('feedFormat').addEventListener('change', renderFeed);
   if(exists('feedRepeat')) el('feedRepeat').addEventListener('change', renderFeed);
@@ -240,6 +235,7 @@ function bindUI(){
   if(exists('clearNoteBtn')) el('clearNoteBtn').addEventListener('click',(e)=>{ e.preventDefault(); clearNotes(); });
 }
 
+// Init
 document.addEventListener('DOMContentLoaded', ()=>{
   seedFeed();
   seedAchievements();
@@ -249,4 +245,5 @@ document.addEventListener('DOMContentLoaded', ()=>{
   updateProfileUI();
   loadNotes();
   changeGua(10, 'Inicio demo');
+  console.log('Nai Nai demo inicializado — CSS/JS cargados correctamente.');
 });
