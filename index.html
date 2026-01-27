@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Nai Nai — Prototipo</title>
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css">
+  <!-- CSS: dark / neon theme -->
+  <link rel="stylesheet" href="./css/style.css">
 
-  <!-- Supabase client (defer para cargar antes del app.js) -->
+  <!-- Supabase client (defer) -->
   <script defer src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <!-- App JS (defer) -->
-  <script defer src="js/app.js"></script>
+  <!-- App JS -->
+  <script defer src="./js/app.js"></script>
 </head>
 <body>
   <div id="app" class="app-root">
@@ -30,24 +30,23 @@
     </header>
 
     <main class="main-grid" role="main">
-
-      <!-- LEFT: reglas / info -->
+      <!-- LEFT: reglas / resumen -->
       <aside class="panel panel-left" id="rules" aria-labelledby="rulesTitle">
         <h2 id="rulesTitle">Reglas & Resumen</h2>
 
         <section class="card" aria-labelledby="monetTitle">
           <h3 id="monetTitle">Reglas de Monetización (Resumen)</h3>
           <ul>
-            <li>La monetización no está disponible ahora; se implementará en un futuro lejano.</li>
+            <li>La monetización <strong>no está disponible ahora</strong>; se implementará en un futuro lejano.</li>
             <li>No todos ganan dinero: depende de GUA, verificación y antigüedad.</li>
-            <li>Si activas monetización no es garantía de ingreso; si crees que hubo error contacta al Creador o Admins.</li>
-            <li>Si no estás registrado Nai Nai no se hace responsable por pérdida de videos.</li>
+            <li>Si activas opciones de monetización <em>no garantiza</em> que vayas a ganar dinero. Si detectas problemas contacta al Creador o a los Administradores.</li>
+            <li>Si no estás registrado, Nai Nai <strong>no se responsabiliza</strong> por pérdida de videos o datos.</li>
           </ul>
         </section>
 
         <section class="card" aria-labelledby="guaTitle">
           <h3 id="guaTitle">Sistema GUA (resumen)</h3>
-          <p>GUA = reputación. Suben: reportes válidos, encuestas, buen etiquetado. Bajan: spam, mal etiquetado, reportes válidos.</p>
+          <p>GUA = índice de confianza. Sube con acciones responsables y baja con infracciones.</p>
           <p><strong>Tu GUA:</strong> <span id="gua-value">0</span></p>
         </section>
 
@@ -72,7 +71,7 @@
       <section class="panel panel-center" id="feed" aria-labelledby="feedTitle">
         <div class="panel-row">
           <h2 id="feedTitle">Feed</h2>
-          <div class="feed-controls" aria-hidden="false">
+          <div class="feed-controls">
             <label for="feedFormat">Formato:
               <select id="feedFormat" aria-label="Formato de feed">
                 <option value="mix">Mixto (V/H)</option>
@@ -90,15 +89,17 @@
           </div>
         </div>
 
-        <div id="feedList" class="feed-list" aria-live="polite"></div>
+        <div id="feedList" class="feed-list" aria-live="polite">
+          <!-- Items cargados por JS -->
+        </div>
 
         <hr>
 
         <div class="upload-area card" id="uploader" aria-labelledby="uploaderTitle">
           <h3 id="uploaderTitle">Subir video (metadatos)</h3>
-          <p class="muted">Subida demo: selecciona un archivo para previsualizar y establecer metadatos. El procesamiento real queda para backend.</p>
+          <p class="muted">Subida demo: selecciona un archivo para previsualizar y establecer metadatos. Subida real debe procesarse en backend (storage + transcodificación).</p>
 
-          <label>Archivo de video:
+          <label>Archivo de video / imagen:
             <input id="videoFile" type="file" accept="video/*,image/*" aria-label="Archivo de video">
           </label>
 
@@ -114,12 +115,12 @@
             <input id="videoTags" type="text" placeholder="humor,educativo,música" aria-label="Etiquetas del video">
           </label>
 
-          <label>Descripción:
-            <textarea id="videoDesc" rows="3" placeholder="Descripción / público objetivo" aria-label="Descripción del video"></textarea>
+          <label>Descripción (público objetivo recomendado):
+            <textarea id="videoDesc" rows="3" placeholder="¿Por qué recomiendas este video? ¿A qué público?" aria-label="Descripción del video"></textarea>
           </label>
 
           <div class="editor-options" role="radiogroup" aria-label="Opciones de recorte">
-            <p><strong>Recorte:</strong></p>
+            <p><strong>Recorte disponible:</strong></p>
             <label><input type="radio" name="cropMode" value="vertical" checked> Vertical</label>
             <label><input type="radio" name="cropMode" value="horizontal"> Horizontal</label>
             <label><input type="radio" name="cropMode" value="both"> Ambos</label>
@@ -129,6 +130,7 @@
             <a id="previewBtn" class="btn" href="#" role="button">Previsualizar</a>
             <a id="saveMetaBtn" class="btn primary" href="#" role="button">Guardar metadatos</a>
             <a id="publishBtn" class="btn" href="#" role="button">Publicar (simulado)</a>
+            <a id="uploadToStorageBtn" class="btn" href="#" role="button">Subir a Supabase (demo)</a>
           </div>
 
           <div id="videoPreview" class="video-preview" aria-live="polite"></div>
@@ -136,7 +138,7 @@
 
         <div class="editor card" id="videoEditor" aria-labelledby="editorTitle">
           <h3 id="editorTitle">Editor (preview / recorte simple)</h3>
-          <p class="muted">Edición cliente básica: vista previa, orientación y captura de fotograma. Procesado real en backend/servicios especializados.</p>
+          <p class="muted">Edición cliente: vista previa, recorte de orientación. Transcodificación y recorte profesional requieren backend (FFmpeg).</p>
           <div id="editorArea" class="editor-area" aria-live="polite"></div>
         </div>
       </section>
@@ -210,12 +212,11 @@
           <ul id="achievementsList" class="small"></ul>
         </section>
       </aside>
-
     </main>
 
     <footer class="app-footer" role="contentinfo">
       <div>
-        <small>Nai Nai — Prototipo. Dark / Neon theme.</small>
+        <small>Nai Nai — Prototipo. Dark / Neon theme. (Demo)</small>
       </div>
     </footer>
   </div>
