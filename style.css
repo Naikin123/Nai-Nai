@@ -18,6 +18,7 @@ body{
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
+  -webkit-font-feature-settings: "ss01" on;
 }
 
 /* Header */
@@ -25,7 +26,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:18px 24px;
+  padding:18px 20px;
   border-bottom:1px solid rgba(255,255,255,0.03);
   background:linear-gradient(90deg, rgba(11,13,16,0.6), rgba(15,17,22,0.4));
 }
@@ -33,11 +34,11 @@ body{
 .brand .tagline{color:var(--gray-soft);font-size:.9rem;margin-top:2px}
 
 .top-actions{display:flex;gap:12px;align-items:center}
-.top-actions .badge{
+.badge{
   background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));
-  padding:6px 10px;border-radius:999px;font-weight:700;color:#021018;font-size:.9rem
+  padding:6px 10px;border-radius:999px;font-weight:700;color:#021018;font-size:.9rem;
 }
-.top-actions .link{color:var(--gray-soft);text-decoration:none;font-size:.95rem}
+.link{color:var(--gray-soft);text-decoration:none;font-size:.95rem}
 
 /* Layout grid */
 .main-grid{
@@ -46,6 +47,8 @@ body{
   gap:18px;
   padding:20px;
   align-items:start;
+  max-width:1200px;
+  margin:18px auto;
 }
 
 /* Panels & cards */
@@ -65,7 +68,7 @@ body{
 
 /* Uploader & editor */
 .upload-area label{display:block;margin-top:8px}
-.uploader-controls{display:flex;gap:8px;margin-top:8px}
+.uploader-controls{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text);text-decoration:none;cursor:pointer}
 .btn.primary{background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));color:#021018;border:1px solid rgba(255,255,255,0.06)}
 .btn.danger{background:linear-gradient(90deg,var(--danger),#ff8a8a);color:#140808}
