@@ -1,121 +1,62 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nai-Nai Neon</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8">
+  <title>Nai Nai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-    <div id="pantalla-referidos" class="modal-full neon-border" style="display:none; z-index:3000;">
-        <div class="box-intro">
-            <h1 class="neon-text">💎 Futuro Nai-Nai</h1>
-            <p>Gana compartiendo. ¿Quién te invitó?</p>
-            <input type="text" id="ref-input" placeholder="Ej: usuario.Nai">
-            <button onclick="guardarReferido()" class="btn-neon">Entrar</button>
-        </div>
-    </div>
+  <header class="app-header">
+    <h1>Nai Nai</h1>
+    <p class="tagline">Plataforma social experimental</p>
+  </header>
 
-    <div id="auth-container" class="modal-full" style="display:none; z-index:2000;">
-        <div class="box-intro neon-box">
-            <img src="https://i.ibb.co/hF6VHB5F/1ec8541e-1.png" class="logo-neon">
-            <h2 class="neon-text">NAI-NAI</h2>
-            <button onclick="loginGoogle()" class="btn-google">Google</button>
-            <button onclick="entrarInvitado()" class="btn-invitado neon-border">Invitado</button>
-        </div>
-    </div>
+  <main class="app-container">
 
-    <div id="app-interface" style="display:none;">
-        <div id="feed-vertical" class="feed-container">
-            </div>
+    <section class="card">
+      <h2>Reglas de la Comunidad</h2>
+      <ul>
+        <li>No contenido +18 sin etiquetas.</li>
+        <li>Respeto entre usuarios.</li>
+        <li>Los usuarios no registrados pueden perder su contenido.</li>
+        <li>La monetización no está activa actualmente.</li>
+      </ul>
+    </section>
 
-        <div class="nav-bar neon-top-border">
-            <button onclick="recargarFeed()">🏠</button>
-            <button onclick="abrirEditor()" class="btn-plus-neon">➕</button>
-            <button onclick="abrirPerfil()">👤</button>
-        </div>
-    </div>
+    <section class="card">
+      <h2>Estado de la cuenta</h2>
+      <p class="status-label">Usuario no registrado</p>
+      <p class="info">
+        Puedes usar todas las funciones, pero no garantizamos la
+        permanencia de tus videos si no te registras.
+      </p>
+    </section>
 
-    <div id="modal-editor" class="modal-overlay" style="display:none;">
-        <div class="modal-content neon-box">
-            <h3 class="neon-text">🎬 Crear Video</h3>
-            <div class="preview-box neon-border-thin">
-                <video id="preview-v" loop playsinline></video>
-            </div>
-            
-            <div class="editor-tools">
-                <button onclick="setFilter('none')">Normal</button>
-                <button onclick="setFilter('grayscale(1)')">B/N</button>
-                <button onclick="setFilter('sepia(1)')">Retro</button>
-                <button onclick="setFilter('hue-rotate(90deg)')">Alien</button>
-                <button onclick="setFilter('contrast(1.5) saturate(1.5)')">Intenso</button>
-            </div>
+    <section class="card">
+      <h2>Funciones disponibles</h2>
+      <ul>
+        <li>Videos verticales y horizontales</li>
+        <li>Estados tipo WhatsApp</li>
+        <li>Fotos de perfil animadas</li>
+        <li>Encuestas</li>
+        <li>Scroll infinito</li>
+      </ul>
+    </section>
 
-            <input type="text" id="v-titulo" placeholder="Título...">
-            <input type="text" id="v-tags" placeholder="Etiquetas (Ej: Humor, Juegos, Vlogs)">
-            
-            <div class="switch-row">
-                <label>Marca de Agua .Nai</label>
-                <input type="checkbox" id="v-watermark" checked>
-            </div>
+  </main>
 
-            <input type="file" id="file-input" accept="video/*" onchange="cargarVideoFile(event)" style="margin-top:10px;">
-            
-            <div class="modal-botones">
-                 <button onclick="cerrarModal('modal-editor')" class="btn-danger">Cancelar</button>
-                <button onclick="subirVideo()" class="btn-neon">PUBLICAR</button>
-            </div>
-        </div>
-    </div>
+  <footer class="app-footer">
+    <p>Nai Nai © Proyecto en desarrollo</p>
+  </footer>
 
-    <div id="modal-perfil" class="modal-overlay" style="display:none;">
-        <div class="modal-content neon-box profile-modal">
-            <div class="perfil-top">
-                <div style="position: relative;">
-                    <img id="p-avatar" src="" class="avatar-grande neon-border">
-                    <label for="avatar-upload" class="btn-upload-avatar">📷</label>
-                    <input type="file" id="avatar-upload" accept="image/*" style="display:none;" onchange="subirAvatarPropio(event)">
-                </div>
-                
-                <div class="perfil-datos">
-                    <input type="text" id="p-alias-input" class="input-alias-edit" value="Usuario">
-                    
-                    <div id="p-cuenta-nai" class="badge-nai-neon"></div>
-                    <small class="neon-text-sub">🛡️ GUA: <span id="p-gua">0</span></small>
-                </div>
-            </div>
-            
-            <button onclick="guardarAlias()" class="btn-mini-save">💾 Guardar Nombre</button>
-
-            <hr class="neon-divider">
-
-            <button onclick="gestionarCuentaNai()" class="btn-neon-purple">✨ Cuenta .Nai (Seguridad)</button>
-            <button onclick="abrirOpcionesAvanzadas()" class="btn-dark-opt">⚙️ Privacidad Fantasma</button>
-            
-            <div class="modal-botones">
-                <button onclick="cerrarSesion()" class="btn-danger">Salir</button>
-                <button onclick="cerrarModal('modal-perfil')" class="btn-dark-opt">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-opciones" class="modal-overlay" style="display:none;">
-        <div class="modal-content neon-box">
-            <h3 class="neon-text">👻 Modo Fantasma</h3>
-            <div class="switch-row">
-                <span>Ocultar al ver</span>
-                <input type="checkbox" id="check-priv-ver" onchange="cambiarPrivacidad('ver')">
-            </div>
-            <div class="switch-row">
-                <span>Anónimo al comentar</span>
-                <input type="checkbox" id="check-priv-com" onchange="cambiarPrivacidad('comentar')">
-            </div>
-            <button onclick="cerrarModal('modal-opciones')" class="btn-neon" style="margin-top:15px;">Listo</button>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+  <!-- JS -->
+  <script src="js/app.js"></script>
 </body>
 </html>
