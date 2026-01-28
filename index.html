@@ -1,20 +1,10 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Prueba Nai Nai</title>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-  <h1 id="titulo">Nai Nai – Prueba mínima</h1>
-  <p>Si ves colores y el texto cambia, TODO funciona.</p>
-
-  <button onclick="cambiar()">Probar JS</button>
-
-  <!-- JS -->
-  <script src="app.js"></script>
-</body>
-</html>
+<div id="seccion-verificacion" class="card" style="display:none;">
+  <h3>Verificación de Seguridad</h3>
+  <p class="small">Introduce el código que aparece abajo:</p>
+  
+  <div id="codigo-visual" class="captcha-code"></div>
+  
+  <input type="text" id="input-verificar" placeholder="Escribe el código aquí">
+  <button id="btn-confirmar-v" class="btn primary">Verificar Cuenta</button>
+  <p id="msg-error" class="danger small" style="display:none;">Código incorrecto. Reintenta.</p>
+</div>
