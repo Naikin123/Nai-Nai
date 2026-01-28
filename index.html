@@ -1,223 +1,418 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Nai Nai — Prototipo</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Nai Nai — Prototipo (todo en 1 archivo)</title>
+<style>
+:root{
+  --bg:#0b0f1a; --bg2:#081028; --panel:#0f1530; --card:#121629;
+  --text:#e6eef8; --muted:#98a3c7; --accent1:#4cc9f0; --accent2:#9b5de5;
+  --border:rgba(255,255,255,0.04);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);-webkit-font-smoothing:antialiased}
+a{color:var(--accent1);text-decoration:none}
+.container{max-width:1200px;margin:0 auto;padding:18px}
+/* Welcome overlay */
+.overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(1,6,20,0.7),rgba(1,6,20,0.85));display:flex;align-items:center;justify-content:center;z-index:9999}
+.welcome-card{width:min(980px,96%);background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:26px;border:1px solid var(--border);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+.welcome-title{font-size:28px;color:var(--accent1);margin:0 0 8px}
+.welcome-sub{color:var(--muted);margin-bottom:14px}
+.welcome-rules ul{margin:10px 0 14px 20px;color:var(--text)}
+.actions{display:flex;gap:12px;align-items:center}
+.btn{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#031018;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:700}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text)}
+.small-muted{color:var(--muted);font-size:13px;margin-top:8px}
 
-  <!-- CSS en la raíz -->
-  <link rel="stylesheet" href="./style.css">
+/* Terms (modal style inside the same file) */
+.terms-area{max-height:60vh;overflow:auto;padding:12px;background:rgba(2,6,23,0.4);border-radius:8px;border:1px solid var(--border);margin:12px 0}
+
+/* Main layout */
+.header{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 0;position:sticky;top:0;background:linear-gradient(180deg,rgba(2,6,23,0.6),transparent);z-index:50}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:44px;height:44px;border-radius:8px}
+.brand-name{font-weight:800;color:var(--accent1)}
+.search{flex:1;display:flex;gap:8px;align-items:center;margin:0 16px}
+.search input{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.02);color:var(--text)}
+.search button{padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer}
+.header-links{display:flex;gap:8px;align-items:center;color:var(--muted)}
+
+.tags-strip{display:flex;gap:8px;padding:10px 0;overflow:auto;border-bottom:1px solid var(--border);margin-bottom:12px}
+.tag{padding:8px 12px;border-radius:999px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;white-space:nowrap}
+.tag.active{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#021018;border:none}
+
+.layout{display:grid;grid-template-columns:1fr 340px;gap:18px}
+.feed{padding-right:6px}
+.feed-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.feed-list{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border-radius:10px;padding:12px;border:1px solid var(--border)}
+.video-item{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid var(--border)}
+.thumb{width:200px;height:120px;background:linear-gradient(180deg,rgba(0,0,0,0.2),rgba(0,0,0,0.1));border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
+.meta h4{margin:0;color:var(--accent1)}
+.meta p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+/* side */
+.side{position:relative}
+.uploader .small-muted{font-size:12px}
+.uploader label{display:block;margin-top:8px}
+.preview-box{margin-top:8px;border-radius:8px;min-height:80px;background:#06070a;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+
+.profile-block{display:flex;gap:12px;align-items:center}
+.avatar{width:68px;height:68px;border-radius:12px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;color:#021018;font-weight:800}
+.profile-info .muted{color:var(--muted)}
+.achievements{margin-top:8px}
+.role-badge{display:inline-block;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid var(--border);color:var(--muted);font-size:13px;margin-right:6px}
+
+/* settings modal inside file */
+.settings{position:fixed;right:20px;top:80px;width:320px;background:linear-gradient(180deg,var(--card),rgba(0,0,0,0.6));padding:12px;border-radius:10px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.5);z-index:300}
+.settings h4{margin:0 0 8px;color:var(--accent2)}
+.settings label{display:block;margin-top:8px;color:var(--muted);font-size:13px}
+.select, .checkbox{margin-top:6px}
+
+/* tip */
+.tip{position:fixed;left:20px;bottom:90px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#021018;padding:10px 12px;border-radius:10px;font-weight:700;z-index:250}
+
+/* bottom nav */
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;height:64px;background:linear-gradient(180deg,rgba(2,6,23,0.95),rgba(2,6,23,0.99));display:flex;align-items:center;justify-content:space-around;border-top:1px solid var(--border);z-index:90}
+.bottom-nav .btn{padding:10px 16px;border-radius:10px}
+
+/* responsive */
+@media (max-width:980px){
+  .layout{grid-template-columns:1fr}
+  .side{order:2}
+  .search{margin:0}
+}
+</style>
 </head>
 <body>
-  <div id="app" class="app-root">
-    <header class="app-header" role="banner">
-      <div class="brand">
-        <h1>Nai Nai</h1>
-        <p class="tagline">Social · Creatividad · Comunidad</p>
-      </div>
-
-      <nav class="top-actions" role="navigation" aria-label="Navegación principal">
-        <span id="userBadge" class="badge">Invitado</span>
-        <a id="link-feed" class="link" href="#feed">Feed</a>
-        <a id="link-profile" class="link" href="#profile">Perfil</a>
-        <a id="link-terms" class="link" href="terms.html" target="_blank" rel="noopener">Términos</a>
-      </nav>
-    </header>
-
-    <main class="main-grid" role="main">
-      <!-- LEFT: reglas / resumen -->
-      <aside class="panel panel-left" id="rules" aria-labelledby="rulesTitle">
-        <h2 id="rulesTitle">Reglas & Resumen</h2>
-
-        <section class="card" aria-labelledby="monetTitle">
-          <h3 id="monetTitle">Reglas de Monetización (Resumen)</h3>
-          <ul>
-            <li>La monetización <strong>no está disponible ahora</strong>; se implementará en un futuro lejano.</li>
-            <li>No todos ganan dinero: depende de GUA, verificación y antigüedad.</li>
-            <li>Si activas opciones de monetización <em>no garantiza</em> que vayas a ganar dinero. Si detectas problemas contacta al Creador o a los Administradores.</li>
-            <li>Si no estás registrado, Nai Nai <strong>no se responsabiliza</strong> por pérdida de videos o datos.</li>
-          </ul>
-        </section>
-
-        <section class="card" aria-labelledby="guaTitle">
-          <h3 id="guaTitle">Sistema GUA (resumen)</h3>
-          <p>GUA = índice de confianza. Sube con acciones responsables y baja con infracciones.</p>
-          <p><strong>Tu GUA:</strong> <span id="gua-value">0</span></p>
-        </section>
-
-        <section class="card" aria-labelledby="sanctitle">
-          <h3 id="sanctitle">Sanciones (resumen)</h3>
-          <ol>
-            <li>Advertencia</li>
-            <li>Pérdida de GUA</li>
-            <li>Suspensión temporal</li>
-            <li>Suspensión permanente</li>
-            <li>Apelaciones (pueden tardar)</li>
-          </ol>
-        </section>
-
-        <section class="card small" aria-labelledby="noteTitle">
-          <h3 id="noteTitle">Nota</h3>
-          <p>La plataforma cuenta con pocas personas supervisando; sanciones, pagos y revisiones pueden tardar en procesarse.</p>
-        </section>
-      </aside>
-
-      <!-- CENTER: feed / upload / editor -->
-      <section class="panel panel-center" id="feed" aria-labelledby="feedTitle">
-        <div class="panel-row">
-          <h2 id="feedTitle">Feed</h2>
-          <div class="feed-controls">
-            <label for="feedFormat">Formato:
-              <select id="feedFormat" aria-label="Formato de feed">
-                <option value="mix">Mixto (V/H)</option>
-                <option value="vertical">Solo vertical</option>
-                <option value="horizontal">Solo horizontal</option>
-              </select>
-            </label>
-            <label for="feedRepeat">Repetidos:
-              <select id="feedRepeat" aria-label="Repetidos">
-                <option value="both">Ambos</option>
-                <option value="repeated">Repetidos</option>
-                <option value="unique">No repetidos</option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        <div id="feedList" class="feed-list" aria-live="polite">
-          <!-- Items cargados por JS -->
-        </div>
-
-        <hr>
-
-        <div class="upload-area card" id="uploader" aria-labelledby="uploaderTitle">
-          <h3 id="uploaderTitle">Subir video (metadatos)</h3>
-          <p class="muted">Subida demo: selecciona un archivo para previsualizar y establecer metadatos. Subida real debe procesarse en backend (storage + transcodificación).</p>
-
-          <label>Archivo de video / imagen:
-            <input id="videoFile" type="file" accept="video/*,image/*" aria-label="Archivo de video">
-          </label>
-
-          <label>Orientación:
-            <select id="videoOrientation" aria-label="Orientación del video">
-              <option value="vertical">Vertical</option>
-              <option value="horizontal">Horizontal</option>
-              <option value="both">Ambos (auto)</option>
-            </select>
-          </label>
-
-          <label>Etiquetas (coma separadas):
-            <input id="videoTags" type="text" placeholder="humor,educativo,música" aria-label="Etiquetas del video">
-          </label>
-
-          <label>Descripción (público objetivo recomendado):
-            <textarea id="videoDesc" rows="3" placeholder="¿Por qué recomiendas este video? ¿A qué público?" aria-label="Descripción del video"></textarea>
-          </label>
-
-          <div class="editor-options" role="radiogroup" aria-label="Opciones de recorte">
-            <p><strong>Recorte disponible:</strong></p>
-            <label><input type="radio" name="cropMode" value="vertical" checked> Vertical</label>
-            <label><input type="radio" name="cropMode" value="horizontal"> Horizontal</label>
-            <label><input type="radio" name="cropMode" value="both"> Ambos</label>
-          </div>
-
-          <div class="uploader-controls" role="group" aria-label="Controles de subida">
-            <a id="previewBtn" class="btn" href="#" role="button">Previsualizar</a>
-            <a id="saveMetaBtn" class="btn primary" href="#" role="button">Guardar metadatos</a>
-            <a id="publishBtn" class="btn" href="#" role="button">Publicar (simulado)</a>
-            <a id="uploadToStorageBtn" class="btn" href="#" role="button">Subir a Supabase (demo)</a>
-          </div>
-
-          <div id="videoPreview" class="video-preview" aria-live="polite"></div>
-        </div>
-
-        <div class="editor card" id="videoEditor" aria-labelledby="editorTitle">
-          <h3 id="editorTitle">Editor (preview / recorte simple)</h3>
-          <p class="muted">Edición cliente: vista previa, recorte de orientación. Transcodificación y recorte profesional requieren backend (FFmpeg).</p>
-          <div id="editorArea" class="editor-area" aria-live="polite"></div>
-        </div>
-      </section>
-
-      <!-- RIGHT: perfil / notas / logros -->
-      <aside class="panel panel-right" id="profile" aria-labelledby="profileTitle">
-        <h2 id="profileTitle">Perfil</h2>
-
-        <section class="card" id="profileCard">
-          <div class="profile-header">
-            <div class="avatar" id="avatarPreview">MP4</div>
-            <div class="profile-info">
-              <div class="profile-name">
-                <strong id="profileDisplay">Invitado</strong>
-                <span class="muted" id="profileHandle">@invitado</span>
-              </div>
-              <div class="profile-meta">
-                <span id="profileRole">Usuario</span> · <span id="profileGua">GUA: 0</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="profile-links">
-            <p><strong>Cuenta .Nai:</strong> <span id="naiHandleText">—</span></p>
-            <p><strong>Redes / Links:</strong></p>
-            <ul id="profileLinksList" class="small muted"></ul>
-          </div>
-
-          <details>
-            <summary>Editar perfil / cuentas</summary>
-            <form id="profileForm" class="profile-form" onsubmit="return false;">
-              <label>Nombre visible:
-                <input id="inputDisplayName" type="text" placeholder="Nombre público">
-              </label>
-
-              <label>Crear cuenta .Nai (opcional):
-                <input id="inputNai" type="text" placeholder="Cuenta .Nai (única)">
-              </label>
-
-              <label>Contraseña (obligatoria solo si creas cuenta):
-                <input id="inputPass" type="password" placeholder="Contraseña">
-              </label>
-
-              <label>Links (coma separados):
-                <input id="inputLinks" type="text" placeholder="https://twitter.com/ej / https://youtube...">
-              </label>
-
-              <p class="muted small">Si no te registras, no nos responsabilizamos de pérdida de datos.</p>
-
-              <div class="form-actions">
-                <a id="registerBtn" class="btn primary" href="#" role="button">Crear cuenta / Registrar</a>
-                <a id="loginBtn" class="btn" href="#" role="button">Iniciar sesión</a>
-                <a id="logoutBtn" class="btn danger" href="#" role="button" style="display:none">Cerrar sesión</a>
-              </div>
-            </form>
-          </details>
-        </section>
-
-        <section class="card" aria-labelledby="notesTitle">
-          <h3 id="notesTitle">Block de notas (privado)</h3>
-          <textarea id="noteBlock" rows="6" placeholder="Notas privadas (guardado local si no estás registrado)"></textarea>
-          <div style="margin-top:8px;">
-            <a id="saveNoteBtn" class="btn" href="#" role="button">Guardar nota</a>
-            <a id="clearNoteBtn" class="btn danger" href="#" role="button">Borrar nota</a>
-          </div>
-          <p class="muted small">Invitados: el block de notas puede perderse al cambiar dispositivo.</p>
-        </section>
-
-        <section class="card" aria-labelledby="achTitle">
-          <h3 id="achTitle">Logros & Roles</h3>
-          <ul id="achievementsList" class="small"></ul>
-        </section>
-      </aside>
-    </main>
-
-    <footer class="app-footer" role="contentinfo">
+<!-- WELCOME / RULES / ORIGIN - overlay -->
+<div id="overlay" class="overlay">
+  <div class="welcome-card" role="dialog" aria-modal="true">
+    <div style="display:flex;gap:14px;align-items:center;justify-content:space-between">
       <div>
-        <small>Nai Nai — Prototipo. Dark / Neon theme. (Demo)</small>
+        <img src="https://i.ibb.co/r2CvYDzq/1767980417276.png" alt="Nai Nai" class="logo" />
+        <h1 class="welcome-title">Bienvenido a Nai Nai</h1>
+        <div class="welcome-sub">Lee y acepta las reglas para continuar.</div>
       </div>
-    </footer>
+      <div style="text-align:right;color:var(--muted);font-size:13px">
+        Fecha de entrada en vigor: 27 de enero de 2026
+      </div>
+    </div>
+
+    <div class="welcome-rules card" style="margin-top:14px">
+      <strong>Reglas rápidas</strong>
+      <ul>
+        <li>Respeto y convivencia: no odio ni acoso. La crítica informativa permitida si está etiquetada.</li>
+        <li>Etiquetas obligatorias: todo video requiere al menos una etiqueta predefinida.</li>
+        <li>Nai Nai no muestra anuncios (ADS).</li>
+        <li>GUA es un indicador de confianza (no garantiza ingresos).</li>
+      </ul>
+      <div class="small-muted">Al aceptar, confirmarás que conoces y aceptas los términos completos.</div>
+      <div style="margin-top:14px" class="actions">
+        <button id="btn-read" class="btn ghost" title="Leer el documento completo">Leer más</button>
+        <button id="btn-accept" class="btn">Aceptar</button>
+      </div>
+    </div>
+
+    <div id="termsModal" class="card hidden" style="margin-top:12px">
+      <div class="terms-area" id="termsContent">
+        <!-- Full formal terms inserted via JS (to keep HTML readable) -->
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px">
+        <button id="btn-terms-accept" class="btn">Aceptar</button>
+        <button id="btn-terms-close" class="btn ghost">Cerrar</button>
+      </div>
+    </div>
+
+    <form id="originForm" class="card hidden" style="margin-top:12px" onsubmit="return false">
+      <label for="originInput" style="font-weight:700;color:var(--muted)">¿Cómo conociste Nai Nai? (usuario, correo o plataforma)</label>
+      <input id="originInput" placeholder="Ej.: @amigo, twitter.user, correo@ej.com" required>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button id="btn-origin-submit" class="btn">Entrar oficialmente</button>
+      </div>
+      <div class="small-muted" style="margin-top:8px">No otorga beneficios; sirve para estadísticas.</div>
+    </form>
+  </div>
+</div>
+
+<!-- TIP (one-time small message) -->
+<div id="tip" class="tip hidden">Puedes configurar casi todo desde Perfil → Configuración avanzada <button id="tipDismiss" style="margin-left:10px;padding:6px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.06);cursor:pointer">Entendido</button></div>
+
+<!-- APP -->
+<div class="container" id="app" aria-hidden="true">
+  <header class="header">
+    <div class="brand">
+      <img src="https://i.ibb.co/r2CvYDzq/1767980417276.png" alt="Nai Nai" class="logo" />
+      <div class="brand-name">Nai Nai</div>
+    </div>
+
+    <div class="search">
+      <input id="searchInput" placeholder="Buscar por título, usuario, descripción, URL o etiqueta..." />
+      <button id="searchBtn" title="Buscar">🔎</button>
+    </div>
+
+    <div class="header-links">
+      <a id="openSettings" class="header-link" href="#" title="Configuración">Configuración</a>
+      <a id="openProfile" class="header-link" href="#" title="Perfil">Perfil</a>
+    </div>
+  </header>
+
+  <nav class="tags-strip" id="tagStrip" aria-label="Etiquetas">
+    <button class="tag active" data-tag="all">Todos</button>
+    <button class="tag" data-tag="Cocina">Cocina</button>
+    <button class="tag" data-tag="Video reacción">Video reacción</button>
+    <button class="tag" data-tag="Crítica">Crítica</button>
+    <button class="tag" data-tag="Informativo">Informativo</button>
+    <button class="tag" data-tag="Noticia">Noticia</button>
+    <button class="tag" data-tag="Vlog">Vlog</button>
+    <button class="tag" data-tag="Gaming">Gaming</button>
+    <button class="tag" data-tag="Humor">Humor</button>
+    <button class="tag" data-tag="Humor negro">Humor negro</button>
+    <button class="tag" data-tag="Spoiler">Spoiler</button>
+    <button class="tag" data-tag="No apto para todo público">No apto para todo público</button>
+  </nav>
+
+  <main class="layout" style="padding-top:12px">
+    <section class="feed">
+      <div class="feed-controls">
+        <div><strong>Feed</strong></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <label style="color:var(--muted);font-size:13px">Orden</label>
+          <select id="orderSelect" style="padding:8px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text)">
+            <option value="new">Más nuevos</option>
+            <option value="old">Más antiguos</option>
+            <option value="rated">Mejor valorados</option>
+            <option value="featured">Featured</option>
+            <option value="certified">Certificado</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="feedList" class="feed-list" aria-live="polite"></div>
+
+      <div style="text-align:center;margin-top:18px;color:var(--muted);font-weight:700">∞ Feed infinito</div>
+    </section>
+
+    <aside class="side">
+      <div class="card uploader">
+        <h3>Subir video</h3>
+        <div class="small-muted">Invitados pueden subir videos. Las encuestas solo para usuarios registrados.</div>
+
+        <label>Archivo
+          <input id="fileInput" type="file" accept="video/*,image/*" />
+        </label>
+
+        <label>Etiquetas (selecciona al menos una)
+          <div id="tagSelect" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+        </label>
+
+        <label>Título
+          <input id="titleInput" placeholder="Título del video" />
+        </label>
+
+        <label>Descripción
+          <input id="descInput" placeholder="Breve descripción / público objetivo" />
+        </label>
+
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button id="previewBtn" class="btn" style="padding:8px 10px">Previsualizar</button>
+          <button id="uploadBtn" class="btn">Subir (demo)</button>
+        </div>
+
+        <div id="previewBox" class="preview-box small-muted">Previsualización</div>
+      </div>
+
+      <div class="card profile-block" style="margin-top:12px">
+        <div class="avatar" id="avatar">U</div>
+        <div class="profile-info">
+          <div id="displayName" style="font-weight:800">Invitado</div>
+          <div class="muted" id="userTag">usuario no registrado</div>
+          <div class="muted" id="guaDisplay">GUA: 0</div>
+          <div class="achievements" id="achList"></div>
+          <div style="margin-top:8px">
+            <span class="role-badge" id="roleBadge">Usuario</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h4>Block de notas (privado)</h4>
+        <textarea id="noteBlock" rows="5" style="width:100%;padding:8px;border-radius:8px;background:#0b1328;color:var(--text);border:1px solid var(--border)"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="saveNote" class="btn" style="padding:8px 10px">Guardar</button>
+          <button id="clearNote" class="btn ghost" style="padding:8px 10px">Borrar</button>
+        </div>
+        <div class="small-muted" style="margin-top:6px">Si no estás registrado, las notas se guardan localmente.</div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- settings panel (toggle) -->
+  <div id="settingsPanel" class="settings hidden" aria-hidden="true">
+    <h4>Configuración avanzada</h4>
+    <label>Modo fantasma
+      <div class="select">
+        <select id="ghostMode">
+          <option value="off">Desactivado</option>
+          <option value="on">Activado</option>
+        </select>
+      </div>
+    </label>
+    <label>Confirmaciones ("¿Seguro que quieres...?")</label>
+    <div class="checkbox">
+      <select id="confirmMode">
+        <option value="always">Siempre</option>
+        <option value="important">Solo acciones importantes</option>
+        <option value="never">Nunca</option>
+      </select>
+    </div>
+
+    <label>Recordatorios / mensajes (frecuencia)</label>
+    <div class="select">
+      <select id="reminderFreq">
+        <option value="never">Nunca</option>
+        <option value="onEntry">Al entrar</option>
+        <option value="5min">Cada 5 minutos</option>
+        <option value="15min">Cada 15 minutos</option>
+        <option value="daily">Una vez al día</option>
+      </select>
+    </div>
+
+    <label>Visibilidad de etiquetas (tu experiencia)</label>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button id="showTagsAll" class="tag">Mostrar todas</button>
+      <button id="showTagsNone" class="tag">Ocultar</button>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+      <button id="closeSettings" class="btn ghost">Cerrar</button>
+      <button id="saveSettings" class="btn">Guardar</button>
+    </div>
   </div>
 
-  <!-- Supabase client (CDN) + App script en la raíz -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="./script.js"></script>
-</body>
-</html>
+  <!-- bottom nav -->
+  <div class="bottom-nav" role="navigation">
+    <div style="text-align:center"><button id="navFeed" class="btn ghost">Feed</button></div>
+    <div style="text-align:center"><button id="navUpload" class="btn">Subir</button></div>
+    <div style="text-align:center"><button id="navProfile" class="btn ghost">Perfil</button></div>
+  </div>
+</div>
+
+<script>
+/* ========= DATA & CONSTANTS ========= */
+const TERMS_TEXT = `TÉRMINOS, CONDICIONES Y REGLAS DE USO DE NAI NAI
+Fecha de entrada en vigor: 27 de enero de 2026
+
+PREÁMBULO
+Nai Nai es una plataforma para la creación, publicación y distribución de contenido audiovisual...
+(El texto legal completo va aquí; para brevedad en el código se mantiene abreviado, pero en producción copia el documento formal completo que has aprobado.)
+`;
+
+/* Predefined tags list (same for videos and topics) */
+const PREDEF_TAGS = ["Cocina","Video reacción","Crítica","Informativo","Noticia","Vlog","Gaming","Humor","Humor negro","Spoiler","No apto para todo público"];
+
+/* Local storage keys */
+const LS_ACCEPT = 'nai_accepted_v1';
+const LS_ORIGIN = 'nai_origin_v1';
+const LS_SETTINGS = 'nai_settings_v1';
+const LS_NOTES = 'nai_notes_v1';
+
+/* ========= HELPERS ========= */
+const $ = id => document.getElementById(id);
+const qAll = sel => Array.from(document.querySelectorAll(sel));
+const escapeHtml = s => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'" : '&#39;'}[m]));
+
+/* ========= UI INITIALIZATION ========= */
+document.addEventListener('DOMContentLoaded', () => {
+  // fill terms
+  $('termsContent').textContent = TERMS_TEXT;
+
+  // populate tagSelect (uploader)
+  const tagSelect = $('tagSelect');
+  PREDEF_TAGS.forEach(t => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tag';
+    b.textContent = t;
+    b.dataset.tag = t;
+    b.addEventListener('click', ()=> {
+      b.classList.toggle('active');
+    });
+    tagSelect.appendChild(b);
+  });
+
+  // populate tag strip active handlers
+  qAll('.tags-strip .tag, .tags-strip .tag').forEach(btn=>{
+    btn.addEventListener('click', () => {
+      qAll('.tags-strip .tag').forEach(t=>t.classList.remove('active'));
+      btn.classList.add('active');
+      renderFeed();
+    });
+  });
+
+  // settings tagSelect behavior for visibility toggles
+  $('showTagsAll').addEventListener('click', ()=> { localSettings.showTags=true; saveSettings(); applySettings(); });
+  $('showTagsNone').addEventListener('click', ()=> { localSettings.showTags=false; saveSettings(); applySettings(); });
+
+  // populate achievements list (demo)
+  const achList = $('achList');
+  ['Subidor de videos (10)','Comentarista (10)','Usuario Rate','Usuario Certificado'].forEach(a=>{
+    const el = document.createElement('div'); el.textContent = a; el.style.fontSize='13px'; el.style.color='var(--muted)'; achList.appendChild(el);
+  });
+
+  bindUI();
+  loadInitialState();
+});
+
+/* ========= STATE ========= */
+let FEED = []; // array of video objects
+let localSettings = { ghostMode:'off', confirmMode:'important', reminderFreq:'onEntry', showTags:true };
+
+/* ========= BIND UI ========= */
+function bindUI(){
+  // welcome buttons
+  $('btn-read').addEventListener('click', ()=> {
+    $('termsModal').classList.remove('hidden');
+  });
+  $('btn-terms-close').addEventListener('click', ()=> $('termsModal').classList.add('hidden'));
+  $('btn-terms-accept').addEventListener('click', ()=> {
+    $('termsModal').classList.add('hidden');
+    showOriginForm();
+  });
+  $('btn-accept').addEventListener('click', showOriginForm);
+
+  // origin submit
+  $('btn-origin-submit').addEventListener('click', ()=> {
+    const val = $('originInput').value && $('originInput').value.trim();
+    if(!val){ alert('Debes indicar cómo conociste Nai Nai (usuario, correo o plataforma).'); $('originInput').focus(); return; }
+    localStorage.setItem(LS_ACCEPT, '1');
+    localStorage.setItem(LS_ORIGIN, val);
+    closeOverlay();
+    showTipOnce();
+    initAppAfterEntry();
+  });
+
+  // search
+  $('searchBtn').addEventListener('click', renderFeed);
+  $('searchInput').addEventListener('keydown', e=> { if(e.key==='Enter') renderFeed(); });
+
+  // feed order
+  $('orderSelect').addEventListener('change', renderFeed);
+
+  // uploader
+  $('previewBtn').addEventListener('click', previewUpload);
+  $('uploadBtn').addEventListener('click', performUpload);
+
+  // nav
+  $('navFeed').addEventListener('click', ()=> window.scrollTo({top:0,behavior:'smooth'}));
+  $('navUpload').addEventListener('click', ()=> { document.querySelector('input[type=file]').scrollIntoView({behavior:'smooth'}); });
+  $('navProfile').addEventListener('click', openProfilePanel);
+
+  // settings
+  $('openSettings').addEventListener('click', toggleSettings);
+  $('closeSettings').addEventListener('click', ()=> $('settingsPanel').classList.add('hidden'));
+  $('saveSettings').addEventListener('click', () => { saveSettingsFromUI(); saveSettings(); applySettings(); $('settingsPanel').classList.add('hidden'); });
+
+  // profile
+  $('openProfile').addEventListener('click'
