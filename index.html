@@ -5,106 +5,16 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Nai Nai — Prototipo</title>
 
-  <!-- ======= CSS INLINE (asegura que siempre cargue) ======= -->
-  <style>
-    :root{
-      --bg:#0b0f1a; --bg2:#081028; --panel:#0f1530; --card:#121629;
-      --text:#e6eef8; --muted:#98a3c7; --accent1:#4cc9f0; --accent2:#9b5de5;
-      --border:rgba(255,255,255,0.04);
-      --glass: rgba(255,255,255,0.02);
-    }
-
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);-webkit-font-smoothing:antialiased}
-    a{color:var(--accent1);text-decoration:none}
-    .container{max-width:1200px;margin:0 auto;padding:18px}
-
-    /* Overlay */
-    .overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(1,6,20,0.75),rgba(1,6,20,0.9));display:flex;align-items:center;justify-content:center;z-index:9999}
-    .welcome-card{width:min(980px,96%);background:linear-gradient(180deg,var(--glass),rgba(255,255,255,0.007));border-radius:12px;padding:20px;border:1px solid var(--border);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
-    .welcome-header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
-    .welcome-left{display:flex;gap:12px;align-items:center}
-    .logo-n{width:56px;height:56px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:900;color:#021018;font-size:28px}
-    .logo-n.small{width:40px;height:40px;font-size:18px}
-    .welcome-title{font-size:24px;color:var(--accent1);margin:0}
-    .welcome-sub{color:var(--muted)}
-    .welcome-body{margin-top:12px}
-    .card{background:var(--card);border-radius:10px;padding:12px;border:1px solid var(--border)}
-    .small-muted{color:var(--muted);font-size:13px}
-    .actions{display:flex;gap:12px;margin-top:12px}
-
-    /* Buttons */
-    .btn{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#021018;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:700}
-    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text)}
-
-    /* Terms modal */
-    .terms-modal{margin-top:12px}
-    .terms-area{max-height:60vh;overflow:auto;padding:12px;background:rgba(2,6,23,0.45);border-radius:8px;border:1px solid var(--border)}
-    .terms-area h1,h2,h3{color:var(--accent1)}
-    .terms-actions{margin-top:8px}
-
-    /* Main header */
-    .header{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 0;position:sticky;top:0;background:linear-gradient(180deg,rgba(2,6,23,0.6),transparent);z-index:50}
-    .brand{display:flex;align-items:center;gap:10px}
-    .brand-name{font-weight:800;color:var(--accent1)}
-    .search{flex:1;display:flex;gap:8px;align-items:center;margin:0 16px}
-    .search input{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.02);color:var(--text)}
-    .search button{padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer}
-
-    /* Tag strip */
-    .tags-strip{display:flex;gap:8px;padding:10px 0;overflow:auto;border-bottom:1px solid var(--border);margin-bottom:12px}
-    .tag{padding:8px 12px;border-radius:999px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;white-space:nowrap}
-    .tag.active{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#021018;border:none}
-
-    /* Layout */
-    .layout{display:grid;grid-template-columns:1fr 340px;gap:18px;padding:18px 0}
-    .feed-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .feed-list{display:flex;flex-direction:column;gap:12px}
-    .video-item{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid var(--border)}
-    .thumb{width:200px;height:120px;background:linear-gradient(180deg,rgba(0,0,0,0.15),rgba(0,0,0,0.05));border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
-    .meta h4{margin:0;color:var(--accent1)}
-    .meta p{margin:6px 0 0;color:var(--muted);font-size:13px}
-    .infinite-indicator{text-align:center;margin-top:14px;color:var(--muted);font-weight:700}
-
-    /* Side */
-    .side{position:relative}
-    .uploader label{display:block;margin-top:8px}
-    .tag-select{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-    .preview-box{margin-top:8px;border-radius:8px;min-height:80px;background:#06070a;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted)}
-    .profile-block{display:flex;gap:12px;align-items:center}
-    .avatar{width:68px;height:68px;border-radius:12px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;color:#021018;font-weight:800}
-    .profile-name{font-weight:800}
-    .achievements{margin-top:8px}
-    .role-badge{display:inline-block;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid var(--border);color:var(--muted);font-size:13px;margin-right:6px}
-
-    /* Settings panel */
-    .settings-panel{position:fixed;right:20px;top:80px;width:320px;background:linear-gradient(180deg,var(--card),rgba(0,0,0,0.6));padding:12px;border-radius:10px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.5);z-index:300}
-    .hidden{display:none}
-    .tip{position:fixed;left:20px;bottom:90px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#021018;padding:10px 12px;border-radius:10px;font-weight:700;z-index:250}
-
-    /* Bottom nav */
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:64px;background:linear-gradient(180deg,rgba(2,6,23,0.95),rgba(2,6,23,0.99));display:flex;align-items:center;justify-content:space-around;border-top:1px solid var(--border);z-index:90}
-    .bottom-nav .btn{padding:10px 16px;border-radius:10px}
-
-    /* Note area */
-    .note-area{width:100%;padding:8px;border-radius:8px;background:#0b1328;color:var(--text);border:1px solid var(--border)}
-
-    /* Responsive */
-    @media (max-width:980px){
-      .layout{grid-template-columns:1fr}
-      .side{order:2}
-      .search{margin:0}
-      .logo-n{width:44px;height:44px;font-size:18px}
-    }
-  </style>
-  <!-- ===== end css ===== -->
+  <!-- Enlaza el CSS separado -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- ===== OVERLAY: bienvenida / reglas / origen ===== -->
+  <!-- OVERLAY: bienvenida / reglas / origen -->
   <div id="overlay" class="overlay" role="dialog" aria-modal="true">
     <div class="welcome-card" aria-labelledby="welcomeTitle">
       <div class="welcome-header">
         <div class="welcome-left" style="align-items:center">
+          <!-- Logo: solo la N -->
           <div class="logo-n" aria-hidden="true">N</div>
           <div>
             <h1 id="welcomeTitle" class="welcome-title">Bienvenido a Nai Nai</h1>
@@ -133,11 +43,130 @@
         </div>
       </div>
 
-      <!-- Terms modal (in-page) -->
+      <!-- Terms modal (hidden until 'Leer más') -->
       <div id="termsModal" class="card hidden terms-modal" aria-hidden="true" style="margin-top:12px">
         <div class="terms-area" id="termsContent">
-          <!-- full legal text inserted by JS to keep HTML tidy -->
+          <!-- El texto legal completo está directamente en el HTML -->
+          <h1>TÉRMINOS, CONDICIONES Y REGLAS DE USO DE NAI NAI</h1>
+          <p><strong>Fecha de entrada en vigor:</strong> 27 de enero de 2026</p>
+
+          <h2>PREÁMBULO</h2>
+          <p>Nai Nai es una plataforma para la creación, publicación y distribución de contenido audiovisual. Las presentes condiciones regulan el acceso y uso de la plataforma por parte de los usuarios. Al aceptar estas condiciones y utilizar la plataforma, el usuario declara conocerlas y aceptarlas sin reservas.</p>
+
+          <h2>I. DEFINICIONES</h2>
+          <ol>
+            <li><strong>Plataforma / Nai Nai:</strong> Servicio digital provisto por la entidad responsable de la aplicación denominada "Nai Nai".</li>
+            <li><strong>Usuario registrado:</strong> Persona que crea una cuenta en Nai Nai mediante los procedimientos previstos por la plataforma.</li>
+            <li><strong>Usuario no registrado (invitado):</strong> Persona que utiliza la plataforma sin crear una cuenta formal; su uso está sujeto a limitaciones expresas en estas condiciones.</li>
+            <li><strong>GUA:</strong> Indicador numérico de reputación o confianza dentro de la comunidad Nai Nai.</li>
+            <li><strong>Etiquetas:</strong> Clasificaciones predefinidas que deben asociarse a cada contenido publicado.</li>
+            <li><strong>Contenido:</strong> Todo material audiovisual o textual subido por los usuarios, incluidos videos, imágenes, descripciones y metadatos.</li>
+            <li><strong>Moderadores / Administradores / Creador:</strong> Personas autorizadas por Nai Nai para supervisar, moderar y administrar la plataforma.</li>
+            <li><strong>Monetización:</strong> Cualquier mecanismo de retribución económica a favor de usuarios o creadores dentro de la plataforma.</li>
+          </ol>
+
+          <h2>II. ACEPTACIÓN Y PROCEDIMIENTO DE INGRESO</h2>
+          <ol>
+            <li>El acceso y uso de Nai Nai requiere la aceptación previa y expresa de estas condiciones.</li>
+            <li>Al ingresar por primera vez, la pantalla de bienvenida mostrará un mensaje de acogida seguido de un resumen de las reglas principales. El usuario deberá seleccionar una de las dos opciones presentadas: "Aceptar" o "Leer más".</li>
+            <li>Si el usuario selecciona "Leer más", se le presentará el presente documento en su integridad. Para acceder a la plataforma, el usuario deberá pulsar el botón "Aceptar" al final del texto.</li>
+            <li>Antes de completar el acceso inicial y para fines estadísticos y de origen de tráfico, el usuario deberá indicar cómo conoció Nai Nai. El campo correspondiente es de cumplimentación obligatoria y aceptará nombre de usuario externo, dirección de correo, nombre de persona o denominación de la plataforma externa por la que se accedió. Dicha información se empleará con fines analíticos internos y no otorga derechos, ventajas económicas ni bonificaciones.</li>
+          </ol>
+
+          <h2>III. CUENTAS, CLASIFICACIÓN Y CAPACIDADES</h2>
+          <ol>
+            <li><strong>Usuario no registrado (invitado):</strong>
+              <ol type="a">
+                <li>Puede ver contenido, subir videos, comentar, dar "like" y realizar la mayoría de interacciones.</li>
+                <li>No puede crear encuestas dentro de la plataforma.</li>
+                <li>No puede participar en ninguna modalidad de monetización.</li>
+                <li>En su perfil y en cualquier interacción en la plataforma aparecerá la etiqueta visible e inmodificable: "usuario no registrado".</li>
+                <li>Nai Nai no asume responsabilidad por la pérdida de contenidos o datos pertenecientes a usuarios no registrados.</li>
+              </ol>
+            </li>
+            <li><strong>Usuario registrado:</strong>
+              <ol type="a">
+                <li>Dispone de las funciones completas habilitadas para su cuenta, incluidas encuestas y, en su caso, mecanismos de monetización futuros.</li>
+                <li>Debe registrarse conforme a los procedimientos y condiciones de la plataforma.</li>
+              </ol>
+            </li>
+            <li><strong>Roles especiales:</strong> La plataforma podrá reconocer roles tales como creador verificado, moderador y administrador, con facultades y responsabilidades específicas definidas por Nai Nai.</li>
+          </ol>
+
+          <h2>IV. POLÍTICA DE CONTENIDO</h2>
+          <ol>
+            <li><strong>Conducta y contenidos prohibidos.</strong> Queda terminantemente prohibido publicar contenidos que:
+              <ol type="a">
+                <li>Inciten al odio, la violencia o la discriminación basada en características personales o colectivas.</li>
+                <li>Contengan amenazas, doxxing, humillaciones públicas o cualquier forma de acoso personal.</li>
+                <li>Constituyan delitos o inciten a la comisión de delitos.</li>
+              </ol>
+            </li>
+            <li><strong>Excepción con límite:</strong> Se permite la publicación de contenidos que traten temas sensibles (por ejemplo, análisis críticos, cobertura periodística, investigación o denuncia) siempre que no inciten al odio ni alentar la violencia y que se presenten con contexto informativo o crítico. Corresponde a los moderadores evaluar la concurrencia de tal contexto.</li>
+            <li><strong>Etiquetado obligatorio:</strong> Todo video subido a la plataforma deberá incluir al menos una etiqueta predefinida. La omisión de etiquetas impedirá la correcta clasificación y podrá afectar la visibilidad del contenido.</li>
+            <li><strong>Prohibición de eliminación de etiquetas por autor:</strong> El autor o titular del contenido no podrá eliminar etiquetas una vez publicadas. Los administradores, gestores o creadores con facultades de moderación podrán modificar o asignar etiquetas para garantizar la correcta clasificación.</li>
+            <li><strong>Visibilidad de etiquetas por el espectador:</strong> El usuario que visualiza el contenido podrá elegir, en su propia experiencia, en qué contextos desea visualizar las etiquetas (por ejemplo: video, comentarios, perfil o todas las vistas). En ningún caso la visualización por parte del espectador elimina la obligación de la etiqueta en el contenido.</li>
+          </ol>
+
+          <h2>V. FORMATOS, EDITOR Y METADATOS</h2>
+          <ol>
+            <li>Nai Nai admite videos verticales, horizontales y combinaciones, así como publicaciones constituidas por secuencias de imágenes.</li>
+            <li>El editor integrado permite operaciones básicas de edición: recorte (vertical, horizontal, ambos), inserción de textos y selección de etiquetas predefinidas.</li>
+            <li>Al subir un video, el uploader deberá completar los metadatos requeridos, entre ellos: título, descripción y etiqueta(s).</li>
+            <li>La plataforma podrá exigir, en casos particulares, la corrección de metadatos por motivos de seguridad, legalidad o clasificación.</li>
+          </ol>
+
+          <h2>VI. ETIQUETAS PREDEFINIDAS</h2>
+          <p>Las etiquetas constituyen la clasificación temática y de formato de los contenidos. Las etiquetas predefinidas incluyen —sin limitarse a— las siguientes categorías: Cocina, Video reacción, Crítica, Informativo, Noticia, Vlog, Gaming.</p>
+
+          <h2>VII. FEED, BÚSQUEDA Y PREFERENCIAS DEL USUARIO</h2>
+          <ol>
+            <li>El orden de presentación de los contenidos en el feed es configurable por cada usuario.</li>
+            <li>En la parte superior del feed existirá una herramienta de búsqueda que permitirá localizar videos por título, usuario, descripción, URL o etiquetas.</li>
+            <li>El feed es infinitamente desplazable; la interfaz incluirá un indicador visual de continuación de contenido.</li>
+          </ol>
+
+          <h2>VIII. GUA (INDICADOR DE CONFIANZA)</h2>
+          <ol>
+            <li>GUA es un valor numérico que mide la confianza y reputación del usuario dentro de la comunidad.</li>
+            <li>El GUA puede incrementarse por acciones positivas y disminuirse por infracciones a las reglas. Al llegar a 0 se aplicarán restricciones.</li>
+            <li>El GUA no constituye moneda ni garantiza retribución económica.</li>
+          </ol>
+
+          <h2>IX. MONETIZACIÓN Y POLÍTICA DE ANUNCIOS</h2>
+          <ol>
+            <li>Nai Nai no incorpora publicidad tradicional (ADS) en su plataforma.</li>
+            <li>La monetización es prevista para un desarrollo futuro; no garantiza ingresos inmediatos.</li>
+            <li>Los invitados no podrán acceder a mecanismos de monetización.</li>
+          </ol>
+
+          <h2>X. SISTEMA DE SANCIONES Y APELACIONES</h2>
+          <ol>
+            <li>Sanciones graduadas: advertencia, pérdida de GUA, suspensión temporal o permanente.</li>
+            <li>Existe un procedimiento de apelación habilitado por la plataforma.</li>
+          </ol>
+
+          <h2>XI. PRIVACIDAD Y MODO FANTASMA</h2>
+          <ol>
+            <li>El modo fantasma reduce la visibilidad de la actividad frente a otros; administradores y creador pueden visualizar la actividad por seguridad.</li>
+            <li>Los usuarios podrán elegir niveles de privacidad: público, seguidores o privado.</li>
+          </ol>
+
+          <h2>XII. CONFIGURACIÓN AVANZADA Y PREFERENCIAS</h2>
+          <ol>
+            <li>Opciones: confirmaciones, recordatorios (5min/15min/diario), control de visibilidad de etiquetas, cambio de cuentas.</li>
+            <li>Ciertas opciones esenciales no podrán desactivarse si su cambio supone riesgo de pérdida de datos.</li>
+          </ol>
+
+          <h2>XIII. LOGROS Y ROLES</h2>
+          <p>Nai Nai dispone de logros visibles y logros secretos que se desbloquean por conducta del usuario. Roles asignados por criterios internos.</p>
+
+          <h2>XIV. RESPONSABILIDAD</h2>
+          <p>Nai Nai no será responsable por la pérdida de contenidos de usuarios no registrados. El usuario asume responsabilidad por su contenido.</p>
+
+          <p>Al aceptar y utilizar la plataforma usted reconoce haber leído, comprendido y aceptado todas las cláusulas contenidas en este documento.</p>
         </div>
+
         <div class="terms-actions" style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
           <button id="btn-terms-accept" class="btn">Aceptar</button>
           <button id="btn-terms-close" class="btn ghost">Cerrar</button>
@@ -159,7 +188,7 @@
   <!-- TIP one-time -->
   <div id="tip" class="tip hidden">Puedes configurar casi todo desde Perfil → Configuración avanzada <button id="tipDismiss" class="btn ghost" style="margin-left:10px;padding:6px">Entendido</button></div>
 
-  <!-- APP -->
+  <!-- APP (visible después de aceptar) -->
   <div class="container" id="app" aria-hidden="true">
     <header class="header" role="banner">
       <div class="brand">
@@ -312,52 +341,5 @@
     </div>
   </div>
 
-  <!-- ===== JS INLINE (asegura funcionamiento) ===== -->
-  <script>
-  /* ---------------- CONSTANTS & HELPERS ---------------- */
-  const LS_ACCEPT = 'nai_accepted_v1';
-  const LS_ORIGIN = 'nai_origin_v1';
-  const LS_SETTINGS = 'nai_settings_v1';
-  const LS_NOTES = 'nai_notes_v1';
-  const LS_TIP = 'nai_tip_seen_v1';
-
-  const PREDEF_TAGS = ["Cocina","Video reacción","Crítica","Informativo","Noticia","Vlog","Gaming","Humor","Humor negro","Spoiler","No apto para todo público"];
-
-  const $ = id => document.getElementById(id);
-  const qa = sel => Array.from(document.querySelectorAll(sel));
-  const escapeHtml = s => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-
-  /* ---------- INIT ---------- */
-  document.addEventListener('DOMContentLoaded', () => {
-    // Insert full legal text into termsContent (we include the official document)
-    const termsFull = `TÉRMINOS, CONDICIONES Y REGLAS DE USO DE NAI NAI
-Fecha de entrada en vigor: 27 de enero de 2026
-
-PREÁMBULO
-Nai Nai es una plataforma para la creación, publicación y distribución de contenido audiovisual. Las presentes condiciones regulan el acceso y uso de la plataforma por parte de los usuarios. Al aceptar estas condiciones y utilizar la plataforma, el usuario declara conocerlas y aceptarlas sin reservas.
-
-I. DEFINICIONES
-1. Plataforma / Nai Nai: Servicio digital provisto por la entidad responsable de la aplicación denominada "Nai Nai".
-2. Usuario registrado: Persona que crea una cuenta en Nai Nai mediante los procedimientos previstos por la plataforma.
-3. Usuario no registrado (invitado): Persona que utiliza la plataforma sin crear una cuenta formal; su uso está sujeto a limitaciones expresas en estas condiciones.
-4. GUA: Indicador numérico de reputación o confianza dentro de la comunidad Nai Nai.
-5. Etiquetas: Clasificaciones predefinidas que deben asociarse a cada contenido publicado.
-6. Contenido: Todo material audiovisual o textual subido por los usuarios, incluidos videos, imágenes, descripciones y metadatos.
-7. Moderadores / Administradores / Creador: Personas autorizadas por Nai Nai para supervisar, moderar y administrar la plataforma.
-8. Monetización: Cualquier mecanismo de retribución económica a favor de usuarios o creadores dentro de la plataforma.
-
-II. ACEPTACIÓN Y PROCEDIMIENTO DE INGRESO
-1. El acceso y uso de Nai Nai requiere la aceptación previa y expresa de estas condiciones.
-2. Al ingresar por primera vez, la pantalla de bienvenida mostrará un mensaje de acogida seguido de un resumen de las reglas principales. El usuario deberá seleccionar una de las dos opciones presentadas: "Aceptar" o "Leer más".
-3. Si el usuario selecciona "Leer más", se le presentará el presente documento en su integridad. Para acceder a la plataforma, el usuario deberá pulsar el botón "Aceptar" al final del texto.
-4. Antes de completar el acceso inicial y para fines estadísticos y de origen de tráfico, el usuario deberá indicar cómo conoció Nai Nai. El campo correspondiente es de cumplimentación obligatoria y aceptará nombre de usuario externo, dirección de correo, nombre de persona o denominación de la plataforma externa por la que se accedió. Dicha información se empleará con fines analíticos internos y no otorga derechos, ventajas económicas ni bonificaciones.
-
-III. CUENTAS, CLASIFICACIÓN Y CAPACIDADES
-1. Usuario no registrado (invitado):
-   a. Puede ver contenido, subir videos, comentar, dar "like" y realizar la mayoría de interacciones.
-   b. No puede crear encuestas dentro de la plataforma.
-   c. No puede participar en ninguna modalidad de monetización.
-   d. En su perfil y en cualquier interacción en la plataforma aparecerá la etiqueta visible e inmodificable: "usuario no registrado".
-   e. Nai Nai no asume responsabilidad por la pérdida de contenidos o datos pertenecientes a usuarios no registrados.
-2. Usuario registrado:
-   a. Dispone de las f
+  <!-- Enlaza el JS separado -->
+  <script src="js/app.js
