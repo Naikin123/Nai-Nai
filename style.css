@@ -1,11 +1,13 @@
-body {
-  background-color: #0b1020;
-  color: #8fd3ff;
-  font-family: Arial, sans-serif;
+.captcha-code {
+  background: #000;
+  color: var(--neon-cyan);
+  font-family: 'Courier New', monospace;
+  font-size: 2rem;
+  font-weight: bold;
   text-align: center;
-  padding-top: 50px;
-}
-
-#titulo {
-  color: #7c7cff;
+  padding: 10px;
+  letter-spacing: 8px;
+  border: 1px dashed var(--neon-cyan);
+  margin: 15px 0;
+  user-select: none; /* Para que no puedan copiar y pegar */
 }
