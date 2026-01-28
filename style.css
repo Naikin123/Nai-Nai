@@ -1,4 +1,3 @@
-/* Full styles (primary file). If no carga se inyecta fallback desde index.html */
 :root{
   --bg:#0b0f1a; --bg2:#081028; --panel:#0f1530; --card:#121629;
   --text:#e6eef8; --muted:#98a3c7; --accent1:#4cc9f0; --accent2:#9b5de5;
@@ -6,17 +5,18 @@
   --glass: rgba(255,255,255,0.02);
 }
 
+/* Reset básico */
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);-webkit-font-smoothing:antialiased}
 a{color:var(--accent1);text-decoration:none}
 .container{max-width:1200px;margin:0 auto;padding:18px}
 
 /* Overlay */
-.overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(1,6,20,0.7),rgba(1,6,20,0.85));display:flex;align-items:center;justify-content:center;z-index:9999}
+.overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(1,6,20,0.75),rgba(1,6,20,0.9));display:flex;align-items:center;justify-content:center;z-index:9999}
 .welcome-card{width:min(980px,96%);background:linear-gradient(180deg,var(--glass),rgba(255,255,255,0.007));border-radius:12px;padding:20px;border:1px solid var(--border);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
 .welcome-header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
 .welcome-left{display:flex;gap:12px;align-items:center}
-.logo-n{width:56px;height:56px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#021018;font-size:24px}
+.logo-n{width:56px;height:56px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:900;color:#021018;font-size:28px}
 .logo-n.small{width:40px;height:40px;font-size:18px}
 .welcome-title{font-size:24px;color:var(--accent1);margin:0}
 .welcome-sub{color:var(--muted)}
@@ -29,13 +29,13 @@ a{color:var(--accent1);text-decoration:none}
 .btn{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#021018;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:700}
 .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text)}
 
-/* Terms modal */
+/* Terms */
 .terms-modal{margin-top:12px}
-.terms-area{max-height:60vh;overflow:auto;padding:12px;background:rgba(2,6,23,0.4);border-radius:8px;border:1px solid var(--border)}
+.terms-area{max-height:60vh;overflow:auto;padding:12px;background:rgba(2,6,23,0.45);border-radius:8px;border:1px solid var(--border)}
 .terms-area h1,h2,h3{color:var(--accent1)}
 .terms-actions{margin-top:8px}
 
-/* Main header */
+/* Header */
 .header{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 0;position:sticky;top:0;background:linear-gradient(180deg,rgba(2,6,23,0.6),transparent);z-index:50}
 .brand{display:flex;align-items:center;gap:10px}
 .brand-name{font-weight:800;color:var(--accent1)}
@@ -43,7 +43,7 @@ a{color:var(--accent1);text-decoration:none}
 .search input{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.02);color:var(--text)}
 .search button{padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer}
 
-/* Tag strip */
+/* Tags */
 .tags-strip{display:flex;gap:8px;padding:10px 0;overflow:auto;border-bottom:1px solid var(--border);margin-bottom:12px}
 .tag{padding:8px 12px;border-radius:999px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;white-space:nowrap}
 .tag.active{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#021018;border:none}
@@ -69,7 +69,7 @@ a{color:var(--accent1);text-decoration:none}
 .achievements{margin-top:8px}
 .role-badge{display:inline-block;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid var(--border);color:var(--muted);font-size:13px;margin-right:6px}
 
-/* Settings panel */
+/* Settings */
 .settings-panel{position:fixed;right:20px;top:80px;width:320px;background:linear-gradient(180deg,var(--card),rgba(0,0,0,0.6));padding:12px;border-radius:10px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.5);z-index:300}
 .hidden{display:none}
 .tip{position:fixed;left:20px;bottom:90px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#021018;padding:10px 12px;border-radius:10px;font-weight:700;z-index:250}
