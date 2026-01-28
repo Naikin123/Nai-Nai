@@ -4,7 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Nai Nai — Prototipo</title>
-  <link rel="stylesheet" href="./css/style.css">
+
+  <!-- MAIN EXTERNAL CSS (preferible) -->
+  <link id="main-css" rel="stylesheet" href="./css/style.css">
+
+  <!-- Fallback: inyectado por script si el link falla (no hace falta editar) -->
 </head>
 <body>
   <!-- OVERLAY: bienvenida / reglas / origen -->
@@ -12,7 +16,8 @@
     <div class="welcome-card">
       <div class="welcome-header">
         <div class="welcome-left">
-          <img src="https://i.ibb.co/r2CvYDzq/1767980417276.png" alt="Nai Nai" class="logo">
+          <!-- Logo: solo la N (visual simple, accesible) -->
+          <div id="logoN" class="logo-n" aria-hidden="true">N</div>
           <div>
             <h1 class="welcome-title">Bienvenido a Nai Nai</h1>
             <div class="welcome-sub">Lee y acepta las reglas para continuar.</div>
@@ -42,8 +47,8 @@
 
       <!-- Terms (hidden until 'Leer más') -->
       <div id="termsModal" class="card hidden terms-modal" aria-hidden="true">
-        <!-- FULL FORMAL LEGAL TEXT START -->
         <div id="termsContent" class="terms-area">
+          <!-- El texto legal completo (ya incluido) -->
           <h1>TÉRMINOS, CONDICIONES Y REGLAS DE USO DE NAI NAI</h1>
           <p><strong>Fecha de entrada en vigor:</strong> 27 de enero de 2026</p>
 
@@ -213,7 +218,6 @@
 
           <p>Al aceptar y utilizar la plataforma usted reconoce haber leído, comprendido y aceptado todas las cláusulas contenidas en este documento.</p>
         </div>
-        <!-- FULL FORMAL LEGAL TEXT END -->
 
         <div class="terms-actions" style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
           <button id="btn-terms-accept" class="btn">Aceptar</button>
@@ -221,7 +225,7 @@
         </div>
       </div>
 
-      <!-- ORIGIN FORM (after accepting terms) -->
+      <!-- ORIGIN FORM -->
       <form id="originForm" class="card hidden" onsubmit="return false" aria-hidden="true">
         <label for="originInput" style="font-weight:700;color:var(--muted)">¿Cómo conociste Nai Nai? (usuario, correo o plataforma)</label>
         <input id="originInput" placeholder="Ej.: @amigo, twitter.user, correo@ej.com" required>
@@ -233,14 +237,11 @@
     </div>
   </div>
 
-  <!-- TIP one-time -->
-  <div id="tip" class="tip hidden">Puedes configurar casi todo desde Perfil → Configuración avanzada <button id="tipDismiss" class="btn ghost" style="margin-left:10px;padding:6px">Entendido</button></div>
-
   <!-- APP -->
   <div class="container" id="app" aria-hidden="true">
     <header class="header" role="banner">
       <div class="brand">
-        <img src="https://i.ibb.co/r2CvYDzq/1767980417276.png" alt="Nai Nai" class="logo">
+        <div id="logoNHeader" class="logo-n small">N</div>
         <div class="brand-name">Nai Nai</div>
       </div>
 
@@ -261,4 +262,6 @@
       <button class="tag" data-tag="Video reacción">Video reacción</button>
       <button class="tag" data-tag="Crítica">Crítica</button>
       <button class="tag" data-tag="Informativo">Informativo</button>
-      <but
+      <button class="tag" data-tag="Noticia">Noticia</button>
+      <button class="tag" data-tag="Vlog">Vlog</button>
+      <button class="tag" data-tag
