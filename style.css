@@ -1,9 +1,9 @@
+/* Full styles (primary file). If no carga se inyecta fallback desde index.html */
 :root{
   --bg:#0b0f1a; --bg2:#081028; --panel:#0f1530; --card:#121629;
   --text:#e6eef8; --muted:#98a3c7; --accent1:#4cc9f0; --accent2:#9b5de5;
   --border:rgba(255,255,255,0.04);
   --glass: rgba(255,255,255,0.02);
-  --danger: #ff6b6b;
 }
 
 *{box-sizing:border-box}
@@ -16,7 +16,8 @@ a{color:var(--accent1);text-decoration:none}
 .welcome-card{width:min(980px,96%);background:linear-gradient(180deg,var(--glass),rgba(255,255,255,0.007));border-radius:12px;padding:20px;border:1px solid var(--border);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
 .welcome-header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
 .welcome-left{display:flex;gap:12px;align-items:center}
-.logo{width:52px;height:52px;border-radius:8px}
+.logo-n{width:56px;height:56px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#021018;font-size:24px}
+.logo-n.small{width:40px;height:40px;font-size:18px}
 .welcome-title{font-size:24px;color:var(--accent1);margin:0}
 .welcome-sub{color:var(--muted)}
 .welcome-body{margin-top:12px}
@@ -85,5 +86,5 @@ a{color:var(--accent1);text-decoration:none}
   .layout{grid-template-columns:1fr}
   .side{order:2}
   .search{margin:0}
-  .logo{width:44px;height:44px}
+  .logo-n{width:44px;height:44px;font-size:18px}
 }
