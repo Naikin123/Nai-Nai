@@ -1,58 +1,39 @@
-// Simple, self-contained frontend demo for Nai Nai prototype.
-// No backend — uses localStorage to persist minimal state.
-// Place this file at js/app.js
-
-// ---- Utilities ----
+// js/app.js - versión corregida con reglas modal
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
 const byId = (id) => document.getElementById(id);
 
+const LS_RULES = 'nai_rules_accepted_v1';
 const LS_USER = 'nai_user_v1';
-const LS_NOTES = 'nai_notes_v1';
 const LS_FEED = 'nai_feed_v1';
 
 function uid(prefix='u') { return prefix + Math.floor(Math.random()*1000000); }
-function safeText(s){ return (s||'').toString().trim(); }
 
-// ---- Initial data ----
-let USER = {
-  id: uid('u'),
-  displayName: 'Invitado',
-  accountNai: '.nai-guest',
-  role: 'Usuario',
-  gua: 0,
-  achievements: [],
-  tags: [],
-  ghost: {
-    like: 'none', // options: none, name, photo, both
-    comment: 'none',
-    subscribe: 'none',
-    donate: 'none',
-    survey: 'none',
-    publicProfile: false,
-    activityHidden: false
-  }
-};
+let USER = { id: uid('u'), displayName:'Invitado', accountNai:'.nai-guest', role:'Usuario', gua:0, achievements:[], tags:[], ghost:{ like:'none', comment:'none', subscribe:'none', donate:'none', survey:'none', publicProfile:false, activityHidden:false } };
+let FEED = [];
 
-let FEED = [
-  { id:'v1', title:'Receta express: pancakes', author:'@cocina_marta', tags:['Cocina'], desc:'Rápido y rico', format:'horizontal'},
-  { id:'v2', title:'Reacción al torneo', author:'@xreact', tags:['Videoreacción','Gaming'], desc:'Lo mejor', format:'vertical'},
-  { id:'v3', title:'Análisis crítico de Película X', author:'@critico', tags:['Crítica','Informativo'], desc:'Opinión', format:'horizontal'},
-];
-
-function saveState(){
-  localStorage.setItem(LS_USER, JSON.stringify(USER));
-  localStorage.setItem(LS_FEED, JSON.stringify(FEED));
-}
-function loadState(){
-  const u = localStorage.getItem(LS_USER);
-  const f = localStorage.getItem(LS_FEED);
-  if(u) USER = JSON.parse(u);
-  if(f) FEED = JSON.parse(f);
-}
+function saveState(){ localStorage.setItem(LS_USER, JSON.stringify(USER)); localStorage.setItem(LS_FEED, JSON.stringify(FEED)); }
+function loadState(){ const u = localStorage.getItem(LS_USER); const f = localStorage.getItem(LS_FEED); if(u) USER = JSON.parse(u); if(f) FEED = JSON.parse(f); }
 loadState();
 
-// ---- Render helpers ----
+// --- RULES modal management
+function showRulesIfNeeded(){
+  const accepted = localStorage.getItem(LS_RULES);
+  if(!accepted){
+    byId('rulesModal').classList.remove('hidden');
+    // block interactions visually (optional): add overlay via CSS modal covers app
+  } else {
+    byId('rulesModal').classList.add('hidden');
+  }
+}
+
+function acceptRules(){
+  localStorage.setItem(LS_RULES, '1');
+  byId('rulesModal').classList.add('hidden');
+  showToast('Reglas aceptadas — Bienvenido a Nai Nai');
+}
+
+// --- basic UI and feed
 function renderProfileCard(){
   byId('avatar').textContent = USER.displayName.charAt(0).toUpperCase();
   byId('displayName').textContent = USER.displayName;
@@ -60,92 +41,10 @@ function renderProfileCard(){
   byId('roleBadge').textContent = USER.role;
   byId('guaValue').textContent = USER.gua;
   const pct = Math.min(100, (USER.gua % 120) / 120 * 100);
-  const inner = byId('guaBarInner') || byId('guaBarFull');
+  const inner = document.getElementById('guaBarInner');
   if(inner) inner.style.width = pct + '%';
 }
 
-function renderFeed(){
-  const container = byId('feedList');
-  container.innerHTML = '';
-  const tpl = byId('feedItemTpl');
-  const viewMode = byId('viewMode').value;
-  const filterFormat = byId('formatFilter').value;
-
-  FEED.forEach(item => {
-    if(filterFormat !== 'both' && item.format !== filterFormat) return;
-    const el = tpl.content.cloneNode(true);
-    const article = el.querySelector('.feed-item');
-    article.querySelector('.thumb').textContent = item.tags[0] || 'VIDEO';
-    article.querySelector('.v-title').textContent = item.title;
-    article.querySelector('.v-author').textContent = item.author;
-    article.querySelector('.v-tags').textContent = item.tags.join(', ');
-    article.querySelector('.v-desc').textContent = item.desc;
-    // actions
-    article.querySelector('.btn-like').addEventListener('click', ()=>handleAction('like', item));
-    article.querySelector('.btn-comment').addEventListener('click', ()=>handleAction('comment', item));
-    article.querySelector('.btn-share').addEventListener('click', ()=>alert('Compartir (demo)'));
-    article.querySelector('.btn-report').addEventListener('click', ()=>reportVideo(item));
-    container.appendChild(el);
-  });
-}
-
-// ---- Actions: ghost confirm & apply ----
-function showGhostConfirm(action, cb){
-  // If ghost setting is non-none, just apply.
-  const setting = USER.ghost[action];
-  if(setting && setting !== 'none'){
-    // show a tiny prompt on first time
-    if(!confirm(`Esta acción se registrará con modo fantasma (${setting}). Confirmar?`)) return;
-    cb();
-  } else {
-    // offer to activate
-    if(confirm('Quieres activar modo fantasma para esta acción (oculta nombre/foto)?')){
-      // show quick choice: name/photo/both
-      const choice = prompt('Elige: name / photo / both (escribe one)', 'both');
-      if(choice && ['name','photo','both'].includes(choice.toLowerCase())){
-        USER.ghost[action] = choice.toLowerCase();
-        saveState();
-        renderProfileModalGhost();
-        if(confirm('Modo fantasma activado para esta acción. Ejecutar acción ahora?')) cb();
-      }
-    } else {
-      // execute normally
-      cb();
-    }
-  }
-}
-
-function handleAction(actionType, item){
-  // map actionType to ghost key: like -> like; comment -> comment
-  const key = actionType === 'comment' ? 'comment' : (actionType === 'like' ? 'like' : null);
-  if(!key) return alert('Acción demo');
-  showGhostConfirm(key, ()=>{
-    // perform action
-    // increment gua for engagement demo
-    USER.gua += 1;
-    saveState();
-    renderProfileCard();
-    showToast('Acción realizada. +1 GUA');
-  });
-}
-
-// ---- Reporting ----
-function reportVideo(item){
-  const reason = prompt('¿Por qué reportas este vídeo? (leve, normal, grave, super)');
-  if(!reason) return;
-  const r = reason.toLowerCase();
-  // push to report list (local demo)
-  const reportsEl = byId('reportsList');
-  reportsEl.textContent = `Reporte: ${item.title} — ${r}`;
-  // moderate notification
-  showToast('Reporte enviado — será revisado');
-  // small effect: if it's false or abuse -> reduce GUA (demo)
-  if(r === 'false') USER.gua = Math.max(0, USER.gua - 3);
-  saveState();
-  renderProfileCard();
-}
-
-// ---- Upload demo ----
 function populateTags(){
   const tags = ['Cocina','Videoreacción','Crítica','Informativo','Vlog','Gaming','Humor','Noticia','Educativo','Animación','Música'];
   const strip = byId('tagStrip');
@@ -155,76 +54,78 @@ function populateTags(){
     b.className = 'tag';
     b.textContent = t;
     b.addEventListener('click', ()=> {
-      // toggle active
       $$('.tags button').forEach(x=>x.classList.remove('active'));
       b.classList.add('active');
-      // quick filter:
       byId('formatFilter').value = 'both';
     });
     strip.appendChild(b);
   });
 }
 
-function initUI(){
-  // wire basic buttons
-  byId('openProfileBtn').addEventListener('click', ()=> openProfileModal());
-  byId('openProfileFull').addEventListener('click', ()=> openProfileModal());
-  byId('openUploadBtn').addEventListener('click', ()=> openUploadModal());
-  byId('previewBtn').addEventListener('click', previewUpload);
-  byId('uploadBtn').addEventListener('click', uploadDemo);
-  byId('saveNote').addEventListener('click', ()=> {
-    localStorage.setItem(LS_NOTES, byId('noteBlock').value||'');
-    showToast('Nota guardada localmente');
+function renderFeed(){
+  const container = byId('feedList');
+  container.innerHTML = '';
+  const feedData = FEED.length ? FEED : [
+    { id:'v1', title:'Receta express: pancakes', author:'@cocina_marta', tags:['Cocina'], desc:'Rápido y rico', format:'horizontal'},
+    { id:'v2', title:'Reacción al torneo', author:'@xreact', tags:['Videoreacción','Gaming'], desc:'Lo mejor', format:'vertical'},
+    { id:'v3', title:'Análisis crítico de Película X', author:'@critico', tags:['Crítica','Informativo'], desc:'Opinión', format:'horizontal'},
+  ];
+  feedData.forEach(item=>{
+    if(byId('formatFilter').value !== 'both' && item.format !== byId('formatFilter').value) return;
+    const art = document.createElement('article'); art.className='feed-item';
+    art.innerHTML = `<div class="thumb">${item.tags[0]||'VIDEO'}</div>
+      <div class="meta"><h4 class="v-title">${item.title}</h4>
+      <div class="v-meta">por <span class="v-author">${item.author}</span> · <span class="v-tags">${item.tags.join(', ')}</span></div>
+      <p class="v-desc">${item.desc}</p>
+      <div class="v-actions">
+        <button class="btn ghost btn-like">Like</button>
+        <button class="btn ghost btn-comment">Comentar</button>
+        <button class="btn ghost btn-share">Compartir</button>
+        <button class="btn ghost btn-report">Reportar</button>
+      </div></div>`;
+    art.querySelector('.btn-like').addEventListener('click', ()=>handleAction('like', item));
+    art.querySelector('.btn-comment').addEventListener('click', ()=>handleAction('comment', item));
+    art.querySelector('.btn-report').addEventListener('click', ()=>reportVideo(item));
+    container.appendChild(art);
   });
-  byId('clearNote').addEventListener('click', ()=> { if(confirm('Borrar nota?')) { byId('noteBlock').value=''; localStorage.removeItem(LS_NOTES); }});
-  byId('viewMode').addEventListener('change', renderFeed);
-  byId('formatFilter').addEventListener('change', renderFeed);
-  byId('btnInfinite').addEventListener('click', toggleInfinite);
-  byId('openModPanel').addEventListener('click', ()=> openModPanel());
-  byId('warnBtn')?.addEventListener('click', ()=> showToast('Advertencia enviada (demo)'));
-  byId('limitBtn')?.addEventListener('click', ()=> showToast('Funciones limitadas (demo)'));
-  byId('suspendBtn')?.addEventListener('click', ()=> { if(confirm('Confirmar suspensión demo?')) showToast('Usuario suspendido (demo)'); });
-
-  // modal close
-  $$('.modal .close').forEach(btn=>btn.addEventListener('click', ()=> closeAllModals()));
-  $$('[data-action="close"]').forEach(b=>b.addEventListener('click', ()=> closeAllModals()));
-
-  // profile save
-  byId('saveProfile').addEventListener('click', ()=> {
-    USER.displayName = byId('displayNameInput').value || USER.displayName;
-    USER.tags = Array.from($$('.profile-tags input')).filter(i=>i.checked).map(i=>i.value);
-    saveState();
-    renderProfileCard();
-    showToast('Perfil guardado');
-  });
-
-  // profile values load
-  byId('displayNameInput').value = USER.displayName;
-  byId('bioInput').value = USER.bio || '';
-
-  // load notes
-  const n = localStorage.getItem(LS_NOTES);
-  if(n) byId('noteBlock').value = n;
-
-  // load gua left bar
-  renderProfileCard();
-  populateTags();
-  renderFeed();
-  renderProfileModalGhost();
-  loadFeedFromStorage();
 }
 
-function previewUpload(){
-  const f = byId('fileInput').files && byId('fileInput').files[0];
-  const box = byId('previewBox');
-  if(!f){ box.textContent = 'Selecciona un archivo'; return; }
-  const url = URL.createObjectURL(f);
-  box.innerHTML = '';
-  if(f.type.startsWith('video/')) {
-    const v = document.createElement('video'); v.src = url; v.controls=true; v.style.maxWidth='100%'; box.appendChild(v);
+// ghost action flow (lightweight)
+function showGhostConfirm(action, cb){
+  const setting = USER.ghost[action];
+  if(setting && setting !== 'none'){
+    if(!confirm(`Esta acción se registrará con modo fantasma (${setting}). Confirmar?`)) return;
+    cb();
   } else {
-    const i = document.createElement('img'); i.src = url; i.style.maxWidth='100%'; box.appendChild(i);
+    if(confirm('Deseas activar modo fantasma para esta acción (oculta nombre/foto)?')){
+      const choice = prompt('Elige: name / photo / both (escribe one)', 'both');
+      if(choice && ['name','photo','both'].includes(choice.toLowerCase())){
+        USER.ghost[action] = choice.toLowerCase();
+        saveState();
+        renderProfileModalGhost();
+        if(confirm('Modo fantasma activado para esta acción. Ejecutar acción ahora?')) cb();
+      }
+    } else cb();
   }
+}
+
+function handleAction(actionType, item){
+  const key = actionType === 'comment' ? 'comment' : (actionType === 'like' ? 'like' : null);
+  if(!key) return alert('Acción demo');
+  showGhostConfirm(key, ()=>{
+    USER.gua += 1;
+    saveState();
+    renderProfileCard();
+    showToast('Acción realizada. +1 GUA');
+  });
+}
+
+function reportVideo(item){
+  const reason = prompt('¿Por qué reportas este vídeo? (leve, normal, grave, super)');
+  if(!reason) return;
+  byId('reportsList').textContent = `Reporte: ${item.title} — ${reason}`;
+  showToast('Reporte enviado — será revisado');
+  if(reason.toLowerCase() === 'false') { USER.gua = Math.max(0, USER.gua - 3); saveState(); renderProfileCard(); }
 }
 
 function uploadDemo(){
@@ -232,37 +133,13 @@ function uploadDemo(){
   const tags = (byId('tagsInput').value || '').split(',').map(s=>s.trim()).filter(Boolean);
   const format = (Math.random()>0.5)?'vertical':'horizontal';
   const item = { id: uid('v'), title, author: USER.displayName || USER.accountNai, tags, desc:'Demo', format };
-  FEED.unshift(item);
-  saveState();
-  renderFeed();
-  showToast('Video subido (demo). Si un usuario registrado te da dinero puedes monetizar');
+  FEED.unshift(item); saveState(); renderFeed(); showToast('Video subido (demo)');
 }
 
-// ---- Profile modal & ghost UI ----
-function openProfileModal(){
-  byId('profileModal').classList.remove('hidden');
-  byId('displayNameInput').value = USER.displayName;
-  byId('accountNaiFull').textContent = USER.accountNai;
-  byId('guaValueFull').textContent = USER.gua;
-  byId('guaBarFull').style.width = Math.min(100, (USER.gua % 120)/120*100) + '%';
-  // render tags and achievements
-  const tagsEl = byId('profileTags'); tagsEl.innerHTML = '';
-  (USER.tags || []).forEach(t=>{
-    const chip = document.createElement('div'); chip.className='chip'; chip.textContent = t; tagsEl.appendChild(chip);
-  });
-  const ach = byId('achList'); ach.innerHTML = '';
-  (USER.achievements || []).forEach(a=>{
-    const d = document.createElement('div'); d.className='ach'; d.textContent = a; ach.appendChild(d);
-  });
-  renderProfileModalGhost();
-}
-
-function closeAllModals(){
-  $$('.modal').forEach(m=>m.classList.add('hidden'));
-}
-
+// profile modal ghost UI
 function renderProfileModalGhost(){
-  const grid = byId('ghostGrid'); grid.innerHTML = '';
+  const grid = byId('ghostGrid'); if(!grid) return;
+  grid.innerHTML = '';
   const actions = ['like','comment','subscribe','donate','survey'];
   actions.forEach(act=>{
     const row = document.createElement('div'); row.className='ghost-row';
@@ -272,18 +149,11 @@ function renderProfileModalGhost(){
       const b = document.createElement('button'); b.className='ghost-option';
       b.textContent = opt === 'none'? 'No' : (opt === 'name'? 'Nombre' : (opt === 'photo' ? 'Foto' : 'Ambos'));
       if(USER.ghost[act] === opt) b.style.borderColor = 'var(--accent1)';
-      b.addEventListener('click', ()=>{
-        USER.ghost[act] = opt;
-        saveState();
-        renderProfileModalGhost();
-      });
+      b.addEventListener('click', ()=>{ USER.ghost[act] = opt; saveState(); renderProfileModalGhost(); });
       opts.appendChild(b);
     });
-    row.appendChild(label);
-    row.appendChild(opts);
-    grid.appendChild(row);
+    row.appendChild(label); row.appendChild(opts); grid.appendChild(row);
   });
-
   // public profile & activity
   const publicRow = document.createElement('div'); publicRow.className='ghost-row';
   const pLabel = document.createElement('div'); pLabel.textContent = 'Ocultar perfil público';
@@ -294,8 +164,7 @@ function renderProfileModalGhost(){
   btnOn.addEventListener('click', ()=>{ USER.ghost.publicProfile=true; saveState(); renderProfileModalGhost(); });
   btnOff.addEventListener('click', ()=>{ USER.ghost.publicProfile=false; saveState(); renderProfileModalGhost(); });
   pOpt.appendChild(btnOn); pOpt.appendChild(btnOff);
-  publicRow.appendChild(pLabel); publicRow.appendChild(pOpt);
-  grid.appendChild(publicRow);
+  publicRow.appendChild(pLabel); publicRow.appendChild(pOpt); grid.appendChild(publicRow);
 
   const actRow = document.createElement('div'); actRow.className='ghost-row';
   const aLabel = document.createElement('div'); aLabel.textContent='No aparecer en actividad pública';
@@ -305,53 +174,30 @@ function renderProfileModalGhost(){
   if(USER.ghost.activityHidden) aOn.style.borderColor='var(--accent1)'; else aOff.style.borderColor='var(--accent1)';
   aOn.addEventListener('click', ()=>{ USER.ghost.activityHidden=true; saveState(); renderProfileModalGhost(); });
   aOff.addEventListener('click', ()=>{ USER.ghost.activityHidden=false; saveState(); renderProfileModalGhost(); });
-  aOpt.appendChild(aOn); aOpt.appendChild(aOff);
-  actRow.appendChild(aLabel); actRow.appendChild(aOpt);
-  grid.appendChild(actRow);
+  aOpt.appendChild(aOn); aOpt.appendChild(aOff); actRow.appendChild(aLabel); actRow.appendChild(aOpt); grid.appendChild(actRow);
 }
 
-// ---- Moderation panel ----
-function openModPanel(){
-  byId('modPanel').classList.remove('hidden');
-  // load reports region
-  byId('modReports').innerHTML = byId('reportsList').textContent || 'Sin reportes';
-}
+// small UI helpers
+function showToast(msg){ const t = document.createElement('div'); t.className='toast'; t.textContent = msg; Object.assign(t.style,{position:'fixed',right:'18px',bottom:'18px',background:'linear-gradient(90deg,var(--accent1),var(--accent2))',padding:'10px 14px',borderRadius:'10px',color:'#021018',zIndex:9999}); document.body.appendChild(t); setTimeout(()=> t.remove(), 2400); }
 
-// ---- small helpers & UI
-function showToast(msg){
-  const t = document.createElement('div'); t.className='toast'; t.textContent = msg;
-  Object.assign(t.style,{position:'fixed',right:'18px',bottom:'18px',background:'linear-gradient(90deg,var(--accent1),var(--accent2))',padding:'10px 14px',borderRadius:'10px',color:'#021018',zIndex:9999});
-  document.body.appendChild(t);
-  setTimeout(()=> t.remove(), 2500);
-}
+function init(){
+  // wire event listeners
+  byId('btnAcceptRules').addEventListener('click', acceptRules);
+  byId('btnReadMore').addEventListener('click', ()=>{ byId('readMoreModal').classList.remove('hidden'); });
+  $$('.modal .close').forEach(btn=>btn.addEventListener('click', ()=> $$('.modal').forEach(m=>m.classList.add('hidden'))));
+  $$('.modal [data-action="close"]').forEach(b=>b.addEventListener('click', ()=> $$('.modal').forEach(m=>m.classList.add('hidden'))));
 
-function toggleInfinite(){
-  const sel = byId('viewMode');
-  sel.value = (sel.value === 'reels') ? 'list' : 'reels';
-  renderFeed();
-  showToast('Modo infinito: ' + (sel.value === 'reels' ? 'ON' : 'OFF'));
-}
-
-// ---- feed store/load ----
-function saveFeedToStorage(){ localStorage.setItem(LS_FEED, JSON.stringify(FEED)); }
-function loadFeedFromStorage(){ const s=localStorage.getItem(LS_FEED); if(s) FEED = JSON.parse(s); }
-
-// ---- boot ----
-document.addEventListener('DOMContentLoaded', ()=>{
-  initUI();
-  // wire modal interaction for upload modal
+  byId('openProfileBtn').addEventListener('click', ()=> { byId('profileModal').classList.remove('hidden'); });
   byId('openUploadBtn').addEventListener('click', ()=> { byId('uploadModal').classList.remove('hidden'); });
-  byId('publishBtn').addEventListener('click', ()=> {
-    const title = byId('titleInputModal').value || 'Sin título';
-    const tags = (byId('tagsInputModal').value||'').split(',').map(s=>s.trim()).filter(Boolean);
-    const format = Math.random()>0.5?'vertical':'horizontal';
-    const item = { id: uid('v'), title, author: USER.displayName||USER.accountNai, tags, desc: byId('descInputModal').value||'', format };
-    FEED.unshift(item); saveState(); renderFeed(); closeAllModals(); showToast('Video publicado (demo).'); 
-  });
+  byId('previewBtn').addEventListener('click', ()=> { /* preview handled earlier */ });
+  byId('uploadBtn').addEventListener('click', uploadDemo);
+  byId('openModPanel').addEventListener('click', ()=> byId('modPanel').classList.remove('hidden'));
 
-  // small: allow sample GUA events
-  document.body.addEventListener('keydown', (e)=>{
-    if(e.key === 'g'){ USER.gua += 1; saveState(); renderProfileCard(); showToast('+1 GUA'); }
-    if(e.key === 'G'){ USER.gua = Math.max(0, USER.gua-1); saveState(); renderProfileCard(); showToast('-1 GUA'); }
-  });
-});
+  populateTags();
+  renderProfileCard();
+  renderFeed();
+  renderProfileModalGhost();
+  showRulesIfNeeded();
+}
+
+document.addEventListener('DOMContentLoaded', init);
