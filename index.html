@@ -1,153 +1,198 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Nai Nai — Prototipo</title>
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>Nai Nai - Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* ===== RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* ===== COLORES ===== */
+:root {
+  --bg: #0e0e11;
+  --panel: #16161d;
+  --accent: #6c5cff;
+  --text: #ffffff;
+  --muted: #aaaaaa;
+  --border: #2a2a33;
+}
+
+/* ===== BODY ===== */
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ===== HEADER ===== */
+header {
+  padding: 15px;
+  background: var(--panel);
+  text-align: center;
+  font-weight: bold;
+  font-size: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ===== FEED ===== */
+.feed {
+  padding: 15px;
+}
+
+.video {
+  background: #1b1b23;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid var(--border);
+}
+
+.video h3 {
+  margin-bottom: 5px;
+}
+
+.video p {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ===== BOTONES ===== */
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+button {
+  background: var(--accent);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #333;
+}
+
+/* ===== PERFIL ===== */
+.profile {
+  padding: 15px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.profile h2 {
+  margin-bottom: 10px;
+}
+
+/* ===== MODO FANTASMA ===== */
+.ghost-box {
+  background: #1f1f2a;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.ghost-box label {
+  display: block;
+  margin: 6px 0;
+}
+
+/* ===== MODAL ===== */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #1b1b24;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.modal h3 {
+  margin-bottom: 10px;
+}
+
+.modal button {
+  margin-top: 10px;
+  width: 100%;
+}
+</style>
 </head>
+
 <body>
-  <!-- RULES MODAL (shows on first load until accepted) -->
-  <div id="rulesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
-    <div class="modal-card">
-      <header>
-        <h2 id="rulesTitle">Bienvenido a Nai Nai — Reglas de la Comunidad</h2>
-      </header>
-      <section>
-        <p><strong>1.</strong> No contenido +18, a menos que esté claramente etiquetado como humor o educativo.</p>
-        <p><strong>2.</strong> Nada de agresión o ataques directos; se permite contexto de debate o humor si está etiquetado.</p>
-        <p><strong>3.</strong> Monetización: no automática. Depende de GUA, antigüedad y revisión humana. Auto-donarse o fraude → baneo permanente.</p>
-        <p><strong>4.</strong> GUA: se gana por reportes válidos, encuestas útiles, buen comportamiento, contenido bien etiquetado y registro con Gmail / .Nai (+10 cada uno). Se pierde por spam, abuso, mal etiquetado o reportes falsos. Si GUA = 0 → modo solo lectura.</p>
-        <p><strong>5.</strong> Al aceptar confirmas que has leído y entiendes los términos y condiciones.</p>
-      </section>
 
-      <footer style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
-        <button id="btnReadMore" class="btn ghost">Leer más</button>
-        <button id="btnAcceptRules" class="btn primary">Aceptar</button>
-      </footer>
+<header>NAI NAI</header>
+
+<!-- FEED -->
+<div class="feed">
+  <div class="video">
+    <h3>Video de ejemplo</h3>
+    <p>Contenido de prueba</p>
+    <div class="actions">
+      <button onclick="like()">👍 Like</button>
+      <button class="secondary" onclick="reportar()">🚩 Reportar</button>
     </div>
   </div>
+</div>
 
-  <!-- READ MORE modal (full rules) -->
-  <div id="readMoreModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="readMoreTitle">
-    <div class="modal-card">
-      <header>
-        <h3 id="readMoreTitle">Reglas completas y detalles</h3>
-        <button class="close" data-action="close">✕</button>
-      </header>
-      <section style="max-height:60vh;overflow:auto;padding-top:8px">
-        <!-- Aquí va el texto completo y formal que ya definimos en la conversación -->
-        <!-- (Resumido aquí por brevedad, pega tu texto final si quieres el documento completo) -->
-        <h4>Contenido permitido y restringido</h4>
-        <p>... (aquí pegues la versión completa que quieras mostrar en Leer más) ...</p>
+<!-- PERFIL -->
+<div class="profile">
+  <h2>👤 Perfil</h2>
+  <p>Rango: Usuario</p>
+  <p>GUA: <b id="gua">120</b></p>
 
-        <h4>Sistema GUA</h4>
-        <p>... explicación completa de cómo ganar y perder GUA ...</p>
+  <div class="ghost-box">
+    <h3>👻 Modo Fantasma</h3>
 
-        <h4>Monetización</h4>
-        <p>... proceso de revisión, reglas anti-fraude, contacto con admins ...</p>
-
-        <h4>Modo Fantasma</h4>
-        <p>... explicación completa del modo fantasma y controles por acción ...</p>
-
-        <h4>Roles, logros y reportes</h4>
-        <p>... texto completo ...</p>
-      </section>
-      <footer style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
-        <button class="btn ghost" data-action="close">Cerrar</button>
-      </footer>
-    </div>
+    <label><input type="checkbox"> Ocultar nombre al dar like</label>
+    <label><input type="checkbox"> Ocultar foto al dar like</label>
+    <label><input type="checkbox"> Ocultar identidad al comentar</label>
+    <label><input type="checkbox"> Ocultar identidad al suscribirse</label>
+    <label><input type="checkbox"> Ocultar identidad al donar</label>
+    <label><input type="checkbox"> Ocultar identidad en encuestas</label>
   </div>
+</div>
 
-  <!-- APP LAYOUT (same as before, kept concise) -->
-  <header class="topbar">
-    <div class="brand">
-      <img src="https://i.ibb.co/r28jmmZK/file-000000009390720cb58cdfbce95f1461.png" alt="Nai Nai" class="logo">
-      <span class="brand-name">Nai Nai</span>
-    </div>
-    <div class="search-wrap">
-      <input id="searchInput" placeholder="Buscar por título, usuario, etiqueta..." aria-label="Buscar">
-      <button id="btnSearch" aria-label="Buscar">🔎</button>
-    </div>
-    <div class="top-actions">
-      <button id="btnInfinite" title="Toggle feed infinito">∞</button>
-      <button id="openProfileBtn" title="Perfil">Perfil</button>
-      <button id="openUploadBtn" title="Subir">Subir</button>
-    </div>
-  </header>
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Reportar video</h3>
+    <button onclick="cerrar()">Leve</button>
+    <button onclick="cerrar()">Normal</button>
+    <button onclick="cerrar()">Grave</button>
+    <button onclick="cerrar()">Súper grave</button>
+  </div>
+</div>
 
-  <main class="main">
-    <nav class="tags" id="tagStrip" aria-label="Etiquetas"></nav>
+<script>
+function like() {
+  alert("Like registrado (modo fantasma respetado)");
+}
 
-    <section id="feedArea" class="feed-area">
-      <div class="feed-controls">
-        <div>
-          <label for="viewMode">Vista</label>
-          <select id="viewMode">
-            <option value="list">Lista</option>
-            <option value="reels">Reels (infinito)</option>
-          </select>
-        </div>
-        <div>
-          <label for="formatFilter">Formato</label>
-          <select id="formatFilter">
-            <option value="both">Ambos</option>
-            <option value="vertical">Vertical</option>
-            <option value="horizontal">Horizontal</option>
-          </select>
-        </div>
-      </div>
+function reportar() {
+  document.getElementById("modal").style.display = "flex";
+}
 
-      <div id="feedList" class="feed-list" aria-live="polite"></div>
-    </section>
+function cerrar() {
+  document.getElementById("modal").style.display = "none";
+}
+</script>
 
-    <aside class="sidepanel">
-      <div class="profile-card" id="profileCard">
-        <div class="avatar" id="avatar">U</div>
-        <div class="profile-meta">
-          <div class="display-name" id="displayName">Invitado</div>
-          <div class="account-nai" id="accountNai">.nai-guest</div>
-          <div class="role" id="roleBadge">Usuario</div>
-          <div class="gua">
-            <span id="guaValue">0</span> GUA
-            <div class="gua-bar"><div id="guaBarInner"></div></div>
-          </div>
-        </div>
-        <button id="openProfileFull" class="btn small">Abrir perfil</button>
-      </div>
-
-      <div class="uploader-card">
-        <h4>Subir (demo)</h4>
-        <input id="fileInput" type="file" accept="video/*,image/*">
-        <input id="titleInput" placeholder="Título">
-        <input id="tagsInput" placeholder="Etiquetas (coma)">
-        <div class="upload-actions">
-          <button id="previewBtn" class="btn">Previsualizar</button>
-          <button id="uploadBtn" class="btn primary">Subir</button>
-        </div>
-        <div id="previewBox" class="preview-box small-muted">Previsualización</div>
-      </div>
-
-      <div class="notes-card">
-        <h4>Block de notas (local)</h4>
-        <textarea id="noteBlock" rows="4" placeholder="Notas privadas..."></textarea>
-        <div class="notes-actions">
-          <button id="saveNote" class="btn">Guardar</button>
-          <button id="clearNote" class="btn ghost">Borrar</button>
-        </div>
-      </div>
-
-      <div class="moderation-card" id="moderationCard">
-        <h4>Moderación (demo)</h4>
-        <div id="reportsList" class="reports-list small-muted">No hay reportes</div>
-        <button id="openModPanel" class="btn ghost">Abrir panel</button>
-      </div>
-    </aside>
-  </main>
-
-  <!-- Other modals and templates remain same as previous file (profileModal, uploadModal, modPanel, feed template) -->
-  <!-- For brevity I assume you're replacing index.html with exactly this file plus the previous modals/template content. -->
-
-  <script src="js/app.js"></script>
 </body>
 </html>
