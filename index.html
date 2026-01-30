@@ -1,18 +1,226 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Nai Nai</title>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nai Nai — Prototipo</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <!-- APP LAYOUT -->
+  <header class="topbar">
+    <div class="brand">
+      <img src="https://i.ibb.co/r28jmmZK/file-000000009390720cb58cdfbce95f1461.png" alt="Nai Nai" class="logo">
+      <span class="brand-name">Nai Nai</span>
+    </div>
 
-  <h1>Nai Nai funciona</h1>
-  <p>Si ves esto, HTML sí carga</p>
+    <div class="search-wrap">
+      <input id="searchInput" placeholder="Buscar por título, usuario, etiqueta..." aria-label="Buscar">
+      <button id="btnSearch" aria-label="Buscar">🔎</button>
+    </div>
 
-  <!-- JS -->
-  <script src="script.js"></script>
+    <div class="top-actions">
+      <button id="btnInfinite" title="Toggle feed infinito">∞</button>
+      <button id="openProfileBtn" title="Perfil">Perfil</button>
+      <button id="openUploadBtn" title="Subir">Subir</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Tag strip -->
+    <nav class="tags" id="tagStrip" aria-label="Etiquetas">
+      <!-- tags populated by JS -->
+    </nav>
+
+    <!-- Feed area -->
+    <section id="feedArea" class="feed-area">
+      <div class="feed-controls">
+        <div>
+          <label for="viewMode">Vista</label>
+          <select id="viewMode">
+            <option value="list">Lista</option>
+            <option value="reels">Reels (infinito)</option>
+          </select>
+        </div>
+        <div>
+          <label for="formatFilter">Formato</label>
+          <select id="formatFilter">
+            <option value="both">Ambos</option>
+            <option value="vertical">Vertical</option>
+            <option value="horizontal">Horizontal</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="feedList" class="feed-list" aria-live="polite">
+        <!-- feed items by JS -->
+      </div>
+
+    </section>
+
+    <!-- Right / bottom panel: profile preview & upload quick -->
+    <aside class="sidepanel">
+      <div class="profile-card" id="profileCard">
+        <div class="avatar" id="avatar">U</div>
+        <div class="profile-meta">
+          <div class="display-name" id="displayName">Invitado</div>
+          <div class="account-nai" id="accountNai">.nai-guest</div>
+          <div class="role" id="roleBadge">Usuario</div>
+          <div class="gua">
+            <span id="guaValue">0</span> GUA
+            <div class="gua-bar"><div id="guaBarInner"></div></div>
+          </div>
+        </div>
+        <button id="openProfileFull" class="btn small">Abrir perfil</button>
+      </div>
+
+      <div class="uploader-card">
+        <h4>Subir (demo)</h4>
+        <input id="fileInput" type="file" accept="video/*,image/*">
+        <input id="titleInput" placeholder="Título">
+        <input id="tagsInput" placeholder="Etiquetas (coma)">
+        <div class="upload-actions">
+          <button id="previewBtn" class="btn">Previsualizar</button>
+          <button id="uploadBtn" class="btn primary">Subir</button>
+        </div>
+        <div id="previewBox" class="preview-box small-muted">Previsualización</div>
+      </div>
+
+      <div class="notes-card">
+        <h4>Block de notas (local)</h4>
+        <textarea id="noteBlock" rows="4" placeholder="Notas privadas..."></textarea>
+        <div class="notes-actions">
+          <button id="saveNote" class="btn">Guardar</button>
+          <button id="clearNote" class="btn ghost">Borrar</button>
+        </div>
+      </div>
+
+      <div class="moderation-card" id="moderationCard">
+        <h4>Moderación (demo)</h4>
+        <div id="reportsList" class="reports-list small-muted">No hay reportes</div>
+        <button id="openModPanel" class="btn ghost">Abrir panel</button>
+      </div>
+    </aside>
+  </main>
+
+  <!-- PROFILE MODAL -->
+  <div id="profileModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+    <div class="modal-card">
+      <header>
+        <h3 id="profileTitle">Mi Perfil</h3>
+        <button class="close" data-action="close">✕</button>
+      </header>
+
+      <section class="profile-main">
+        <div class="profile-left">
+          <div class="avatar-lg" id="avatarLarge">U</div>
+          <label class="small-muted">Cuenta .Nai</label>
+          <div id="accountNaiFull" class="account-nai-full">.nai-guest</div>
+          <div class="gua-full">
+            <div class="gua-big"><span id="guaValueFull">0</span> GUA</div>
+            <div class="gua-bar"><div id="guaBarFull"></div></div>
+          </div>
+        </div>
+        <div class="profile-right">
+          <label>Nombre visible</label>
+          <input id="displayNameInput" placeholder="Nombre visible">
+          <label>Bio</label>
+          <textarea id="bioInput" rows="3" placeholder="Sobre tí"></textarea>
+
+          <div class="roles-row">
+            <label>Rol</label>
+            <div id="roleFull">Usuario</div>
+          </div>
+
+          <h4>Logros</h4>
+          <div id="achList" class="ach-list">Ninguno</div>
+
+          <h4>Etiquetas</h4>
+          <div id="profileTags" class="tags-chips"></div>
+
+          <h4>Configuración — Modo Fantasma (por acción)</h4>
+          <div class="ghost-grid" id="ghostGrid">
+            <!-- rows created by JS -->
+          </div>
+
+          <div class="profile-actions">
+            <button id="saveProfile" class="btn primary">Guardar cambios</button>
+            <button id="closeProfile" class="btn ghost" data-action="close">Cerrar</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- UPLOAD MODAL (detailed) -->
+  <div id="uploadModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <header>
+        <h3>Subir video</h3>
+        <button class="close" data-action="close">✕</button>
+      </header>
+      <section>
+        <label>Archivo</label>
+        <input id="fileInputModal" type="file" accept="video/*,image/*">
+        <label>Título</label>
+        <input id="titleInputModal" placeholder="Título">
+        <label>Descripción</label>
+        <textarea id="descInputModal" rows="3"></textarea>
+        <label>Etiquetas (coma)</label>
+        <input id="tagsInputModal" placeholder="ej: Cocina,Humor">
+        <label>¿Es tuyo?</label>
+        <select id="isOriginalModal">
+          <option value="yes">Sí</option>
+          <option value="no">No — insertar enlace</option>
+        </select>
+        <div id="originalLinkRow" class="hidden">
+          <label>Enlace original</label>
+          <input id="originalLinkInput" placeholder="https://...">
+        </div>
+        <div class="modal-actions">
+          <button id="publishBtn" class="btn primary">Publicar</button>
+          <button class="btn ghost" data-action="close">Cancelar</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- MODERATION PANEL -->
+  <div id="modPanel" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <header>
+        <h3>Panel de Moderación</h3>
+        <button class="close" data-action="close">✕</button>
+      </header>
+      <section>
+        <div id="modReports" class="mod-reports">Sin reportes</div>
+        <h4>Acciones</h4>
+        <div class="mod-actions">
+          <button id="warnBtn" class="btn">Advertir</button>
+          <button id="limitBtn" class="btn">Limitar funciones</button>
+          <button id="suspendBtn" class="btn danger">Suspender</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <template id="feedItemTpl">
+    <article class="feed-item">
+      <div class="thumb">TH</div>
+      <div class="meta">
+        <h4 class="v-title">Título</h4>
+        <div class="v-meta">por <span class="v-author">@autor</span> · <span class="v-tags">Etiquetas</span></div>
+        <p class="v-desc">Descripción</p>
+        <div class="v-actions">
+          <button class="btn ghost btn-like">Like</button>
+          <button class="btn ghost btn-comment">Comentar</button>
+          <button class="btn ghost btn-share">Compartir</button>
+          <button class="btn ghost btn-report">Reportar</button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script src="js/app.js"></script>
 </body>
-</html>
+  </html>
