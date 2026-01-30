@@ -1,431 +1,424 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Nai Nai — Demo completo</title>
-<meta name="description" content="Prototipo Nai Nai — cuentas, subir vídeos, likes, comentarios, modo fantasma y GUA.">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nai Nai — Prototipo completo</title>
 
+<!-- ======= STYLES (dark / neon) ======= -->
 <style>
 :root{
-  --bg:#070717; --panel:#0f1524; --card:#0b1220;
-  --muted:#9fb0d6; --text:#eaf6ff;
-  --accent:#4cc9f0; --accent2:#9b5de5;
-  --danger:#ff6565; --border: rgba(255,255,255,0.04);
+  --bg:#05040a;
+  --panel:#0c1220;
+  --card:#0f1724;
+  --muted:#9fb0d6;
+  --text:#eaf6ff;
+  --accent1:#4cc9f0;
+  --accent2:#9b5de5;
+  --success:#5fe3a1;
+  --danger:#ff5c7c;
+  --border: rgba(255,255,255,0.04);
+  --glass: rgba(255,255,255,0.03);
+  --max-width:1100px;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg),#020417);color:var(--text);-webkit-font-smoothing:antialiased}
-a{color:var(--accent)}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#030312);color:var(--text);-webkit-font-smoothing:antialiased}
+a{color:var(--accent1)}
 
+.app{
+  max-width:var(--max-width);margin:0 auto;min-height:100vh;display:flex;flex-direction:column;
+}
+
+/* header */
 .header{
-  display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(2,6,23,0.6),transparent);
-  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(2,6,23,0.6),transparent);position:sticky;top:0;z-index:80;
 }
 .brand{display:flex;align-items:center;gap:10px}
-.logo{width:40px;height:40px;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:900}
-.brand-name{font-weight:800;color:var(--accent);font-size:18px}
+.logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:900;color:#021018}
+.brand-name{font-weight:800;color:var(--accent1);font-size:18px}
+.search{flex:1;display:flex;gap:8px;align-items:center}
+.search input{flex:1;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.02);color:var(--text)}
+.header-actions{display:flex;gap:8px;align-items:center}
 
-.search{flex:1;display:flex;gap:8px}
-.search input{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.02);color:var(--text)}
-.btn{background:transparent;border:1px solid var(--border);padding:8px 10px;border-radius:8px;color:var(--text);cursor:pointer}
-.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;color:#021018}
-.top-actions{display:flex;gap:8px;align-items:center}
+/* nav buttons (Videos / Subir / Perfil) */
+.main-nav{display:flex;gap:8px;padding:12px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(0,0,0,0.25),transparent)}
+.nav-btn{padding:10px 14px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer}
+.nav-btn.active{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#021018;border:none;box-shadow:0 6px 18px rgba(76,201,240,0.08)}
 
 /* layout */
-.container{display:grid;grid-template-columns:1fr 340px;gap:16px;padding:16px;max-width:1200px;margin:0 auto}
-@media(max-width:980px){.container{grid-template-columns:1fr;padding:10px}}
+.layout{display:grid;grid-template-columns:1fr 340px;gap:18px;padding:18px}
+@media(max-width:980px){.layout{grid-template-columns:1fr;padding:12px}}
 
-/* feed */
+/* left - feed */
+.feed-col{}
 .tagbar{display:flex;gap:8px;overflow:auto;padding-bottom:8px;margin-bottom:6px}
-.tag{padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer}
-.tag.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#021018;border:none}
+.tag{padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tag.active{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#021018;border:none}
+
+/* feed items */
 .feed-list{display:flex;flex-direction:column;gap:12px}
 .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:12px;border-radius:12px;border:1px solid var(--border)}
-.thumb{width:100%;height:220px;background:linear-gradient(180deg,#051226,#09233a);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
-.meta{margin-top:10px}
-.title{color:var(--accent);font-weight:700}
-.vmeta{color:var(--muted);font-size:13px;margin-top:4px}
-.actions{display:flex;gap:8px;margin-top:8px}
-.counter{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid var(--border);color:var(--muted);font-size:13px}
-
-/* side */
-.side{display:flex;flex-direction:column;gap:12px}
-.profile-card, .uploader, .notes, .moderation{background:linear-gradient(180deg,var(--card),rgba(0,0,0,0.4));padding:12px;border-radius:12px;border:1px solid var(--border)}
-.avatar{width:68px;height:68px;border-radius:12px;background:linear-gradient(90deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:900;color:#021018}
-.hsmall{color:var(--muted);font-size:13px}
-
-/* profile detail */
-.profile-row{display:flex;gap:12px;align-items:center}
-.guabar{height:10px;background:rgba(255,255,255,0.02);border-radius:10px;overflow:hidden;margin-top:8px}
-.guainner{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));}
-
-/* modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:200}
-.modal .card{background:var(--panel);padding:16px;border-radius:12px;width:95%;max-width:720px;border:1px solid var(--border)}
-.modal.show{display:flex}
-
-/* small */
-.small-muted{color:var(--muted);font-size:13px}
-.input, textarea{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.02);color:var(--text)}
-.row{display:flex;gap:8px;align-items:center}
-
-/* ghost options */
-.ghost-row{display:flex;gap:8px;align-items:center;margin-top:8px}
-.ghost-btn{padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer}
-.ghost-btn.active{border-color:var(--accent);background:linear-gradient(90deg,var(--accent),var(--accent2));color:#021018}
+.thumb{width:100%;height:260px;border-radius:10px;background:linear-gradient(180deg,#051226,#09233a);display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:800;font-size:18px}
+.title{color:var(--accent1);font-weight:700;margin-top:10px}
+.meta{color:var(--muted);font-size:13px;margin-top:6px}
+.actions{display:flex;gap:8px;align-items:center;margin-top:10px}
+.btn{padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer}
+.btn.primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));border:none;color:#021018}
+.badge{padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid var(--border);color:var(--muted);font-size:13px}
+.counter{font-size:13px;color:var(--muted)}
 
 /* comments */
-.comment-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
-.comment{padding:8px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--border)}
-.comment .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+.comment-area{margin-top:10px;border-top:1px dashed var(--border);padding-top:8px}
+.comment{padding:8px;border-radius:8px;background:rgba(255,255,255,0.01);border:1px solid var(--border);margin-bottom:8px}
+.comment .who{color:var(--muted);font-size:12px}
 
-/* tiny */
+/* right - sidebar */
+.sidebar{display:flex;flex-direction:column;gap:12px}
+.panel{background:linear-gradient(180deg,var(--card),rgba(0,0,0,0.4));padding:12px;border-radius:12px;border:1px solid var(--border)}
+.avatar{width:72px;height:72px;border-radius:12px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:900;color:#021018}
+.profile-row{display:flex;gap:12px;align-items:center}
 .kv{font-size:13px;color:var(--muted)}
-.footer-note{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+
+/* gua */
+.gua-row{margin-top:10px}
+.gua-bar{height:10px;background:rgba(255,255,255,0.02);border-radius:10px;overflow:hidden}
+.gua-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--accent1),var(--accent2));}
+
+/* achievements */
+.ach-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.ach{padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.02);color:var(--muted);font-size:13px}
+
+/* profile modal */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:200}
+.modal.show{display:flex}
+.modal-card{width:95%;max-width:920px;background:linear-gradient(180deg,var(--panel),rgba(0,0,0,0.4));padding:16px;border-radius:12px;border:1px solid var(--border)}
+.modal-head{display:flex;justify-content:space-between;align-items:center}
+.close{background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+
+/* forms */
+.input, textarea, select{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.02);color:var(--text)}
+.small{font-size:13px;color:var(--muted)}
+
+/* footer small */
+.footer-note{text-align:center;color:var(--muted);margin-top:12px;font-size:13px}
 </style>
 </head>
 <body>
+<div class="app">
 
-<!-- HEADER -->
-<header class="header">
-  <div class="brand">
-    <div class="logo">N</div>
-    <div class="brand-name">Nai Nai</div>
-  </div>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="brand">
+      <div class="logo">N</div>
+      <div class="brand-name">Nai Nai</div>
+    </div>
 
-  <div class="search">
-    <input id="search" placeholder="Buscar por título, usuario, etiqueta..." />
-    <button id="btnSearch" class="btn">🔎</button>
-  </div>
+    <div class="search">
+      <input id="searchInput" placeholder="Buscar por título, usuario, etiqueta..." />
+      <button id="searchBtn" class="btn">Buscar</button>
+    </div>
 
-  <div class="top-actions">
-    <button id="btnRules" class="btn">Reglas</button>
-    <button id="btnLogin" class="btn">Entrar / Crear</button>
-    <button id="btnUpload" class="btn">Subir</button>
-  </div>
-</header>
+    <div class="header-actions">
+      <button id="rulesBtn" class="btn">Reglas</button>
+      <button id="loginBtn" class="btn">Entrar / Crear</button>
+    </div>
+  </header>
 
-<!-- MAIN -->
-<div class="container">
-  <!-- FEED COLUMN -->
-  <main>
-    <div class="tagbar" id="tagbar"></div>
+  <!-- NAV (Videos / Subir / Perfil) -->
+  <nav class="main-nav">
+    <button id="navVideos" class="nav-btn active">▶ Ver videos</button>
+    <button id="navUpload" class="nav-btn">⤴ Subir video</button>
+    <button id="navProfile" class="nav-btn">👤 Perfil</button>
+  </nav>
 
-    <div class="card" style="margin-bottom:12px">
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <div><strong>Feed</strong> <span class="kv small-muted">— Explora</span></div>
-        <div class="row">
-          <select id="viewMode" class="input" style="width:140px">
-            <option value="list">Lista</option>
-            <option value="reels">Reels</option>
+  <!-- LAYOUT -->
+  <div class="layout">
+
+    <!-- LEFT: FEED -->
+    <section class="feed-col">
+      <div class="panel card">
+        <div style="display:flex;gap:10px;align-items:center">
+          <strong>Feed principal</strong>
+          <div style="margin-left:auto" class="small">Algoritmo personalizable • Encuesta integrada</div>
+        </div>
+
+        <!-- initial sequence: rules accepted? inviter? -->
+        <div id="welcomeBox" style="margin-top:12px"></div>
+
+        <!-- tags -->
+        <div id="tagbar" class="tagbar" style="margin-top:12px"></div>
+
+        <!-- view controls -->
+        <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+          <label class="small">Formato</label>
+          <select id="formatFilter" class="input" style="width:160px">
+            <option value="both">Ambos</option>
+            <option value="vertical">Vertical</option>
+            <option value="horizontal">Horizontal</option>
+          </select>
+
+          <label class="small" style="margin-left:12px">Orden</label>
+          <select id="orderBy" class="input" style="width:160px">
+            <option value="new">Más recientes</option>
+            <option value="gua">Por GUA</option>
           </select>
         </div>
       </div>
-    </div>
 
-    <div id="feed" class="feed-list"></div>
+      <div id="feedList" class="feed-list" style="margin-top:12px"></div>
 
-    <div class="footer-note">Demo Nai Nai — todo es local (no hay subida real).</div>
-  </main>
+      <div class="footer-note">Nai Nai — prototipo. Muchas funciones son demo y guardadas localmente.</div>
+    </section>
 
-  <!-- SIDE BAR -->
-  <aside class="side">
-    <!-- PROFILE -->
-    <div class="profile-card">
-      <div class="profile-row">
-        <div class="avatar" id="sideAvatar">U</div>
-        <div>
-          <div id="sideName" style="font-weight:800">Invitado</div>
-          <div id="sideNai" class="hsmall">.nai-guest</div>
-          <div id="sideRole" class="hsmall">Usuario</div>
-        </div>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="kv">GUA: <span id="sideGua">0</span></div>
-        <div class="guabar"><div class="guainner" id="sideGuaBar"></div></div>
-      </div>
-
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-        <button id="openProfile" class="btn">Perfil</button>
-        <button id="logoutBtn" class="btn secondary">Salir</button>
-      </div>
-    </div>
-
-    <!-- UPLOADER -->
-    <div class="uploader card">
-      <h4>Subir video (demo)</h4>
-      <input id="file" type="file" accept="video/*,image/*" class="input" />
-      <input id="title" class="input" placeholder="Título" style="margin-top:8px"/>
-      <input id="tags" class="input" placeholder="Etiquetas, separadas por coma" style="margin-top:8px"/>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button id="btnPreview" class="btn">Previsualizar</button>
-        <button id="btnPublish" class="btn primary">Publicar</button>
-      </div>
-      <div id="preview" style="margin-top:10px" class="small-muted">Sin previsualización</div>
-    </div>
-
-    <!-- NOTES -->
-    <div class="notes card">
-      <h4>Notas locales</h4>
-      <textarea id="notes" rows="4" class="input" placeholder="Notas privadas (guardadas en este navegador)"></textarea>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button id="saveNote" class="btn">Guardar</button>
-        <button id="clearNote" class="btn secondary">Borrar</button>
-      </div>
-    </div>
-
-    <!-- MODERATION (demo) -->
-    <div class="moderation card">
-      <h4>Moderación (demo)</h4>
-      <div id="reports" class="small-muted">No hay reportes</div>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button id="openModeration" class="btn">Abrir panel</button>
-      </div>
-    </div>
-  </aside>
-</div>
-
-<!-- TEMPLATES -->
-<template id="videoTpl">
-  <div class="card">
-    <div class="thumb">THUMB</div>
-    <div class="meta">
-      <div class="title">TÍTULO</div>
-      <div class="vmeta small-muted">por <span class="author">@autor</span> · <span class="tags small-muted">#</span></div>
-      <div class="actions">
-        <button class="likeBtn btn">👍 <span class="likeCount">0</span></button>
-        <button class="commentOpen btn secondary">💬 <span class="commentCount">0</span></button>
-        <button class="btn secondary shareBtn">↗</button>
-        <button class="reportBtn btn">🚩</button>
-        <div style="margin-left:auto" class="counter small-muted">GUA: <span class="vGua">0</span></div>
-      </div>
-      <div class="comment-area" style="display:none;margin-top:10px">
-        <div class="comment-list"></div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <input class="commentInput input" placeholder="Comentar..."/>
-          <button class="postComment btn">Enviar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-<!-- MODALS -->
-<div id="rulesModal" class="modal">
-  <div class="card">
-    <h3>Reglas de la Comunidad</h3>
-    <div style="max-height:50vh;overflow:auto;margin-top:8px">
-      <p><strong>1.</strong> No contenido +18 sin etiqueta educativa o humor.</p>
-      <p><strong>2.</strong> No agresión directa ni incitación; debate y humor permitidos si se etiqueta.</p>
-      <p><strong>3.</strong> Monetización: no automática. Depende de GUA, antigüedad y revisión humana. Auto-donarse → baneo permanente.</p>
-      <p><strong>4.</strong> GUA: se gana por reportes válidos, encuestas útiles, registro con Gmail/.Nai (+10 cada uno), contenido bien etiquetado; se pierde por spam, abuso, reportes falsos, mal etiquetado. GUA=0 → Solo lectura.</p>
-      <p><strong>5.</strong> Al aceptar confirmas que has leído los términos y condiciones.</p>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
-      <button id="readMoreBtn" class="btn secondary">Leer más</button>
-      <button id="acceptRulesBtn" class="btn primary">Aceptar</button>
-    </div>
-  </div>
-</div>
-
-<div id="readMore" class="modal">
-  <div class="card">
-    <h3>Leer más — Reglas completas</h3>
-    <div style="max-height:60vh;overflow:auto;margin-top:8px">
-      <!-- Paste or craft the full long rules here; concise summary kept for demo. -->
-      <h4>Sistema GUA</h4>
-      <p>Gana GUA por: reportes válidos (+2), encuestas útiles (+3), registrar con .Nai (+10), vincular Gmail (+10), subir videos bien etiquetados (+5 a +15 según calidad).</p>
-      <p>Pierde GUA por: reportes falsos (-3), spam (-5 a -20), contenido mal etiquetado (-5), abuso (-20...).</p>
-      <h4>Modo Fantasma</h4>
-      <p>Opciones por acción: ocultar nombre, foto o ambos. Admins siempre ven identidad real.</p>
-      <h4>Monetización</h4>
-      <p>Revisión humana; pueden tardar; si detectamos fraude, ban permanente.</p>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
-      <button id="closeReadMore" class="btn">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<div id="authModal" class="modal">
-  <div class="card">
-    <h3>Entrar / Crear cuenta</h3>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <div style="flex:1">
-        <label class="kv">Crear .Nai</label>
-        <input id="naiAlias" class="input" placeholder="alias (.nai will be appended)" />
-        <input id="naiName" class="input" placeholder="Nombre visible" style="margin-top:8px"/>
-        <input id="naiPass" class="input" placeholder="Contraseña" type="password" style="margin-top:8px"/>
-        <button id="createNai" class="btn primary" style="margin-top:8px">Crear cuenta .Nai (+10 GUA)</button>
-      </div>
-      <div style="width:1px;background:var(--border)"></div>
-      <div style="flex:1">
-        <label class="kv">Iniciar con Google (simulado)</label>
-        <div style="display:flex;gap:8px;flex-direction:column">
-          <button id="googleSign" class="btn">Continuar con Google (+10 GUA)</button>
-          <div class="small-muted">(Simulación OAuth — no conecta en demo)</div>
-
-          <div style="margin-top:12px">
-            <label class="kv">Ingresar existente (.Nai)</label>
-            <input id="loginAlias" class="input" placeholder="alias (.nai-...)" />
-            <input id="loginPass" class="input" type="password" placeholder="Contraseña" style="margin-top:8px"/>
-            <button id="loginBtn" class="btn" style="margin-top:8px">Entrar</button>
+    <!-- RIGHT: SIDEBAR -->
+    <aside class="sidebar">
+      <!-- PROFILE summary -->
+      <div class="panel profile-summary">
+        <div class="profile-row">
+          <div class="avatar" id="avatarBadge">U</div>
+          <div>
+            <div id="displayName" style="font-weight:800">Invitado</div>
+            <div id="accountNai" class="kv">.nai-guest</div>
+            <div id="roleBadge" class="kv">Invitado</div>
           </div>
         </div>
+
+        <div class="gua-row">
+          <div class="kv">GUA: <strong id="guaValue">0</strong></div>
+          <div class="gua-bar"><div class="gua-inner" id="guaInner"></div></div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button id="btnOpenProfile" class="btn">Perfil</button>
+          <button id="btnOpenUpload" class="btn">Subir</button>
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="small">Logros</div>
+          <div id="achList" class="ach-grid"></div>
+        </div>
+      </div>
+
+      <!-- uploader quick -->
+      <div class="panel">
+        <h4 style="margin:0">Subir video (rápido)</h4>
+        <input id="quickTitle" class="input" placeholder="Título" style="margin-top:8px"/>
+        <input id="quickTags" class="input" placeholder="Etiquetas (coma)" style="margin-top:8px"/>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="btnQuickPost" class="btn primary">Subir</button>
+          <button id="btnOpenUploader" class="btn">Abrir</button>
+        </div>
+        <div class="small-muted" style="margin-top:8px">Recibir dinero depende de revisión y GUA.</div>
+      </div>
+
+      <!-- notes -->
+      <div class="panel">
+        <h4 style="margin:0">Block de notas</h4>
+        <textarea id="noteBlock" rows="4" class="input" placeholder="Notas privadas (guardadas localmente)"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="saveNote" class="btn">Guardar</button>
+          <button id="clearNote" class="btn secondary">Borrar</button>
+        </div>
+      </div>
+
+      <!-- moderation demo -->
+      <div class="panel">
+        <h4 style="margin:0">Moderación (demo)</h4>
+        <div id="reportCount" class="kv small" style="margin-top:8px">Reportes: 0</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="openMod" class="btn">Abrir panel</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Hidden Templates / Modals -->
+
+  <!-- Rules modal (first time) -->
+  <div id="rulesModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div><h3>Reglas de la Comunidad — Nai Nai</h3><div class="small">Lee antes de continuar</div></div>
+        <button class="close" id="closeRules">✕</button>
+      </div>
+      <div style="margin-top:10px;max-height:55vh;overflow:auto">
+        <p><strong>1.</strong> No contenido +18 sin la etiqueta adecuada (educativo o humor).</p>
+        <p><strong>2.</strong> No agresión ni incitación a dañar. Debate y sátira permitidos si está etiquetado.</p>
+        <p><strong>3.</strong> Monetización: no automática. Depende de GUA, antigüedad y revisión humana. Auto-donaciones o fraude → baneo permanente.</p>
+        <p><strong>4.</strong> GUA: se gana por reportes válidos, encuestas útiles, registro con Gmail / .Nai (+10 cada una), subir vídeos etiquetados (+5–15). Se pierde por spam, reportes falsos, mal etiquetado o abuso. GUA = 0 → Modo Solo Lectura.</p>
+        <p><strong>5.</strong> Al aceptar confirmas que leíste estos términos básicos. En "Leer más" encontrarás todo el detalle (roles, logros, modo fantasma, apelaciones).</p>
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button id="btnReadMore" class="btn">Leer más</button>
+        <button id="btnAccept" class="btn primary">Aceptar y continuar</button>
       </div>
     </div>
+  </div>
 
-    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
-      <button id="closeAuth" class="btn ghost">Cerrar</button>
+  <!-- Read More modal (full policies) -->
+  <div id="readMoreModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div><h3>Detalles completos — Nai Nai</h3><div class="small">Reglas, GUA, monetización, roles y moderación</div></div>
+        <button class="close" id="closeReadMore">✕</button>
+      </div>
+      <div style="margin-top:12px;max-height:70vh;overflow:auto">
+        <!-- (You can paste the long formal text here; for brevity key points are shown) -->
+        <h4>Sistema GUA</h4>
+        <p>Gana GUA por acciones que benefician la comunidad (reportes válidos, encuestas útiles, registro con Gmail/.Nai, subir contenido etiquetado). Pierde GUA por abuso, spam, reportes falsos o mal etiquetado.</p>
+
+        <h4>Monetización</h4>
+        <p>No garantizada. Se revisa manualmente. Si detectamos fraude, quitar dinero, permisos y ban permanente.</p>
+
+        <h4>Roles</h4>
+        <p>Usuario → Subidor → Creador Verificado → Gestionador / Admin (por invitación o confianza). Roles pueden renunciar y tomar descansos. Pagos ocasionales para gestionadores si aportan, no es sueldo fijo.</p>
+
+        <h4>Modo Fantasma</h4>
+        <p>Opciones por acción: ocultar nombre, foto o ambos cuando interactúas (likes, comentarios, donaciones, encuestas). Los administradores siempre ven la identidad real. No se puede evadir sanciones.</p>
+
+        <h4>Apelaciones</h4>
+        <p>Si recibes sanción puedes apelar contactando a los administradores desde el perfil.</p>
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button id="closeReadMoreBtn" class="btn">Cerrar</button>
+      </div>
     </div>
   </div>
-</div>
 
-<div id="moderationModal" class="modal">
-  <div class="card">
-    <h3>Panel Moderación (demo)</h3>
-    <div id="modList" style="max-height:50vh;overflow:auto;margin-top:8px" class="small-muted">Sin reportes</div>
-    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
-      <button id="closeMod" class="btn">Cerrar</button>
+  <!-- Inviter modal (asked after accepting rules) -->
+  <div id="inviterModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-head"><div><h3>¿Quién te invitó a Nai Nai? (opcional)</h3></div><button class="close" id="closeInviter">✕</button></div>
+      <div style="margin-top:10px">
+        <input id="inviterInput" class="input" placeholder="Nombre de usuario o correo (opcional)"/>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+          <button id="skipInviter" class="btn secondary">Omitir</button>
+          <button id="submitInviter" class="btn primary">Enviar</button>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- SCRIPTS -->
+  <!-- Auth modal -->
+  <div id="authModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div><h3>Cuenta .Nai / Google (simulado)</h3><div class="small">Crear o iniciar sesión</div></div>
+        <button class="close" id="closeAuth">✕</button>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:12px">
+        <div style="flex:1">
+          <label class="small">Crear .Nai (alias único)</label>
+          <input id="naiAlias" class="input" placeholder="alias (sin .)"/>
+          <input id="naiName" class="input" placeholder="Nombre visible" style="margin-top:8px"/>
+          <input id="naiPass" class="input" type="password" placeholder="Contraseña" style="margin-top:8px"/>
+          <button id="createNaiBtn" class="btn primary" style="margin-top:10px">Crear .Nai (+10 GUA)</button>
+        </div>
+
+        <div style="width:1px;background:var(--border)"></div>
+
+        <div style="flex:1">
+          <label class="small">Iniciar con Google (simulado)</label>
+          <button id="googleBtn" class="btn" style="margin-top:8px">Continuar con Google (+10 GUA)</button>
+
+          <div style="height:12px"></div>
+
+          <label class="small">Entrar con .Nai</label>
+          <input id="loginAlias" class="input" placeholder="alias (con o sin .)"/>
+          <input id="loginPass" class="input" type="password" placeholder="Contraseña" style="margin-top:8px"/>
+          <button id="loginBtnAuth" class="btn" style="margin-top:8px">Entrar</button>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:12px">
+        <button id="closeAuth2" class="btn ghost">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload modal (detailed) -->
+  <div id="uploadModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-head"><div><h3>Subir video</h3></div><button class="close" id="closeUpload">✕</button></div>
+      <div style="margin-top:12px">
+        <input id="fileInput" type="file" accept="video/*,image/*" class="input"/>
+        <input id="titleInput" class="input" placeholder="Título" style="margin-top:8px"/>
+        <textarea id="descInput" class="input" rows="3" placeholder="Descripción" style="margin-top:8px"></textarea>
+        <input id="tagsInput" class="input" placeholder="Etiquetas (coma)" style="margin-top:8px"/>
+        <label style="margin-top:8px" class="small">¿Es tuyo?</label>
+        <select id="isOriginal" class="input">
+          <option value="yes">Sí</option>
+          <option value="no">No — insertar enlace</option>
+        </select>
+        <input id="originalLink" class="input" placeholder="Enlace original (si no es tuyo)" style="margin-top:8px;display:none"/>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+          <button id="publishBtn" class="btn primary">Publicar</button>
+          <button id="cancelUpload" class="btn">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Moderation panel -->
+  <div id="moderPanel" class="modal">
+    <div class="modal-card">
+      <div class="modal-head"><div><h3>Panel de Moderación</h3></div><button class="close" id="closeMod">✕</button></div>
+      <div style="margin-top:12px;max-height:60vh;overflow:auto">
+        <div id="modList" class="small"></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button id="modCloseBtn" class="btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+</div> <!-- .app -->
+
+<!-- ======= SCRIPT ======= -->
 <script>
-/* ---------------------------
-  Nai Nai — demo logic (localStorage)
-----------------------------*/
-const LS_USER = 'nai_demo_user_v2';
-const LS_FEED = 'nai_demo_feed_v2';
-const LS_ACCEPT = 'nai_demo_rules_accepted_v1';
+/* Nai Nai - Prototipo completo (local, demo)
+   Guarda estado en localStorage. No hay backend.
+*/
 
-// Utilities
-const $ = (s)=>document.querySelector(s);
-const $$ = (s)=>Array.from(document.querySelectorAll(s));
-const uid = (p='x')=> p + Math.floor(Math.random()*999999);
+/* ---------- Storage keys ---------- */
+const KEY_USER = 'nai_user_v3';
+const KEY_FEED = 'nai_feed_v3';
+const KEY_REPORTS = 'nai_reports_v3';
+const KEY_ACCEPTED = 'nai_rules_accepted_v3';
+const KEY_INVITER = 'nai_inviter_v3';
 
-// State
-let USER = null;
-let FEED = [];
-let REPORTS = [];
-
-// Initial demo feed if none
+/* ---------- Initial demo data ---------- */
 const DEMO_FEED = [
-  {id:uid('v'), title:'Pancakes express', author:'.cocina', tags:['Cocina'], desc:'Receta rápida', format:'horizontal', likes:0, likedBy:[], comments:[], gua:0, created:Date.now()},
-  {id:uid('v'), title:'Reacción épica torneo', author:'@reactor', tags:['Videoreacción','Gaming'], desc:'Mi reacción', format:'vertical', likes:0, likedBy:[], comments:[], gua:0, created:Date.now()-1000000},
+  { id: 'v1', title:'Pancakes express', author:'.cocina', tags:['Cocina'], desc:'Receta rápida y fácil', format:'horizontal', likes:12, likedBy:[], comments:[], gua:5, created: Date.now()-3600*1000 },
+  { id: 'v2', title:'Reacción al torneo', author:'@reactor', tags:['Videoreacción','Gaming'], desc:'Mi reacción al torneo', format:'vertical', likes:34, likedBy:[], comments:[], gua:12, created: Date.now()-7200*1000 },
+  { id: 'v3', title:'Mini tutorial JS', author:'.dev', tags:['Educativo','Explicativo'], desc:'Cómo funciona X', format:'horizontal', likes:8, likedBy:[], comments:[], gua:3, created: Date.now()-100000 },
 ];
 
-// Load / Save
-function save(){
-  localStorage.setItem(LS_USER, JSON.stringify(USER));
-  localStorage.setItem(LS_FEED, JSON.stringify(FEED));
-  localStorage.setItem('nai_reports_v1', JSON.stringify(REPORTS));
-}
-function load(){
-  USER = JSON.parse(localStorage.getItem(LS_USER)) || null;
-  FEED = JSON.parse(localStorage.getItem(LS_FEED)) || DEMO_FEED.slice();
-  REPORTS = JSON.parse(localStorage.getItem('nai_reports_v1')) || [];
-}
-load();
+/* ---------- Utilities ---------- */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const uid = (p='x') => p + Math.floor(Math.random()*999999);
+const now = () => Date.now();
 
-// UI Helpers
-function showModal(sel){ $(sel).classList.add('show'); }
-function hideModal(sel){ $(sel).classList.remove('show'); }
-function toast(msg){ const t=document.createElement('div'); t.textContent=msg; Object.assign(t.style,{position:'fixed',right:'18px',bottom:'18px',background:'linear-gradient(90deg,var(--accent),var(--accent2))',color:'#021018',padding:'10px 12px',borderRadius:'10px',zIndex:9999}); document.body.appendChild(t); setTimeout(()=>t.remove(),2200); }
+/* ---------- Load / Save ---------- */
+let USER = JSON.parse(localStorage.getItem(KEY_USER) || 'null');
+let FEED = JSON.parse(localStorage.getItem(KEY_FEED) || 'null') || DEMO_FEED.slice();
+let REPORTS = JSON.parse(localStorage.getItem(KEY_REPORTS) || '[]');
 
-// Auth & user
-function createNai(){
-  const alias = $('#naiAlias').value.trim();
-  const name = $('#naiName').value.trim() || alias;
-  const pass = $('#naiPass').value;
-  if(!alias || !pass){ alert('Alias y contraseña son obligatorios'); return; }
-  const account = '.' + alias.replace(/\s+/g,'').toLowerCase();
-  USER = {
-    id: uid('u'), displayName: name, accountNai: account, pass: pass, role:'Usuario', gua:10, tags:[], ghost:{like:'none',comment:'none',subscribe:'none',donate:'none',survey:'none',publicProfile:false,activityHidden:false}
-  };
-  save(); updateUI(); hideModal('#authModal'); toast('Cuenta creada: ' + account + ' — +10 GUA');
-}
-function googleSignIn(){
-  // simulated OAuth
-  const email = prompt('Email Google (simulado):');
-  if(!email) return;
-  USER = { id: uid('u'), displayName: email.split('@')[0], accountNai: '.nai-' + email.split('@')[0], pass: null, google: email, role:'Usuario', gua:10, tags:[], ghost:{like:'none',comment:'none',subscribe:'none',donate:'none',survey:'none',publicProfile:false,activityHidden:false} };
-  save(); updateUI(); hideModal('#authModal'); toast('Cuenta vinculada con Google — +10 GUA');
-}
-function loginNai(){
-  const alias = $('#loginAlias').value.trim();
-  const pass = $('#loginPass').value;
-  if(!alias || !pass){ alert('Ingresa alias y contraseña'); return; }
-  const account = alias.startsWith('.') ? alias : '.'+alias;
-  // simple check in localStorage: if USER matches account & pass
-  const u = JSON.parse(localStorage.getItem(LS_USER));
-  if(u && u.accountNai === account && u.pass === pass){ USER = u; save(); updateUI(); hideModal('#authModal'); toast('Bienvenido ' + USER.displayName); }
-  else alert('Cuenta no encontrada o contraseña incorrecta (demo solo valida cuenta local)');
-}
-function logout(){
-  USER = null; save(); updateUI(); toast('Has salido');
+function saveAll(){
+  localStorage.setItem(KEY_USER, JSON.stringify(USER));
+  localStorage.setItem(KEY_FEED, JSON.stringify(FEED));
+  localStorage.setItem(KEY_REPORTS, JSON.stringify(REPORTS));
 }
 
-// Rules acceptance
-function checkRules(){
-  if(!localStorage.getItem(LS_ACCEPT)){
-    showModal('#rulesModal');
-  } else {
-    hideModal('#rulesModal');
-  }
-}
-
-// Feed rendering
-function renderTags(){
-  const tags = ['Todas','Cocina','Videoreacción','Crítica','Informativo','Vlog','Gaming','Humor','Noticia','Educativo','Animación','Música'];
-  const bar = $('#tagbar'); bar.innerHTML='';
-  tags.forEach(t=>{
-    const b = document.createElement('button'); b.className='tag'; b.textContent=t;
-    b.addEventListener('click', ()=>{ $$('.tag').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderFeed(t==='Todas'?null:t); });
-    if(t==='Todas') b.classList.add('active');
-    bar.appendChild(b);
-  });
-}
-
-function renderFeed(filterTag=null){
-  const feed = $('#feed'); feed.innerHTML='';
-  const data = FEED.slice().sort((a,b)=>b.created - a.created);
-  data.forEach(item=>{
-    if(filterTag && !item.tags.includes(filterTag)) return;
-    const tpl = document.getElementById('videoTpl').content.cloneNode(true);
-    const card = tpl.querySelector('.card');
-    card.querySelector('.thumb').textContent = item.tags.length ? item.tags[0] : 'VIDEO';
-    card.querySelector('.title').textContent = item.title;
-    card.querySelector('.author').textContent = item.author;
-    card.querySelector('.tags').textContent = item.tags.map(t=>'#'+t).join(' ');
-    card.querySelector('.vGua').textContent = item.gua || 0;
-
-    const likeBtn = card.querySelector('.likeBtn');
-    const likeCount = card.querySelector('.likeCount');
-    likeCount.textContent = item.likes || 0;
-    // mark liked?
-    if(USER && item.likedBy && item.likedBy.includes(USER.accountNai || USER.id)) likeBtn.classList.add('primary');
-
-    likeBtn.addEventListener('click', ()=> toggleLike(item, likeBtn, likeCount, card));
-    card.querySelector('.commentOpen').addEventListener('click', ()=> toggleComments(card, item));
-    card.querySelector('.postComment').addEventListener('click', ()=> postComment(card, item));
-    card.querySelector('.commentCount').textContent = item.comments ? item.comments.length : 0;
-    card.querySelector('.reportBtn').addEventListener('click', ()=> report(item));
-
-    // populate comments
-    const commentList = card.querySelector('.comment-list');
-    (item.comments||[]).forEach(c=>{
-      const el = document.createElement('div'); el.className='comment';
-      el.innerHTML = `<div class="meta small-muted">${c.by} · ${new Date(c.at).toLocaleString()}</div><div>${c.text}</div>`;
-      commentList.appendChild(el);
-    });
-
-    feed.appendChild(tpl);
-  });
-}
-
-// Like logic with ghost
-function toggleLike(item, btn, countEl, card){
-  if(!USER){ 
+/* ---------- Helpers: GUA, roles, achievements ---------- */
+const ACHIEVEMENTS = {
+  'subidor-5day': {name:'Subidor (5 vídeos)', desc:'Sube 5 vídeos', img:''},
+  'video-rate': {name:'Rate (video)', desc:'Tener un vídeo con rate'},
+  'video-featured': {name:'Featured (video)', desc:'Tener un vídeo featured'},
+  'acco
