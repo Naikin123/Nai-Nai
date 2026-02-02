@@ -1,92 +1,253 @@
-<div class="menu-container">
-  
-  <h1>Ajustes de Cuenta</h1>
-  
-  <ul>
-    <li>Etiquetas</li>
-    <li>Nombre de Usuario</li>
-    <li>Foto de Perfil</li>
-    <li>Cuenta .Nai</li>
-    <li>Cuenta Google</li>
-    <li>Reglas</li>
-    <li>Roles</li>
-    <li>Rangos</li>
-    <li>Logros</li>
-    <li>Tus Vídeos</li>
-    <li>Historial</li>
-    <li>Configuración Avanzada</li>
-    <li>Guardar</li>
-  </ul>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bienvenido a Nai Nai — Reglas</title>
+  <style>
+    /* Estilos mínimos para legibilidad (opcional dentro de HTML) */
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; line-height:1.45; padding:24px; color:#111; background:#fafafa; }
+    h1,h2,h3 { margin:0 0 12px 0; }
+    section { margin-bottom:18px; background:#fff; padding:16px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+    ol, ul { margin:8px 0 8px 20px; }
+    .muted { color:#555; font-size:0.95rem; }
+    .buttons { display:flex; gap:12px; margin-top:12px; }
+    button { padding:10px 16px; border-radius:6px; border:1px solid #ccc; background:#fff; cursor:pointer; }
+    details summary { cursor:pointer; font-weight:600; margin-bottom:8px; }
+    .small { font-size:0.92rem; color:#444; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bienvenido a Nai Nai</h1>
+    <p class="muted">Lee las reglas de la comunidad antes de usar la aplicación.</p>
+  </header>
 
-  <hr>
+  <main>
+    <section aria-labelledby="reglas">
+      <h2 id="reglas">Reglas de la comunidad</h2>
+      <ol>
+        <li>
+          <strong>Contenido:</strong>
+          No se permite contenido +18, salvo cuando sea claramente educativo o humorístico (usar etiquetas <em>educativo</em> o <em>humor</em>). Si no se etiqueta correctamente, se aplicarán sanciones de GUA.
+        </li>
+        <li>
+          <strong>Sistema GUA:</strong>
+          El GUA mide la confianza dentro de la comunidad. Si llegas a 0, tu cuenta queda en modo lectura (acceso restringido) por tiempo indefinido. Se obtiene GUA siendo responsable y contribuyendo al crecimiento de la comunidad.
+        </li>
+        <li>
+          <strong>Monetización:</strong>
+          Puedes ganar dinero ayudando a crecer la app. Al registrarte, se te pedirá quién te invitó. El fraude en este sistema conlleva la pérdida de funciones y sanciones.
+        </li>
+        <li>
+          <strong>Modo incógnito (modo fantasma):</strong>
+          El uso indebido del modo incógnito provocará la revocación del acceso a esa función.
+        </li>
+        <li>
+          <strong>Transparencia:</strong>
+          Aunque uses modo incógnito, los administradores y el creador podrán ver tu identidad real cuando sea necesario para garantizar la seguridad.
+        </li>
+        <li>
+          <strong>Jerarquía de roles:</strong>
+          Los roles y sus requisitos están definidos más abajo. Cada rol tiene responsabilidades y privilegios específicos.
+        </li>
+        <li>
+          <strong>Rates y visibilidad:</strong>
+          Si cumples las políticas, tu contenido puede recibir más visibilidad: Rate (más vistas), Featured o el sello de Certificado (aplica a videos y perfiles).
+        </li>
+        <li>
+          <strong>Acceso a reglas:</strong>
+          Puedes consultar siempre las reglas desde tu perfil, sección "Reglas".
+        </li>
+        <li>
+          <strong>Actualizaciones:</strong>
+          Aceptas que las políticas pueden cambiar en el futuro. Revisa las actualizaciones periódicamente.
+        </li>
+      </ol>
+    </section>
 
-  <h1>Reglas Avanzadas y Privacidad</h1>
-  
-  <ul>
-    <li>
-      <strong>Visibilidad del Tiempo de Actividad:</strong> Opción para mostrar a otros tu tiempo en la aplicación. 
-      <em>(Nota: Desactivarlo no afecta el progreso para el rol de Gestionador. Los Administradores, el Creador y los Amigos siempre podrán ver tu actividad).</em>
-    </li>
-    
-    <li>
-      <strong>Filtros de Contenido Personalizados:</strong> Configurar la prioridad de visualización para contenido con etiquetas específicas.
-    </li>
-    
-    <li>
-      <strong>Control de Comentarios por GUA:</strong> Ajustar el nivel mínimo de GUA requerido para que un usuario pueda comentar en tus videos (ajustable individualmente por video).
-    </li>
-    
-    <li>
-      <strong>Filtro de Palabras Prohibidas:</strong> Lista personal de términos bloqueados. Los comentarios que contengan estas palabras se mostrarán como: <em>(palabra prohibida)</em>.
-    </li>
-    
-    <li>Selección de Calidad de Video.</li>
-    
-    <li>
-      <strong>Restablecer Intereses:</strong> Opción para reiniciar las preferencias del algoritmo de recomendación desde cero.
-    </li>
-    
-    <li>
-      <strong>Prioridad de Etiquetas:</strong> Selección de 3 etiquetas para visualización prioritaria en el feed.
-    </li>
-  </ul>
+    <section aria-labelledby="gua">
+      <h2 id="gua">Ganar y perder GUA</h2>
 
-  <h3>Privacidad de Interacciones</h3>
-  <p>Configura si deseas mostrar tu Foto de Perfil y Nombre/Cuenta .Nai al realizar las siguientes acciones:</p>
-  
-  <ul>
-    <li>Al dar "Me gusta" (Like).</li>
-    <li>Al comentar.</li>
-    <li>Al responder a un comentario.</li>
-    <li>Al suscribirse.</li>
-    <li>Al participar en una encuesta.</li>
-    <li>Al visualizar un video.</li>
-    <li>Al visitar tu perfil (cuando alguien accede a tu cuenta).</li>
-  </ul>
+      <h3>Cómo ganar GUA</h3>
+      <ul>
+        <li><strong>Reporte justificado:</strong> +2 GUA cuando reportas correctamente un video o usuario que incumple las reglas (spam, odio sin etiqueta de humor, +18 no etiquetado, etc.).</li>
+        <li><strong>Resolución de encuestas:</strong> +1 GUA por responder encuestas de recomendación de video.</li>
+        <li><strong>Registro verificado:</strong> +10 GUA por registrarte con una cuenta Gmail y +10 GUA por registrarte con una cuenta .Nai.</li>
+        <li><strong>Guía de nuevos usuarios:</strong> +2 GUA por ayudar a un usuario nuevo en comentarios (válido si el nuevo marca la respuesta como "Útil").</li>
+        <li><strong>Productividad de rol:</strong> Puedes ganar GUA adicional según tu productividad y cumplimiento en el rol asignado.</li>
+      </ul>
 
-  <h3>Visualización de Estatus</h3>
-  
-  <ul>
-    <li>Mostrar mi Rol.</li>
-    <li>Mostrar mi Rango.</li>
-    <li>Selección de Logros visibles (gestionable también desde la sección de Logros).</li>
-  </ul>
+      <h3>Cómo perder GUA</h3>
+      <ul>
+        <li><strong>Reporte injustificado:</strong> -3 a -30 GUA según gravedad (leve -3, normal -7, grave -15, súper grave -30).</li>
+        <li><strong>Etiquetas incorrectas en videos:</strong> -5 GUA.</li>
+        <li><strong>Etiquetas incorrectas en comentarios:</strong> -2 GUA.</li>
+        <li><strong>Spam de comentarios:</strong> -3 GUA por repetir mensajes o usar bots. Si se usa la etiqueta <em>humor</em> en una noticia importante, puede reducir la sanción, pero no exime la responsabilidad.</li>
+        <li><strong>Fingir identidades:</strong> -15 GUA por suplantación en videos o comentarios.</li>
+        <li><strong>Evasión de filtros:</strong> -8 GUA por intentar eludir filtros usando símbolos (por ejemplo h4ck3r).</li>
+        <li><strong>Contenido +18 “oculto”:</strong> -25 GUA por subir material prohibido intentando engañar al sistema.</li>
+        <li><strong>Falsa alarma de bug:</strong> -5 GUA por reportar un error inexistente para llamar la atención.</li>
+        <li><strong>Reclamación de nombre injustificada:</strong> -10 GUA por reclamar un nombre de usuario sin base real.</li>
+        <li><strong>Nombre inapropiado:</strong> -15 GUA por usar un nombre ofensivo en perfil, cuenta .Nai, videos, etc.</li>
+      </ul>
+    </section>
 
-  <h3>Preferencias de Visualización (Interfaz)</h3>
-  
-  <ul>
-    <li>
-      <strong>Etiquetas de Usuarios:</strong> Seleccionar qué etiquetas de otros usuarios deseas ver de manera prioritaria.
-    </li>
-    <li>
-      <strong>Logros de Usuarios:</strong> Seleccionar qué logros de otros usuarios deseas ver de manera prioritaria.
-    </li>
-    <li>
-      <strong>Rol de Usuario:</strong> Mostrar el rol de otros usuarios <em>(No visible si el usuario desactivó esta opción).</em>
-    </li>
-    <li>
-      <strong>Rango de Usuario:</strong> Mostrar el rango de otros usuarios <em>(No visible si el usuario desactivó esta opción).</em>
-    </li>
-  </ul>
+    <section aria-labelledby="monetizacion">
+      <h2 id="monetizacion">Monetización</h2>
+      <p class="small">Actualmente los pagos directos de Nai Nai no están activos hasta que la app crezca. Cuando estén disponibles, te notificaremos.</p>
 
-</div>
+      <ol>
+        <li>
+          <strong>Cobro por referencias:</strong>
+          Puedes recibir dinero si un usuario pone tu cuenta .Nai o Gmail como destinatario. Ambas cuentas (quien dona y quien recibe) deben estar registradas y verificadas. Solo puedes añadir hasta 3 personas por mes. Para evitar fraudes, se harán preguntas de verificación a dos de las personas registradas (las preguntas las realizará el creador junto con los administradores).
+        </li>
+        <li>
+          <strong>Donaciones:</strong>
+          Cualquier usuario, registrado o no, puede donar a otro usuario.
+        </li>
+        <li>
+          <strong>Incentivos por rol:</strong>
+          También puedes ganar dinero si desempeñas bien tu rol y eres elegible según las políticas.
+        </li>
+      </ol>
+
+      <p class="small">Si se detecta que una persona se donó dinero a sí misma, se le retirarán todas las ganancias y perderá acceso permanente a Nai Nai (permaban).</p>
+    </section>
+
+    <section aria-labelledby="roles">
+      <h2 id="roles">Roles</h2>
+
+      <h3>Definición y requisitos</h3>
+      <ul>
+        <li>
+          <strong>Ayudador:</strong> Requisitos: 5 reportes responsables, 3 ideas de mejora, 3 bugs reportados, 1 día de actividad en Nai Nai.<br />
+          Funciones: Priorizar reportes, alertar a roles mayores y notificar a usuarios permitidos por admins/creador.
+        </li>
+        <li>
+          <strong>Gestionador:</strong> Requisitos: 10 reportes responsables, 5 ideas, 3 errores reportados, haber sido Ayudador activo.<br />
+          Funciones: Re-etiquetar videos y comentarios.
+        </li>
+        <li>
+          <strong>Moderador:</strong> Requisitos: 30 reportes responsables, sin reportes graves, GUA ≥ 100, al menos 10 días en Nai Nai.<br />
+          Funciones: Resolver conflictos, eliminar contenido prohibido, sancionar, quitar GUA y borrar comentarios.
+        </li>
+        <li>
+          <strong>Administrador:</strong> Otorgado por confianza directa del creador.<br />
+          Funciones: Supervisar moderadores, gestionar casos delicados, banear por IP/dispositivo (permaban), ver identidad real de usuarios en modo incógnito, validar pagos y recompensas, borrar contenido y nombrar nuevos Ayudadores/Gestionadores.
+        </li>
+        <li>
+          <strong>Amigo:</strong> Otorgado por ser amigo del creador.<br />
+          Funciones: Recomendar ascensos y, en ciertos casos, otorgar Rate, Featured y Certificado; realizar tareas de los roles anteriores.
+        </li>
+      </ul>
+
+      <p class="small">Salvo el rol de Amigo, todos los roles pueden ser otorgados por el Creador, los Admins o los Amigos si el usuario demuestra absoluta confianza.</p>
+
+      <p class="small">Desde <em>Configuración avanzada</em>, puedes elegir mostrar u ocultar la medalla de rol en tu perfil. La pérdida de rol puede ocurrir por un reporte "Súper Grave" o una fuerte caída de GUA; los usuarios serán notificados de cualquier cambio.</p>
+    </section>
+
+    <section aria-labelledby="rangos">
+      <h2 id="rangos">Rangos</h2>
+
+      <h3>Usuario</h3>
+      <p class="small">Se obtiene al entrar como invitado o al crear una cuenta (.Nai o Google). Puede ver videos, dar like, comentar, suscribirse, subir videos, usar etiquetas, participar en encuestas y usar modo fantasma. Monetización sujeta a revisión.</p>
+
+      <h3>Subidor</h3>
+      <p class="small">Usuario enfocado en crear contenido. Requisitos: subir videos correctamente etiquetados, buen comportamiento y sin reportes graves. Beneficios: estadísticas básicas, posibilidad de monetizar tras revisión humana y aparecer en recomendaciones.</p>
+
+      <h3>Usuario verificado</h3>
+      <p class="small">Requisitos: historial limpio, uso correcto de etiquetas, contenido constante y revisión humana con identidad válida. Beneficios: prioridad en recomendaciones, sello de verificación, acceso a funciones beta y mayor participación en decisiones comunitarias.</p>
+
+      <h3>Socio</h3>
+      <p class="small">Para creadores que viven de la app o son figuras clave. Requisitos: Creador verificado, comunidad activa y entrevista con un Admin. Beneficios: retiros exprés, soporte directo (botón para hablar con Moderador), personalización de perfil (GIFs y fondos animados) y mención en "Socios Destacados".</p>
+
+      <h3>Leyenda</h3>
+      <p class="small">Rango exclusivo para pilares de la app. Requisitos: ser Socio por más de 1 año, al menos 10 ideas implementadas y cero sanciones graves.</p>
+
+      <h3>Antiguo</h3>
+      <p class="small">Se obtiene por ser de los primeros usuarios en la app. Beneficio: mayor recomendación si activa la opción.</p>
+    </section>
+
+    <section aria-labelledby="logros">
+      <h2 id="logros">Logros</h2>
+
+      <h3>Categoría: Justicia (Moderación y orden)</h3>
+      <ul>
+        <li><strong>Ojo de halcón:</strong> 5 reportes responsables.</li>
+        <li><strong>El Pacificador:</strong> Resolver 10 conflictos en comentarios sin escalada a Admin.</li>
+        <li><strong>Cazador de errores:</strong> Reportar un bug válido.</li>
+        <li><strong>Etiquetador perfecto:</strong> Subir 10 videos sin que cambien tus etiquetas.</li>
+      </ul>
+
+      <h3>Categoría: Creador (Contenido y calidad)</h3>
+      <ul>
+        <li><strong>Primer certificado:</strong> Primer video certificado por Admin o Amigo.</li>
+        <li><strong>Te lo ganaste:</strong> Primer video certificado por el creador.</li>
+        <li><strong>Bendecido:</strong> 5 videos certificados.</li>
+        <li><strong>En llamas / en fuego / volcán / etc.:</strong> Logros por cantidad de videos Featured o Rate (niveles crecientes).</li>
+      </ul>
+
+      <h3>Categoría: Economía (Dinero y GUA)</h3>
+      <ul>
+        <li><strong>Caritativo:</strong> Realizar tu primera donación.</li>
+        <li><strong>Caritativo avanzado:</strong> Donar a 5 usuarios.</li>
+        <li><strong>Imán de oro:</strong> Recibir 10 donaciones.</li>
+        <li><strong>Ahorrador extremo:</strong> Llegar a 500 GUA sin sanciones.</li>
+        <li><strong>Importante:</strong> Que 3 personas pongan tu nombre de usuario para recibir dinero desde Nai Nai.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="cuenta">
+      <h2 id="cuenta">Cuenta y comunidad</h2>
+      <ul>
+        <li>Aura en llamas: tener Rate en tu cuenta.</li>
+        <li>Ardido: tener Featured en tu cuenta.</li>
+        <li>Bank: tener Certificado en tu cuenta.</li>
+        <li>Registro: haberte registrado con Gmail o .Nai.</li>
+        <li>Comentarios con rate y certificados: logros por interacción.</li>
+        <li>Ayudando: ayudar a 5 usuarios (marcar como útil).</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="etiquetas">
+      <h2 id="etiquetas">Etiquetas y ajustes</h2>
+      <p class="small">Etiquetas claras y veraces son obligatorias. Ajustes disponibles en tu cuenta:</p>
+
+      <ul>
+        <li>Ajustes de cuenta: nombre de usuario, foto de perfil, cuenta .Nai, cuenta Google.</li>
+        <li>Reglas, roles, rangos, logros, etiquetas, tus vídeos, historial, configuración avanzada.</li>
+      </ul>
+    </section>
+
+    <details id="detalles">
+      <summary>Reglas avanzadas</summary>
+      <section>
+        <h3>Visibilidad del tiempo de actividad</h3>
+        <p class="small">Puedes elegir mostrar u ocultar cuánto tiempo pasas en la app. Desactivarlo no afecta el progreso para el rol de Gestionador. Administradores, el creador y Amigos pueden ver tu tiempo de actividad.</p>
+
+        <h3>Filtros y preferencias</h3>
+        <ul>
+          <li>Filtros de contenido personalizados: prioriza etiquetas que prefieras ver.</li>
+          <li>Control de comentarios por GUA: define el mínimo de GUA requerido para comentar en tus videos.</li>
+          <li>Filtro de palabras prohibidas: crea una lista de palabras que no quieres ver; los comentarios con esas palabras se marcarán como "(palabra prohibida)".</li>
+          <li>Seleccionar calidad de reproducción de videos.</li>
+        </ul>
+
+        <h3>Algoritmo y privacidad</h3>
+        <ul>
+          <li>Reinicio de intereses: botón para limpiar las preferencias que el algoritmo asoció a tu cuenta y empezar de cero.</li>
+          <li>Prioridad de etiquetas: elige 3 etiquetas que siempre quieres ver primero.</li>
+          <li>Opciones para mostrar u ocultar tu foto de perfil, nombre (.Nai) y rol en acciones como dar like, comentar, responder, suscribirse, hacer encuestas o ver videos.</li>
+          <li>Seleccionar qué logros, etiquetas, rol y rango mostrar públicamente (si el otro usuario no lo ocultó).</li>
+        </ul>
+      </section>
+    </details>
+
+    <div class="buttons" role="group" aria-label="Acciones">
+      <button type="button">Aceptar</button>
+      <button type="button">Leer más</button>
+    </div>
+  </main>
+</body>
+</html>
